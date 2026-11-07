@@ -1,15 +1,19 @@
-# Showcase walkthrough
+# V2.1 showcase walkthrough
 
-## A two-minute narrative
+## The narrative
 
-A fictional broker submits 10,000 NOVA shares at $42.75. Manager allocations total 9,900 shares. The workbench surfaces the mismatch instead of advancing the trade. Correct the allocation, affirm the synthetic instruction, and attempt settlement. Insufficient inventory produces a failed attempt with evidence. Provision the synthetic balances, retry successfully, and reconcile a matching statement. The audit timeline preserves both failure and recovery.
+A fictional broker submits 10,000 NOVA shares at $42.75. The manager independently submits $42.80 and fund allocations of 6,000 and 3,900 against a declared trade quantity of 10,000. The exact-match policy exposes PRICE_MISMATCH and ALLOCATION_TOTAL_MISMATCH separately.
 
-## Evidence to publish
+Inspect the side-by-side terms and ask the local AI investigator to explain the supplied breaks. Revise the manager submission to $42.75 and allocations of 6,000 and 4,000. The trade becomes MATCHED; broker terms remain unchanged and revision one remains visible. Affirm, attempt settlement without capacity, provision fictional balances, retry and reconcile a generated matching statement.
 
-Use the automated browser journey to capture the actual interface and trace. Include the architecture diagram and CI result in a website case study. Explain the duplicate and concurrent-settlement tests alongside the screenshots: attractive UI alone does not establish correctness. Report measured run results with their environment; do not invent throughput, reliability, or coverage percentages.
+Then demonstrate a manually entered broker trade and a separately entered manager submission through the responsive forms. Search and filter the blotter to find the result.
 
-The demo button creates real local records. The reconciliation button explicitly uses a generated matching statement; use the API to demonstrate missing and mismatched statement records. All counterparties, securities, balances, and instructions are fictional.
+## Reproduction and evidence
 
-## Publishing boundaries
+`PYTHONPATH=src python3 scripts/capture_matching.py` records the deterministic two-sided scenario and correction. Add `--ai` for one real local inference; model output and citation checks are recorded separately. Live examples are not a model-quality benchmark. The browser journey writes `two-sided-exception.png`, `desktop.png`, `mobile.png`, `mobile-submission.png` and `journey.zip`. With `SETTLEMENTLAB_TEST_LOCAL_AI=1`, it also captures local AI in the console.
 
-The source and recorded screenshots are suitable showcase materials. The unauthenticated loopback server is not a public website backend. Before interactive hosting, add identity, participant isolation, rate and resource limits, controlled resets, and deployment-specific security review. A static website case study can link to the repository and recorded demonstration immediately.
+Use matching records, screenshots, and CI results in the website case study. Explain the concurrency, replay and migration checks alongside the interface. Do not invent throughput, coverage, accuracy or production-readiness claims. Historical V1 evidence remains clearly separate.
+
+## Deployment boundary
+
+The existing website presents recorded synthetic evidence. The local application performs the actual workflow and inference. Its unauthenticated loopback API must not be presented as a public multi-participant service. Identity, participant isolation, approvals, resource limits and deployment-specific security controls are future work.

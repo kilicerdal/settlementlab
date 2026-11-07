@@ -35,3 +35,11 @@ Official interface references: https://docs.ollama.com/api/chat and https://docs
 `docs/evidence/local-ai-allocation.json` records a real qwen2.5:3b response for a quantity mismatch. The first-pass capture is retained separately because it discussed funding before affirmation; stage-specific evidence in prompt v2 addresses that observation. The revised output still contains speculative causal language and requires operator review. These are a few examples, not an accuracy claim.
 
 Run `PYTHONPATH=src python3 scripts/evaluate_local_ai.py` for opt-in live cash/inventory examples. Run the browser journey with `SETTLEMENTLAB_TEST_LOCAL_AI=1` to include an actual local-model request and capture `artifacts/local-ai.png`. Default CI never requires Ollama.
+
+## V2.1 matching evidence
+
+Prompt `triage-v4` receives the matching policy identity, rules applicable to current breaks, and explicit break facts such as `break:price_cents` and `break:allocation_total`. Each break has expected/observed values and a rule ID. Only supplied breaks should be explained; the model must not infer an allocation-total break by comparing allocations to the broker when the applicable rule compares them to manager quantity. Prices in evidence are integer cents.
+
+`PYTHONPATH=src python3 scripts/capture_matching.py --ai` records a two-sided price/allocation example and verifies that analysis did not mutate the trade. The capture reports whether both break references were cited. These checks measure reference presence and mutation boundaries; they do not establish causal correctness. Prior V1 captures retain their original prompt versions.
+
+The first V2.1 model capture is retained with a failed human review: it confused manager/broker quantities and invented tolerance language. The revised prompt supplies only relevant break context. This is why reference validation is tested separately from semantic review.

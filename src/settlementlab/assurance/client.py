@@ -30,3 +30,6 @@ class SettlementClient:
 
     def command(self, trade, action, **data):
         return self.request('/api/trades/%s/%s' % (trade['id'],action),dict(version=trade['version'],**data))
+
+    def submit_manager(self, trade, terms, key):
+        return self.request('/api/trades/%s/manager' % trade['id'], dict(terms,version=trade['version']), key)

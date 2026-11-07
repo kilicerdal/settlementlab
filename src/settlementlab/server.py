@@ -28,7 +28,10 @@ def handler(ledger, triage=None):
 
         def do_GET(self):
             if self.path == "/api/health":
-                return self.reply(200, {"status": "healthy", "version": "1.0.0", "ai_enabled": triage.enabled})
+                return self.reply(200, {"status": "healthy", "version": "2.1.0", "ai_enabled": triage.enabled})
+            if self.path == '/api/matching-policy':
+                from .matching import policy_description
+                return self.reply(200, policy_description())
             if self.path == "/api/snapshot":
                 return self.reply(200, ledger.snapshot())
             assets = {"/": ("index.html", "text/html; charset=utf-8"), "/app.js": ("app.js", "text/javascript"), "/style.css": ("style.css", "text/css")}
@@ -63,6 +66,8 @@ def handler(ledger, triage=None):
                             return self.reply(200, triage.analyze(evidence))
                         finally:
                             ai_slots.release()
+                    if parts[3] == 'manager':
+                        data['submission_key'] = self.headers.get('Idempotency-Key')
                     return self.reply(200, ledger.command(parts[2], parts[3], data))
                 raise DomainError("Not found", 404)
             except DomainError as error:

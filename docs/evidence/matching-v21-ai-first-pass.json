@@ -1,0 +1,356 @@
+{
+  "version": "2.1.0",
+  "generated_at": "2026-11-07T06:33:04.732332+00:00",
+  "origin": "recorded-local-execution",
+  "source_commit": "2359379db84e38cb503748a432159b2ad449998a",
+  "source_state": "working-tree",
+  "model_calls": 1,
+  "broker": {
+    "id": "SL-000001",
+    "request_key": "capture-broker",
+    "fingerprint": "{\"currency\": \"USD\", \"matching_mode\": \"two-sided\", \"price_cents\": 4275, \"quantity\": 10000, \"settlement_date\": \"2026-11-09\", \"side\": \"BUY\", \"symbol\": \"NOVA\", \"trade_date\": \"2026-11-06\"}",
+    "symbol": "NOVA",
+    "quantity": 10000,
+    "price_cents": 4275,
+    "trade_date": "2026-11-06",
+    "settlement_date": "2026-11-09",
+    "state": "RECEIVED",
+    "version": 1,
+    "allocations": "[]",
+    "instruction": null,
+    "reason": null,
+    "cash_cents": 0,
+    "securities": 0,
+    "side": "BUY",
+    "currency": "USD",
+    "matching_mode": "two-sided",
+    "matching_result": "{}",
+    "manager_submission": null,
+    "submission_history": [],
+    "matching": {}
+  },
+  "exception": {
+    "id": "SL-000001",
+    "request_key": "capture-broker",
+    "fingerprint": "{\"currency\": \"USD\", \"matching_mode\": \"two-sided\", \"price_cents\": 4275, \"quantity\": 10000, \"settlement_date\": \"2026-11-09\", \"side\": \"BUY\", \"symbol\": \"NOVA\", \"trade_date\": \"2026-11-06\"}",
+    "symbol": "NOVA",
+    "quantity": 10000,
+    "price_cents": 4275,
+    "trade_date": "2026-11-06",
+    "settlement_date": "2026-11-09",
+    "state": "EXCEPTION",
+    "version": 2,
+    "allocations": "[{\"account\": \"SYN-ALPHA\", \"quantity\": 6000}, {\"account\": \"SYN-BETA\", \"quantity\": 3900}]",
+    "instruction": null,
+    "reason": "Price cents differs between broker and manager; Allocations do not sum to the manager declared quantity",
+    "cash_cents": 0,
+    "securities": 0,
+    "side": "BUY",
+    "currency": "USD",
+    "matching_mode": "two-sided",
+    "matching_result": "{\"policy\": \"equity-exact-v1\", \"status\": \"EXCEPTION\", \"compared_fields\": 7, \"findings\": [{\"field\": \"price_cents\", \"code\": \"PRICE_MISMATCH\", \"rule_id\": \"equity-exact-v1:PRICE\", \"expected\": 4275, \"observed\": 4280, \"message\": \"Price cents differs between broker and manager\"}, {\"field\": \"allocation_total\", \"code\": \"ALLOCATION_TOTAL_MISMATCH\", \"rule_id\": \"equity-exact-v1:ALLOCATION_TOTAL\", \"expected\": 10000, \"observed\": 9900, \"message\": \"Allocations do not sum to the manager declared quantity\"}]}",
+    "manager_submission": {
+      "symbol": "NOVA",
+      "side": "BUY",
+      "currency": "USD",
+      "quantity": 10000,
+      "price_cents": 4280,
+      "trade_date": "2026-11-06",
+      "settlement_date": "2026-11-09",
+      "allocations": [
+        {
+          "account": "SYN-ALPHA",
+          "quantity": 6000
+        },
+        {
+          "account": "SYN-BETA",
+          "quantity": 3900
+        }
+      ]
+    },
+    "submission_history": [
+      {
+        "revision": 1,
+        "timestamp": "2026-11-07T06:32:58.941345+00:00",
+        "terms": {
+          "symbol": "NOVA",
+          "side": "BUY",
+          "currency": "USD",
+          "quantity": 10000,
+          "price_cents": 4280,
+          "trade_date": "2026-11-06",
+          "settlement_date": "2026-11-09",
+          "allocations": [
+            {
+              "account": "SYN-ALPHA",
+              "quantity": 6000
+            },
+            {
+              "account": "SYN-BETA",
+              "quantity": 3900
+            }
+          ]
+        }
+      }
+    ],
+    "matching": {
+      "policy": "equity-exact-v1",
+      "status": "EXCEPTION",
+      "compared_fields": 7,
+      "findings": [
+        {
+          "field": "price_cents",
+          "code": "PRICE_MISMATCH",
+          "rule_id": "equity-exact-v1:PRICE",
+          "expected": 4275,
+          "observed": 4280,
+          "message": "Price cents differs between broker and manager"
+        },
+        {
+          "field": "allocation_total",
+          "code": "ALLOCATION_TOTAL_MISMATCH",
+          "rule_id": "equity-exact-v1:ALLOCATION_TOTAL",
+          "expected": 10000,
+          "observed": 9900,
+          "message": "Allocations do not sum to the manager declared quantity"
+        }
+      ]
+    }
+  },
+  "corrected": {
+    "id": "SL-000001",
+    "request_key": "capture-broker",
+    "fingerprint": "{\"currency\": \"USD\", \"matching_mode\": \"two-sided\", \"price_cents\": 4275, \"quantity\": 10000, \"settlement_date\": \"2026-11-09\", \"side\": \"BUY\", \"symbol\": \"NOVA\", \"trade_date\": \"2026-11-06\"}",
+    "symbol": "NOVA",
+    "quantity": 10000,
+    "price_cents": 4275,
+    "trade_date": "2026-11-06",
+    "settlement_date": "2026-11-09",
+    "state": "MATCHED",
+    "version": 3,
+    "allocations": "[{\"account\": \"SYN-ALPHA\", \"quantity\": 6000}, {\"account\": \"SYN-BETA\", \"quantity\": 4000}]",
+    "instruction": null,
+    "reason": null,
+    "cash_cents": 0,
+    "securities": 0,
+    "side": "BUY",
+    "currency": "USD",
+    "matching_mode": "two-sided",
+    "matching_result": "{\"policy\": \"equity-exact-v1\", \"status\": \"MATCHED\", \"compared_fields\": 7, \"findings\": []}",
+    "manager_submission": {
+      "symbol": "NOVA",
+      "side": "BUY",
+      "currency": "USD",
+      "quantity": 10000,
+      "price_cents": 4275,
+      "trade_date": "2026-11-06",
+      "settlement_date": "2026-11-09",
+      "allocations": [
+        {
+          "account": "SYN-ALPHA",
+          "quantity": 6000
+        },
+        {
+          "account": "SYN-BETA",
+          "quantity": 4000
+        }
+      ]
+    },
+    "submission_history": [
+      {
+        "revision": 1,
+        "timestamp": "2026-11-07T06:32:58.941345+00:00",
+        "terms": {
+          "symbol": "NOVA",
+          "side": "BUY",
+          "currency": "USD",
+          "quantity": 10000,
+          "price_cents": 4280,
+          "trade_date": "2026-11-06",
+          "settlement_date": "2026-11-09",
+          "allocations": [
+            {
+              "account": "SYN-ALPHA",
+              "quantity": 6000
+            },
+            {
+              "account": "SYN-BETA",
+              "quantity": 3900
+            }
+          ]
+        }
+      },
+      {
+        "revision": 2,
+        "timestamp": "2026-11-07T06:33:04.730148+00:00",
+        "terms": {
+          "symbol": "NOVA",
+          "side": "BUY",
+          "currency": "USD",
+          "quantity": 10000,
+          "price_cents": 4275,
+          "trade_date": "2026-11-06",
+          "settlement_date": "2026-11-09",
+          "allocations": [
+            {
+              "account": "SYN-ALPHA",
+              "quantity": 6000
+            },
+            {
+              "account": "SYN-BETA",
+              "quantity": 4000
+            }
+          ]
+        }
+      }
+    ],
+    "matching": {
+      "policy": "equity-exact-v1",
+      "status": "MATCHED",
+      "compared_fields": 7,
+      "findings": []
+    }
+  },
+  "analysis": {
+    "provider": "ollama-local",
+    "model": "qwen2.5:3b",
+    "mode": "live-model",
+    "prompt_version": "triage-v3",
+    "advisory_only": true,
+    "trade_id": "SL-000001",
+    "trade_version": 2,
+    "analysis": {
+      "summary": "The trade is in an EXCEPTION state due to two discrepancies: a PRICE_MISMATCH and an ALLOCATION_TOTAL_MISMATCH. The broker quantity is 10,000, while the allocation_total is 9,900. The price_cents are 4,275 (expected) and 4,280 (observed). The policy used is equity-exact-v1, which requires exact equality for all fields including allocation_total. The manager submitted a quantity of 10,000, which does not match the broker quantity or the allocation_total. The trade is in a state where further investigation is needed to understand the cause of these discrepancies. ",
+      "likely_cause": "The discrepancy in allocation_total suggests that the manager's quantity submission did not match the broker's quantity, despite the policy requiring exact equality. The price_cents difference is within a reasonable range and does not explain the allocation_total mismatch. The trade is in an EXCEPTION state, indicating that the quantities do not align with the policy requirements. Further review is recommended to understand the cause of the allocation_total mismatch and to ensure the trade is correctly submitted and allocated. ",
+      "next_step": "An investigation should be conducted to review the manager's allocation submission and the broker's quantity to identify the cause of the allocation_total mismatch. The trade should not be automatically settled or funded until the underlying cause is determined and resolved. ",
+      "evidence_ids": [
+        "fact:broker_quantity",
+        "fact:allocation_total",
+        "break:price_cents",
+        "break:allocation_total"
+      ],
+      "uncertainty": "The exact cause of the allocation_total mismatch is unknown, but it is likely related to the manager's submission of a quantity that does not match the broker's quantity or the allocation_total. The price_cents difference is within a reasonable range and does not explain the allocation_total discrepancy. "
+    },
+    "evidence": {
+      "trade_id": "SL-000001",
+      "trade_version": 2,
+      "facts": [
+        {
+          "id": "fact:state",
+          "name": "state",
+          "value": "EXCEPTION"
+        },
+        {
+          "id": "fact:broker_quantity",
+          "name": "broker_quantity",
+          "value": 10000
+        },
+        {
+          "id": "fact:allocation_total",
+          "name": "allocation_total",
+          "value": 9900
+        },
+        {
+          "id": "fact:matching_policy",
+          "name": "matching_policy",
+          "value": {
+            "id": "equity-exact-v1",
+            "version": 1,
+            "scope": "Synthetic USD equities; no FX or tolerance bands",
+            "side_convention": "Both submissions use the investment manager economic BUY/SELL perspective",
+            "rules": [
+              {
+                "id": "equity-exact-v1:SECURITY",
+                "field": "symbol",
+                "comparison": "exact equality"
+              },
+              {
+                "id": "equity-exact-v1:SIDE",
+                "field": "side",
+                "comparison": "exact equality"
+              },
+              {
+                "id": "equity-exact-v1:QUANTITY",
+                "field": "quantity",
+                "comparison": "exact equality"
+              },
+              {
+                "id": "equity-exact-v1:PRICE",
+                "field": "price_cents",
+                "comparison": "exact equality"
+              },
+              {
+                "id": "equity-exact-v1:CURRENCY",
+                "field": "currency",
+                "comparison": "exact equality"
+              },
+              {
+                "id": "equity-exact-v1:TRADE_DATE",
+                "field": "trade_date",
+                "comparison": "exact equality"
+              },
+              {
+                "id": "equity-exact-v1:SETTLEMENT_DATE",
+                "field": "settlement_date",
+                "comparison": "exact equality"
+              },
+              {
+                "id": "equity-exact-v1:ALLOCATION_TOTAL",
+                "field": "allocation_total",
+                "comparison": "sum equals manager quantity"
+              }
+            ]
+          }
+        },
+        {
+          "id": "fact:manager_quantity",
+          "name": "manager_quantity",
+          "value": 10000
+        },
+        {
+          "id": "break:price_cents",
+          "name": "PRICE_MISMATCH",
+          "value": {
+            "expected": 4275,
+            "observed": 4280,
+            "rule_id": "equity-exact-v1:PRICE"
+          }
+        },
+        {
+          "id": "break:allocation_total",
+          "name": "ALLOCATION_TOTAL_MISMATCH",
+          "value": {
+            "expected": 10000,
+            "observed": 9900,
+            "rule_id": "equity-exact-v1:ALLOCATION_TOTAL"
+          }
+        }
+      ],
+      "events": [
+        {
+          "id": "event:1",
+          "action": "TRADE_RECEIVED"
+        },
+        {
+          "id": "event:2",
+          "action": "MANAGER_SUBMITTED"
+        }
+      ]
+    }
+  },
+  "checks": {
+    "broker_preserved": true,
+    "revision_history_preserved": true,
+    "ai_did_not_mutate": true,
+    "both_discrepancies_cited": true
+  },
+  "scope": "One synthetic example; contract and reference validation do not establish model accuracy",
+  "review": {
+    "passed": false,
+    "issues": [
+      "Model incorrectly claimed broker and manager declared quantities differ; both are 10000.",
+      "Model introduced unsupported reasonable-range language despite zero tolerance."
+    ],
+    "action": "Narrow the matching context to explicit breaks and their applicable rules."
+  }
+}

@@ -1,5 +1,16 @@
 # Changelog
 
+## 2.1.0 — Independent matching, first V2 increment
+
+- Independent broker/manager terms with exact matching across seven fields and a separate manager allocation-total rule.
+- Versioned policy, structured findings, preserved manager revisions, and idempotent submission replay.
+- Additive V1 database migration and backward-compatible allocation-only mode; no bypass into two-sided matching.
+- Operator forms, side-by-side comparison, discrepancy cards, scoped audit timeline, revision history, search and filters.
+- Local AI receives policy definitions and explicit break facts; no paid API requirement.
+- Matching/concurrency/migration/HTTP controls plus mobile manual-submission browser coverage.
+
+Shared participant balances, authentication and approval roles remain later V2 increments.
+
 ## 1.0.0 — Initial local showcase
 
 - Optional read-only AI triage with structured output, evidence references, and explicit provider configuration.

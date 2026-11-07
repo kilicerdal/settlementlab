@@ -1,0 +1,229 @@
+{
+  "version": "2.1.0",
+  "generated_at": "2026-11-07T06:35:54.308331+00:00",
+  "origin": "recorded-local-execution",
+  "source_commit": "2359379db84e38cb503748a432159b2ad449998a",
+  "source_state": "working-tree",
+  "source_hashes": {
+    "src/settlementlab/server.py": "55e1b3bc2cc5467af02d7aead4a828c736f55a312e684af3d41c934f07cc81b3",
+    "src/settlementlab/domain.py": "eee689ad00a3eac7da51cc6a23fb7797a15c7e4c7fe9837c70b9eac967e3ac94",
+    "src/settlementlab/ai.py": "ec10f9da3ec0a9785e750286c31a86cabdf29875b81a726768d291c2fac5fd04",
+    "src/settlementlab/__init__.py": "81e6cc7fc7a7933816fc9c2ea24f3b8337cca2a8e95c0da11cfe5c5f9b6fb08a",
+    "src/settlementlab/matching.py": "0ccd0969ea4057333b4b67eda42245bdde63aa08bd7d7af2006f53cd28fb601c",
+    "src/settlementlab/validation.py": "3f58668d46b42994b9012088e80eb0e7d17088ccd6b5ee8131cf125a82b88ab0"
+  },
+  "model_calls": 0,
+  "broker": {
+    "id": "SL-000001",
+    "request_key": "capture-broker",
+    "fingerprint": "{\"currency\": \"USD\", \"matching_mode\": \"two-sided\", \"price_cents\": 4275, \"quantity\": 10000, \"settlement_date\": \"2026-11-09\", \"side\": \"BUY\", \"symbol\": \"NOVA\", \"trade_date\": \"2026-11-06\"}",
+    "symbol": "NOVA",
+    "quantity": 10000,
+    "price_cents": 4275,
+    "trade_date": "2026-11-06",
+    "settlement_date": "2026-11-09",
+    "state": "RECEIVED",
+    "version": 1,
+    "allocations": "[]",
+    "instruction": null,
+    "reason": null,
+    "cash_cents": 0,
+    "securities": 0,
+    "side": "BUY",
+    "currency": "USD",
+    "matching_mode": "two-sided",
+    "matching_result": "{}",
+    "manager_submission": null,
+    "submission_history": [],
+    "matching": {}
+  },
+  "exception": {
+    "id": "SL-000001",
+    "request_key": "capture-broker",
+    "fingerprint": "{\"currency\": \"USD\", \"matching_mode\": \"two-sided\", \"price_cents\": 4275, \"quantity\": 10000, \"settlement_date\": \"2026-11-09\", \"side\": \"BUY\", \"symbol\": \"NOVA\", \"trade_date\": \"2026-11-06\"}",
+    "symbol": "NOVA",
+    "quantity": 10000,
+    "price_cents": 4275,
+    "trade_date": "2026-11-06",
+    "settlement_date": "2026-11-09",
+    "state": "EXCEPTION",
+    "version": 2,
+    "allocations": "[{\"account\": \"SYN-ALPHA\", \"quantity\": 6000}, {\"account\": \"SYN-BETA\", \"quantity\": 3900}]",
+    "instruction": null,
+    "reason": "Price cents differs between broker and manager; Allocations do not sum to the manager declared quantity",
+    "cash_cents": 0,
+    "securities": 0,
+    "side": "BUY",
+    "currency": "USD",
+    "matching_mode": "two-sided",
+    "matching_result": "{\"policy\": \"equity-exact-v1\", \"status\": \"EXCEPTION\", \"compared_fields\": 7, \"findings\": [{\"field\": \"price_cents\", \"code\": \"PRICE_MISMATCH\", \"rule_id\": \"equity-exact-v1:PRICE\", \"expected\": 4275, \"observed\": 4280, \"message\": \"Price cents differs between broker and manager\"}, {\"field\": \"allocation_total\", \"code\": \"ALLOCATION_TOTAL_MISMATCH\", \"rule_id\": \"equity-exact-v1:ALLOCATION_TOTAL\", \"expected\": 10000, \"observed\": 9900, \"message\": \"Allocations do not sum to the manager declared quantity\"}]}",
+    "manager_submission": {
+      "symbol": "NOVA",
+      "side": "BUY",
+      "currency": "USD",
+      "quantity": 10000,
+      "price_cents": 4280,
+      "trade_date": "2026-11-06",
+      "settlement_date": "2026-11-09",
+      "allocations": [
+        {
+          "account": "SYN-ALPHA",
+          "quantity": 6000
+        },
+        {
+          "account": "SYN-BETA",
+          "quantity": 3900
+        }
+      ]
+    },
+    "submission_history": [
+      {
+        "revision": 1,
+        "timestamp": "2026-11-07T06:35:54.306546+00:00",
+        "terms": {
+          "symbol": "NOVA",
+          "side": "BUY",
+          "currency": "USD",
+          "quantity": 10000,
+          "price_cents": 4280,
+          "trade_date": "2026-11-06",
+          "settlement_date": "2026-11-09",
+          "allocations": [
+            {
+              "account": "SYN-ALPHA",
+              "quantity": 6000
+            },
+            {
+              "account": "SYN-BETA",
+              "quantity": 3900
+            }
+          ]
+        }
+      }
+    ],
+    "matching": {
+      "policy": "equity-exact-v1",
+      "status": "EXCEPTION",
+      "compared_fields": 7,
+      "findings": [
+        {
+          "field": "price_cents",
+          "code": "PRICE_MISMATCH",
+          "rule_id": "equity-exact-v1:PRICE",
+          "expected": 4275,
+          "observed": 4280,
+          "message": "Price cents differs between broker and manager"
+        },
+        {
+          "field": "allocation_total",
+          "code": "ALLOCATION_TOTAL_MISMATCH",
+          "rule_id": "equity-exact-v1:ALLOCATION_TOTAL",
+          "expected": 10000,
+          "observed": 9900,
+          "message": "Allocations do not sum to the manager declared quantity"
+        }
+      ]
+    }
+  },
+  "corrected": {
+    "id": "SL-000001",
+    "request_key": "capture-broker",
+    "fingerprint": "{\"currency\": \"USD\", \"matching_mode\": \"two-sided\", \"price_cents\": 4275, \"quantity\": 10000, \"settlement_date\": \"2026-11-09\", \"side\": \"BUY\", \"symbol\": \"NOVA\", \"trade_date\": \"2026-11-06\"}",
+    "symbol": "NOVA",
+    "quantity": 10000,
+    "price_cents": 4275,
+    "trade_date": "2026-11-06",
+    "settlement_date": "2026-11-09",
+    "state": "MATCHED",
+    "version": 3,
+    "allocations": "[{\"account\": \"SYN-ALPHA\", \"quantity\": 6000}, {\"account\": \"SYN-BETA\", \"quantity\": 4000}]",
+    "instruction": null,
+    "reason": null,
+    "cash_cents": 0,
+    "securities": 0,
+    "side": "BUY",
+    "currency": "USD",
+    "matching_mode": "two-sided",
+    "matching_result": "{\"policy\": \"equity-exact-v1\", \"status\": \"MATCHED\", \"compared_fields\": 7, \"findings\": []}",
+    "manager_submission": {
+      "symbol": "NOVA",
+      "side": "BUY",
+      "currency": "USD",
+      "quantity": 10000,
+      "price_cents": 4275,
+      "trade_date": "2026-11-06",
+      "settlement_date": "2026-11-09",
+      "allocations": [
+        {
+          "account": "SYN-ALPHA",
+          "quantity": 6000
+        },
+        {
+          "account": "SYN-BETA",
+          "quantity": 4000
+        }
+      ]
+    },
+    "submission_history": [
+      {
+        "revision": 1,
+        "timestamp": "2026-11-07T06:35:54.306546+00:00",
+        "terms": {
+          "symbol": "NOVA",
+          "side": "BUY",
+          "currency": "USD",
+          "quantity": 10000,
+          "price_cents": 4280,
+          "trade_date": "2026-11-06",
+          "settlement_date": "2026-11-09",
+          "allocations": [
+            {
+              "account": "SYN-ALPHA",
+              "quantity": 6000
+            },
+            {
+              "account": "SYN-BETA",
+              "quantity": 3900
+            }
+          ]
+        }
+      },
+      {
+        "revision": 2,
+        "timestamp": "2026-11-07T06:35:54.307750+00:00",
+        "terms": {
+          "symbol": "NOVA",
+          "side": "BUY",
+          "currency": "USD",
+          "quantity": 10000,
+          "price_cents": 4275,
+          "trade_date": "2026-11-06",
+          "settlement_date": "2026-11-09",
+          "allocations": [
+            {
+              "account": "SYN-ALPHA",
+              "quantity": 6000
+            },
+            {
+              "account": "SYN-BETA",
+              "quantity": 4000
+            }
+          ]
+        }
+      }
+    ],
+    "matching": {
+      "policy": "equity-exact-v1",
+      "status": "MATCHED",
+      "compared_fields": 7,
+      "findings": []
+    }
+  },
+  "analysis": null,
+  "checks": {
+    "broker_preserved": true,
+    "revision_history_preserved": true,
+    "ai_did_not_mutate": true
+  },
+  "scope": "One synthetic example; contract and reference validation do not establish model accuracy"
+}

@@ -59,3 +59,20 @@ class HTTPTests(unittest.TestCase):
             self.client.request('/api/trades/'+t['id']+'/analyze',{'version':t['version']})
         self.assertEqual(error.exception.status,503)
         self.assertEqual(self.client.request('/api/snapshot'),before)
+
+    def test_two_sided_http_submission_revision_and_replay(self):
+        broker=dict(symbol='NOVA',side='BUY',currency='USD',quantity=100,price='42.75',
+                    trade_date='2026-11-06',settlement_date='2026-11-09')
+        t=self.client.create(dict(broker,matching_mode='two-sided'),'http-two-sided')
+        manager=dict(broker,price='42.76',allocations=[dict(account='SYN-A',quantity=100)])
+        broken=self.client.submit_manager(t,manager,'manager-initial')
+        self.assertEqual(broken['matching']['findings'][0]['code'],'PRICE_MISMATCH')
+        self.assertEqual(broken['price_cents'],4275)
+        fixed=self.client.submit_manager(broken,dict(manager,price='42.75'),'manager-corrected')
+        self.assertEqual(fixed['state'],'MATCHED')
+        replay=self.client.submit_manager(t,manager,'manager-initial')
+        self.assertEqual(replay,broken)
+        self.assertEqual(self.client.request('/api/snapshot')['trades'][0]['version'],fixed['version'])
+        policy=self.client.request('/api/matching-policy')
+        self.assertEqual(policy['id'],'equity-exact-v1')
+        self.assertEqual(len(policy['rules']),8)

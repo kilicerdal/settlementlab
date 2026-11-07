@@ -2,41 +2,8 @@
 import json
 import sqlite3
 from contextlib import contextmanager
-from datetime import datetime, timedelta, date, timezone
-from decimal import Decimal, InvalidOperation
-
-
-class DomainError(Exception):
-    def __init__(self, message, status=422):
-        super().__init__(message)
-        self.status = status
-
-
-def cents(value):
-    try:
-        amount = Decimal(str(value))
-        if not amount.is_finite() or amount <= 0 or amount.as_tuple().exponent < -2:
-            raise ValueError()
-        result = int(amount * 100)
-        if result > 10**12:
-            raise ValueError()
-        return result
-    except (InvalidOperation, ValueError, TypeError):
-        raise DomainError("Price must be positive, at most two decimal places, and within limits")
-
-
-def positive_int(value):
-    if isinstance(value, bool) or not isinstance(value, int) or not 0 < value <= 10**9:
-        raise DomainError("Quantity must be an integer between 1 and 1,000,000,000")
-    return value
-
-
-def next_business_day(value):
-    """V1 calendar: weekdays only; no exchange holiday assumptions."""
-    day = date.fromisoformat(value) + timedelta(days=1)
-    while day.weekday() > 4:
-        day += timedelta(days=1)
-    return day.isoformat()
+from datetime import datetime, timezone
+from .validation import DomainError, cents, positive_int, next_business_day
 
 
 class Ledger:
@@ -59,6 +26,23 @@ class Ledger:
               trade_id TEXT PRIMARY KEY REFERENCES trades(id), quantity INTEGER NOT NULL,
               amount_cents INTEGER NOT NULL);
             ''')
+            db.execute("BEGIN IMMEDIATE")
+            # Additive, repeatable migration: existing allocation-only trades retain their contract.
+            columns = {row['name'] for row in db.execute('PRAGMA table_info(trades)')}
+            for name, declaration in (
+                ('side', "TEXT NOT NULL DEFAULT 'BUY'"),
+                ('currency', "TEXT NOT NULL DEFAULT 'USD'"),
+                ('matching_mode', "TEXT NOT NULL DEFAULT 'allocation-only'"),
+                ('matching_result', "TEXT NOT NULL DEFAULT '{}'"),
+            ):
+                if name not in columns:
+                    db.execute('ALTER TABLE trades ADD COLUMN '+name+' '+declaration)
+            db.execute('''CREATE TABLE IF NOT EXISTS manager_submissions (
+              id INTEGER PRIMARY KEY AUTOINCREMENT, trade_id TEXT NOT NULL REFERENCES trades(id),
+              revision INTEGER NOT NULL, submission_key TEXT NOT NULL, fingerprint TEXT NOT NULL,
+              payload TEXT NOT NULL, timestamp TEXT NOT NULL, result TEXT NOT NULL,
+              UNIQUE(trade_id, revision), UNIQUE(trade_id, submission_key))''')
+            db.execute('PRAGMA user_version=2')
 
     @contextmanager
     def connection(self):
@@ -83,40 +67,51 @@ class Ledger:
         row = db.execute("SELECT * FROM trades WHERE id=?", (trade_id,)).fetchone()
         if row is None:
             raise DomainError("Trade not found", 404)
-        return dict(row)
+        trade = dict(row)
+        history = [dict(r) for r in db.execute(
+            'SELECT revision,payload,timestamp FROM manager_submissions WHERE trade_id=? ORDER BY revision', (trade_id,))]
+        trade['manager_submission'] = json.loads(history[-1]['payload']) if history else None
+        trade['submission_history'] = [dict(revision=r['revision'], timestamp=r['timestamp'],
+                                             terms=json.loads(r['payload'])) for r in history]
+        trade['matching'] = json.loads(trade['matching_result'])
+        return trade
 
     def create(self, data, key, actor="broker"):
         if not isinstance(key, str) or not 1 <= len(key) <= 120:
             raise DomainError("An Idempotency-Key of 1–120 characters is required")
-        symbol = data.get("symbol", "")
-        if not isinstance(symbol, str) or not symbol.isascii() or not symbol.isalnum() or not 1 <= len(symbol) <= 12:
-            raise DomainError("Symbol must contain 1–12 ASCII letters or digits")
-        quantity = positive_int(data.get("quantity"))
-        price = cents(data.get("price"))
-        if quantity * price > 10**18:
-            raise DomainError("Trade notional exceeds simulation limits")
-        try:
-            trade_date = date.fromisoformat(data["trade_date"]).isoformat()
-            settlement_date = next_business_day(trade_date)
-        except (KeyError, TypeError, ValueError, OverflowError):
-            raise DomainError("trade_date must be an ISO date")
-        fingerprint = json.dumps([symbol.upper(), quantity, price, trade_date])
+        from .matching import normalize_terms
+        mode = data.get('matching_mode', 'allocation-only')
+        if mode not in ('allocation-only', 'two-sided'):
+            raise DomainError('matching_mode must be allocation-only or two-sided')
+        terms = normalize_terms(data, complete=mode == 'two-sided')
+        if terms['currency'] != 'USD':
+            raise DomainError('V2.1 broker trades support USD only; no FX conversion is simulated')
+        symbol, quantity, price = terms['symbol'], terms['quantity'], terms['price_cents']
+        trade_date, settlement_date = terms['trade_date'], terms['settlement_date']
+        fingerprint = json.dumps(dict(terms, matching_mode=mode), sort_keys=True)
         with self.connection() as db:
             existing = db.execute("SELECT * FROM trades WHERE request_key=?", (key,)).fetchone()
             if existing:
-                if existing["fingerprint"] != fingerprint:
+                legacy_fingerprint = json.dumps([symbol, quantity, price, trade_date])
+                legacy_replay = (mode == 'allocation-only' and terms['side'] == 'BUY'
+                                 and existing['fingerprint'] == legacy_fingerprint)
+                if existing["fingerprint"] != fingerprint and not legacy_replay:
                     raise DomainError("Idempotency key already used for a different submission", 409)
-                return dict(existing)
+                return self.get(db, existing["id"])
             number = db.execute("SELECT COUNT(*) FROM trades").fetchone()[0] + 1
             trade_id = "SL-%06d" % number
             db.execute('''INSERT INTO trades(id,request_key,fingerprint,symbol,quantity,price_cents,
                        trade_date,settlement_date,state) VALUES (?,?,?,?,?,?,?,?,?)''',
                        (trade_id, key, fingerprint, symbol.upper(), quantity, price, trade_date,
                         settlement_date, "RECEIVED"))
+            db.execute('UPDATE trades SET side=?,currency=?,matching_mode=? WHERE id=?',
+                       (terms['side'],terms['currency'],mode,trade_id))
             self.event(db, trade_id, actor, "TRADE_RECEIVED", "Broker submission accepted")
             return self.get(db, trade_id)
 
     def command(self, trade_id, action, data, actor="operator"):
+        if action == 'manager':
+            return self.submit_manager(trade_id, data)
         with self.connection() as db:
             trade = self.get(db, trade_id)
             version = data.get("version")
@@ -124,6 +119,8 @@ class Ledger:
                 raise DomainError("Stale or missing version; refresh before updating", 409)
             state = trade["state"]
             if action == "allocate":
+                if trade['matching_mode'] == 'two-sided':
+                    raise DomainError('Two-sided trades require an independent manager submission', 409)
                 if state not in ("RECEIVED", "EXCEPTION", "MATCHED"):
                     raise DomainError("Allocations cannot change after affirmation", 409)
                 allocations = data.get("allocations")
@@ -178,7 +175,7 @@ class Ledger:
 
     def snapshot(self):
         with self.connection() as db:
-            trades = [dict(r) for r in db.execute("SELECT * FROM trades ORDER BY id DESC")]
+            trades = [self.get(db, r["id"]) for r in db.execute("SELECT id FROM trades ORDER BY id DESC").fetchall()]
             audit = [dict(r) for r in db.execute("SELECT * FROM audit ORDER BY seq DESC LIMIT 100")]
             return {"trades": trades, "audit": audit}
 
@@ -216,3 +213,40 @@ class Ledger:
                 raise DomainError("Stale or missing version; refresh before analysis", 409)
             events = [dict(r) for r in db.execute("SELECT * FROM audit WHERE trade_id=? ORDER BY seq", (trade_id,))]
             return build_evidence(trade, events)
+
+    def submit_manager(self, trade_id, data):
+        from .matching import normalize_terms, normalize_allocations, compare
+        key = data.get('submission_key')
+        if not isinstance(key, str) or not 1 <= len(key) <= 120:
+            raise DomainError('Manager submissions require an Idempotency-Key of 1–120 characters')
+        manager = normalize_terms(data)
+        manager['allocations'] = normalize_allocations(data.get('allocations'))
+        fingerprint = json.dumps(manager, sort_keys=True)
+        with self.connection() as db:
+            trade = self.get(db, trade_id)
+            if trade['matching_mode'] != 'two-sided':
+                raise DomainError('Manager submissions require a two-sided trade', 409)
+            previous = db.execute('SELECT fingerprint,result FROM manager_submissions WHERE trade_id=? AND submission_key=?', (trade_id,key)).fetchone()
+            if previous:
+                if previous['fingerprint'] != fingerprint:
+                    raise DomainError('Manager key already used for different terms', 409)
+                return json.loads(previous['result'])
+            version = data.get('version')
+            if isinstance(version, bool) or not isinstance(version, int) or version != trade['version']:
+                raise DomainError('Stale or missing version; refresh before submitting', 409)
+            if trade['state'] not in ('RECEIVED','EXCEPTION','MATCHED'):
+                raise DomainError('Manager terms are locked after affirmation', 409)
+            report = compare(trade, manager)
+            reason = '; '.join(f['message'] for f in report['findings']) or None
+            revision = len(trade['submission_history']) + 1
+            timestamp = datetime.now(timezone.utc).isoformat()
+            db.execute('UPDATE trades SET allocations=?,matching_result=?,state=?,reason=?,version=version+1 WHERE id=?',
+                       (json.dumps(manager['allocations']),json.dumps(report),report['status'],reason,trade_id))
+            db.execute('INSERT INTO manager_submissions(trade_id,revision,submission_key,fingerprint,payload,timestamp,result) VALUES (?,?,?,?,?,?,?)',
+                       (trade_id,revision,key,fingerprint,json.dumps(manager),timestamp,'{}'))
+            self.event(db,trade_id,'investment-manager','MANAGER_SUBMITTED',
+                       'Revision %s · %s · %s discrepancy(s) · %s' % (revision,report['status'],len(report['findings']),report['policy']))
+            result = self.get(db,trade_id)
+            db.execute('UPDATE manager_submissions SET result=? WHERE trade_id=? AND submission_key=?',
+                       (json.dumps(result),trade_id,key))
+            return result

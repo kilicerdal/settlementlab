@@ -1,14 +1,14 @@
 # SettlementLab
 
-**Every trade. Accounted for.**
+**Confidence starts with the match.**
 
 [![Settlement assurance](https://github.com/kilicerdal/settlementlab/actions/workflows/assurance.yml/badge.svg)](https://github.com/kilicerdal/settlementlab/actions/workflows/assurance.yml)
 
-An independent post-trade simulator and Python assurance framework. Follow a synthetic equity trade from allocation breaks through affirmation, failed settlement, recovery, and reconciliation. The operations console displays live persisted records and their audit history.
+SettlementLab is an independent post-trade simulator and Python assurance framework. V2.1 introduces separate broker and investment-manager submissions, a versioned matching policy, field-level exception investigation, preserved revisions, and free local AI triage. Follow a synthetic trade through correction, affirmation, settlement failure, recovery, and reconciliation.
 
-![SettlementLab operations console](docs/images/operations-desktop.png)
+![V2.1 two-sided matching workspace](docs/images/matching-v21.png)
 
-## Run locally
+## Run the workbench
 
 Python 3.9+; the application and core tests have **zero third-party dependencies**.
 
@@ -16,17 +16,39 @@ Python 3.9+; the application and core tests have **zero third-party dependencies
 PYTHONPATH=src python3 -m settlementlab.server
 ```
 
-Open http://127.0.0.1:8080 and select **Run showcase scenario**. Inspect the exception, match the allocation, affirm instructions, attempt settlement, provision demo balances, retry, and reconcile. The scenario creates a new synthetic trade each time. Data persists in `settlementlab.db`; use `--db /tmp/demo.db` for a separate environment.
+Open http://127.0.0.1:8080. Select **Run showcase scenario** for independently submitted terms with a price mismatch and an allocation-total mismatch. Use **Revise manager submission**, change the price to `42.75`, and make the fund allocations sum to `10000`. Submit the revision, affirm, attempt settlement, provision synthetic balances, retry, and reconcile.
 
-Alternatively, install the package with `python3 -m pip install .`, then run `settlementlab`. Static console assets are bundled with the distribution.
+Alternatively, use **Submit broker trade** and enter your own fictional terms, then **Submit manager terms** separately. Manager fields are not silently filled from the broker record. The explicit **Load broker terms for review** action copies them for review without committing a submission.
 
-## Verify
+Data persists in `settlementlab.db`. Use `--db /tmp/demo.db` for a separate environment and `--port 8082` for another port. Install with `python3 -m pip install .` to use the `settlementlab` command; console assets are bundled in the package.
+
+## What V2.1 adds
+
+- Seven independently compared trade fields: security, economic side, quantity, price, currency, trade date, and settlement date.
+- A separate check that fund allocations sum to the manager's declared quantity.
+- Versioned, inspectable `equity-exact-v1` policy with exact equality and zero price tolerance.
+- Structured discrepancy records: expected/observed values, field, code, and rule identity.
+- Immutable-through-the-application manager revision history; corrections never overwrite broker terms.
+- Idempotent manager submissions, conflicting-payload rejection, and stale-write protection.
+- A matching console with search, status filters, submission forms, side-by-side comparison, and scoped audit history.
+- Stage-specific local AI evidence with matching rules and discrepancy references.
+- Additive migration for V1 databases, which retain their allocation-only workflow.
+
+## Free local AI
+
+Run Ollama locally with `qwen2.5:3b` installed, then select **Analyze exception with AI**. No API key, paid service, cloud account, or automatic model download is required. The adapter calls only the loopback Ollama endpoint. Set `SETTLEMENTLAB_MODEL` to another installed model or an empty string to disable AI.
+
+AI explains supplied evidence, cites fact/break IDs, and suggests investigation. It has no tools to approve, fund, or settle trades. Structured output and reference validation do not establish factual accuracy; review the explanation. See [AI setup and evaluation scope](docs/AI.md).
+
+## Verify the framework
 
 ```sh
 PYTHONPATH=src python3 -m unittest discover -s tests -v
 ```
 
-Optional browser assurance (keep the local server running):
+Core controls cover arithmetic, all matching fields, malformed submissions, migration, replay after correction, concurrent submissions, stale updates, lifecycle guards, rollback, settlement once-only behavior, and reconciliation. HTTP tests run against a real temporary TCP server and database. AI contract tests use injected responses and make no model calls.
+
+Browser assurance (start the application separately):
 
 ```sh
 python3 -m venv .venv
@@ -35,49 +57,35 @@ python3 -m venv .venv
 .venv/bin/python tests/browser_smoke.py
 ```
 
-Browser evidence is written to `artifacts/desktop.png`, `artifacts/mobile.png`, and `artifacts/journey.zip`. Open the trace with `python -m playwright show-trace artifacts/journey.zip`. CI runs core controls on two Python versions and the full Chromium journey, uploading evidence.
+The browser journey corrects two matching breaks, completes settlement recovery and reconciliation, then creates independent broker/manager submissions through mobile forms and checks filters. It captures desktop/mobile screenshots and a trace under `artifacts/`. Set `SETTLEMENTLAB_URL` for another environment. Opt into a real local-model browser check with `SETTLEMENTLAB_TEST_LOCAL_AI=1`; CI never requires Ollama.
 
-## Engineering controls
+CI runs Python 3.9/3.13 controls, verifies the installed package and CLI, and executes Chromium with uploaded failure evidence.
 
-- Integer cents and validated decimal inputs; no floating-point settlement calculations.
-- Request idempotency with conflicting-payload rejection.
-- Optimistic versions prevent stale operator updates.
-- SQLite write transactions atomically persist lifecycle changes and audit events.
-- A unique settlement record and guarded transitions prevent repeated settlement.
-- Concurrency tests exercise competing submissions and settlement attempts.
-- Statement reconciliation detects missing records and value mismatches.
-- Parameterized SQL and DOM text rendering protect input boundaries.
-
-## AI-assisted exception analysis
-
-The console can request read-only AI triage with evidence citations. AI runs locally through Ollama using `qwen2.5:3b` by default. Start Ollama and run `ollama pull qwen2.5:3b` if needed, then use **Analyze exception with AI**. No API key or paid service is required. Override `SETTLEMENTLAB_MODEL` to select another installed model, or set it to an empty string to disable AI. If the model is unavailable, the console reports the error; it never presents fixtures as live AI. See [AI setup, data boundaries, and evaluation scope](docs/AI.md).
-
-![Actual local AI analysis in the operations console](docs/images/local-ai.png)
-
-## API example
+## Inspect the contract
 
 ```sh
 curl http://127.0.0.1:8080/api/trades \
-  -H 'Content-Type: application/json' -H 'Idempotency-Key: example-001' \
-  -d '{"symbol":"NOVA","quantity":100,"price":"42.75","trade_date":"2026-11-06"}'
+  -H 'Content-Type: application/json' -H 'Idempotency-Key: broker-example' \
+  -d '{"matching_mode":"two-sided","symbol":"NOVA","side":"BUY","currency":"USD","quantity":100,"price":"42.75","trade_date":"2026-11-06","settlement_date":"2026-11-09"}'
 ```
 
-See [API contract](docs/API.md), [architecture](docs/ARCHITECTURE.md), and [showcase guide](docs/SHOWCASE.md).
+See [API contract](docs/API.md), [matching policy](docs/MATCHING.md), [architecture](docs/ARCHITECTURE.md), and [showcase guide](docs/SHOWCASE.md). The `SettlementClient` assurance adapter supports independent submissions without browser interaction.
 
-## Explicit version-one boundaries
+## Reproduce recorded evidence
 
-This is a local educational simulator with fictional trades, not a trading venue, custodian, or production settlement service. Matching currently checks allocation totals against a broker trade; independent two-sided field matching is a future extension. Settlement is an explicit operator action and is not date-gated. The T+1 date uses weekdays only, without holiday handling. Cash and securities are provisioned per trade, not a participant-level double-entry ledger. Instructions are synthetic references validated by prefix, not a reference-data service. Audit events are transactional but not tamper-proof.
+```sh
+PYTHONPATH=src python3 scripts/capture_matching.py
+PYTHONPATH=src python3 scripts/capture_matching.py --ai
+```
 
-The server binds to loopback and has no login, participant isolation, or approval roles. Do not expose it to a network or use real financial data. Reconciliation compares a supplied statement to internal settlements; the console generates a matching synthetic statement, while the API and tests also exercise breaks. No background queue or external market integration is claimed.
+The first command is deterministic and makes zero model calls. The second adds one real local inference. Captures distinguish their origin and source state. V1 lifecycle and model captures remain in `docs/evidence/` as historical examples.
 
-## Recorded showcase evidence
+## Current boundaries and upgrade
 
-Run `PYTHONPATH=src python3 scripts/capture_showcase.py` to capture seven genuine lifecycle stages and reconciliation in `docs/evidence/settlement-journey.json`. This deterministic capture makes zero model calls.
+V2.1 is the first V2 increment, not the complete V2 roadmap. Broker trades use USD and fixed prices with two decimal places. Other recognized manager currencies are accepted for discrepancy detection, not FX settlement. Both sides use the investment manager economic BUY/SELL perspective. Settlement dates are compared as submitted; market holidays, eligibility, cutoffs, and date-gated settlement are not simulated. Legacy trades derive the next weekday; new two-sided submissions provide explicit dates.
 
-## Next increments
+Balances remain trade-scoped, not a participant-level double-entry ledger. Instructions are synthetic references. Workflow participant labels are not authenticated roles: login, participant isolation, and maker/checker controls are not implemented. Audit and revision records are transactional but not tamper-proof. The loopback server is for synthetic local demonstrations, not public API hosting. AI inference is local; the website presents recorded evidence.
 
-1. Independent broker/manager submissions and field-level matching rules.
-2. Identity, participant authorization, and maker/checker approvals.
-3. PostgreSQL, migrations, a shared double-entry ledger, and durable event processing.
-4. Reference-data versioning, holiday calendars, and a controlled business clock.
-5. Measured performance, accessibility, and broader browser coverage.
+Existing databases migrate additively on startup; back up the database first. Existing V1 records retain `allocation-only` mode. API requests that omit `matching_mode` also use that legacy contract for compatibility; the new console always creates `two-sided` trades. Two-sided trades cannot bypass matching through the legacy allocation endpoint. Manager terms lock after affirmation.
+
+Next: shared participant ledger, identity and approval controls, controlled business calendars, durable processing, and broader AI evaluation.

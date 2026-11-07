@@ -2,7 +2,7 @@
 
 Policy ID: `equity-exact-v1`. This is a project-defined simulation policy, not an external market specification.
 
-Both participants independently submit the same economic perspective: BUY means the investment manager buys. The broker side is not automatically inverted. Broker terms are immutable in V2.1. Manager corrections are new revisions.
+Both participants independently submit the same economic perspective: BUY means the investment manager buys. The broker side is not automatically inverted. Broker terms remain unchanged through the application. Manager corrections are new revisions.
 
 | Rule suffix | Comparison |
 |---|---|
@@ -21,4 +21,4 @@ For example, broker quantity 100 and manager quantity 99 with allocations totali
 
 The manager must provide every term; omitted values are rejected rather than inferred from the broker. Symbol case is normalized and allocation accounts are trimmed and sorted. Duplicate accounts after trimming are rejected. Keys are scoped to a trade. An identical normalized manager replay returns the original response without a new revision or audit event, even after later corrections. A changed payload under that key conflicts. New submissions require the current trade version and an open pre-affirmation state.
 
-The full active rule set is available at `GET /api/matching-policy`. Tolerances, alternative policies, reference-data matching and market calendars require explicit future versions.
+The full active rule set is available at `GET /api/matching-policy`. Tolerances, alternative policies, reference-data matching and official market calendar integration require explicit future versions. Shared-ledger date eligibility already uses a separate pinned project calendar; it does not change these matching comparisons.

@@ -20,13 +20,13 @@ Some journal persistence operations remain a coarse repository capability, inclu
 
 ## Configuration
 
-Settings accepts database, port, model and reports. JSON files reject unknown fields. Environment overrides are SETTLEMENTLAB_DB, SETTLEMENTLAB_PORT, SETTLEMENTLAB_MODEL and SETTLEMENTLAB_REPORTS. CLI overrides apply last. Empty model disables local AI. Network binding remains loopback. Separate SQLite connections require a file-backed database; :memory: is intentionally rejected.
+Settings accepts database, port, model, reports, business_date, calendar_id and closed_dates. JSON files reject unknown fields. Environment overrides are SETTLEMENTLAB_DB, SETTLEMENTLAB_PORT, SETTLEMENTLAB_MODEL and SETTLEMENTLAB_REPORTS. CLI overrides apply last. Empty model disables local AI. Network binding remains loopback. Separate SQLite connections require a file-backed database; :memory: is intentionally rejected.
 
 ## Verification boundaries
 
 Architecture controls prohibit SQL/cursor operations and infrastructure/adapter imports in core/application. Fixture tests verify temporary database removal, independent sessions and server teardown. Report controls verify failure preservation and HTML escaping. Negative acceptance tests deliberately assert a wrong state and verify that the scenario fails rather than reporting success.
 
-Runtime remains standard-library-only. Production identity, participant isolation, scale, durable workers and market calendars remain separate work. Layer separation does not establish production readiness.
+Runtime remains standard-library-only. Production identity, participant isolation, scale, durable workers and official market calendar integration remain separate work. Layer separation does not establish production readiness.
 
 ## Reproducible business time
 

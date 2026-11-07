@@ -1,4 +1,4 @@
-# API contract — V2.2
+# API contract — V3.0
 
 Responses are JSON except static assets. Errors contain an `error` string. Validation errors use 422; stale versions, conflicting keys, and invalid lifecycle transitions use 409. Missing resources use 404. Invalid JSON uses 400. Request bodies are limited to 64 KiB.
 
@@ -18,11 +18,16 @@ Responses are JSON except static assets. Errors contain an `error` string. Valid
 
 ## Independent terms
 
-Two-sided broker and manager submissions require `symbol`, `side`, integer `quantity`, string `price`, `currency`, ISO `trade_date`, and ISO `settlement_date`. Settlement must follow trade date; no exchange calendar validation is implied. Broker currency is USD; the manager may submit USD, EUR, GBP, CAD, CHF, or JPY for matching. Manager allocations contain account and positive integer quantity. See [matching rules](MATCHING.md).
+Two-sided broker and manager submissions require `symbol`, `side`, integer `quantity`, string `price`, `currency`, ISO `trade_date`, and ISO `settlement_date`. Settlement must follow trade date. Shared-ledger creation additionally enforces the pinned project calendar described below; this is not official exchange calendar validation. Broker currency is USD; the manager may submit USD, EUR, GBP, CAD, CHF, or JPY for matching. Manager allocations contain account and positive integer quantity. See [matching rules](MATCHING.md).
 
-Example manager submission after the broker creation in README:
+Self-contained legacy trade-scoped example (the shared-ledger console uses the approval and calendar controls below):
 
 ```sh
+# Start a default server on 8080 and use a fresh database for SL-000001:
+curl http://127.0.0.1:8080/api/trades \
+  -H 'Content-Type: application/json' -H 'Idempotency-Key: broker-example' \
+  -d '{"matching_mode":"two-sided","settlement_model":"trade-scoped","symbol":"NOVA","side":"BUY","currency":"USD","quantity":100,"price":"42.75","trade_date":"2026-11-06","settlement_date":"2026-11-09"}'
+# Use the returned trade ID and current version if the database is not fresh.
 curl http://127.0.0.1:8080/api/trades/SL-000001/manager \
   -H 'Content-Type: application/json' -H 'Idempotency-Key: manager-example' \
   -d '{"version":1,"symbol":"NOVA","side":"BUY","currency":"USD","quantity":100,"price":"42.76","trade_date":"2026-11-06","settlement_date":"2026-11-09","allocations":[{"account":"SYN-ALPHA","quantity":100}]}'

@@ -9,6 +9,7 @@ readme = "README.md"
 description = "A deterministic post-trade lifecycle simulator and assurance workbench"
 requires-python = ">=3.9"
 dependencies = []
+license = {file = "LICENSE"}
 
 [project.scripts]
 settlementlab = "settlementlab.server:main"

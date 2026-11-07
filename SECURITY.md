@@ -1,6 +1,6 @@
 # Local demonstration security boundary
 
-SettlementLab V2.2 binds to loopback and uses fictional data. Shared-ledger writes require server-resolved demo roles; opaque expiring cookies are HttpOnly and SameSite=Strict. Request-body role/actor fields do not grant authority. Makers cannot approve their own instruction requests; checkers authorize settlement and reserve funding; auditors cannot perform shared writes.
+SettlementLab binds to loopback and uses fictional data. Shared-ledger writes require server-resolved demo roles; opaque expiring cookies are HttpOnly and SameSite=Strict. Request-body role/actor fields do not grant authority. Makers cannot approve their own instruction requests; checkers authorize settlement and reserve funding; auditors cannot perform shared writes.
 
 Anyone using this local demo can freely select a persona. This is not proof of human identity, production authentication, or participant data isolation. Synthetic reads are public locally. Legacy trade-scoped endpoints retain their pre-governance contract and cannot mutate shared balances or bypass shared trade approval. Do not expose this server as a public financial API.
 

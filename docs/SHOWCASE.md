@@ -60,4 +60,4 @@ The browser journey tests desktop/mobile independent submissions, approvals, rec
 
 ## Evidence publication
 
-Public website reports contain synthetic data only. Do not publish coverage HTML that renders private repository source. The private release can hold detailed coverage and source evidence. Keep historical V1/V2 screenshots labeled; do not present old captures as current runs. Never publish the loopback application as a shared authenticated production service.
+Public website reports contain synthetic data only. The repository and release evidence are public under the MIT license. Coverage HTML renders source; publish it only when it contains reviewed project code and synthetic data. Keep historical V1/V2 screenshots labeled; do not present old captures as current runs. Never publish the loopback application as a shared authenticated production service.

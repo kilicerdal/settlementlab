@@ -27,7 +27,7 @@ Read [architecture](docs/ARCHITECTURE.md), [extension contracts](docs/FRAMEWORK.
 1. Set the same version in pyproject.toml, settlementlab/__init__.py, the health response and console label. Update CHANGELOG and current documentation.
 2. Run quality gates, full suite, coverage, browser workflow and the portable showcase. Local AI is optional and reported separately.
 3. Commit source, then rebuild the showcase from the clean commit so its manifest pins the released revision without a dirty flag.
-4. Push and require all CI jobs to pass on that exact revision. Build the wheel with `python -m pip wheel . --no-deps --wheel-dir dist` and attach portable reports plus measured quality evidence to the private release.
-5. Publish only reviewed synthetic evidence on the portfolio. Verify links, desktop/mobile layout and deployment status. Preserve repository visibility.
+4. Push and require all CI jobs to pass on that exact revision. Build the wheel with `python -m pip wheel . --no-deps --wheel-dir dist` and attach portable reports plus measured quality evidence to the GitHub release.
+5. Publish only reviewed synthetic evidence on the portfolio. Verify links, desktop/mobile layout and deployment status. The repository is public; keep credentials and real financial data out of all artifacts.
 
 The showcase is a source-checkout tool. Its ZIP is portable evidence; it does not include an application installer. JSON/HTML/JUnit reports are generated from execution, not manually edited to appear passing. Checksums detect accidental changes relative to the manifest and do not replace signed provenance or independent review.

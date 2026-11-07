@@ -108,3 +108,7 @@ This is a synthetic local simulation and assurance showcase. Demo personas are o
 Financial scope is USD equity trades with exact cent prices and bounded integer balances. Calendars use weekdays plus explicit project closures, not an official exchange dataset or intraday cutoffs. Trades pin their calendar; policy changes do not rewrite them. Journal and revision history are transactional, not tamper-proof. Production identity, distributed processing, load certification and broad model evaluation remain outside V3.0.
 
 Existing databases migrate additively: back up first. Legacy allocation-only and trade-scoped contracts remain supported; new console trades use two-sided matching and shared-ledger controls. [API contract](docs/API.md) · [Matching policy](docs/MATCHING.md).
+
+## License
+
+[MIT](LICENSE) — copyright 2026 Erdal Kilic.

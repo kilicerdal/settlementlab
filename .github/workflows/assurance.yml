@@ -1,0 +1,44 @@
+name: Settlement assurance
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  controls:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: ['3.9', '3.13']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - run: PYTHONPATH=src python -m unittest discover -s tests -v
+  browser:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - run: pip install 'playwright>=1.48,<2'
+      - run: python -m playwright install --with-deps chromium
+      - run: |
+          PYTHONPATH=src python -m settlementlab.server > /tmp/settlementlab.log 2>&1 &
+          python - <<'PY'
+          import time, urllib.request
+          for _ in range(50):
+              try:
+                  urllib.request.urlopen('http://127.0.0.1:8080/api/health')
+                  break
+              except OSError:
+                  time.sleep(0.2)
+          else:
+              raise SystemExit('Server failed readiness check')
+          PY
+          python tests/browser_smoke.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: browser-evidence
+          path: artifacts/

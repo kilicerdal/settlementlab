@@ -15,6 +15,7 @@ with sync_playwright() as p:
     try:
         page.goto(os.getenv('SETTLEMENTLAB_URL','http://127.0.0.1:8080'))
         expect(page.get_by_role('heading',name='Confidence starts with the match.')).to_be_visible()
+        expect(page.locator('#business-clock')).to_contain_text('SIMULATED BUSINESS DATE: 2026-11-09')
         page.get_by_role('button',name='Run showcase scenario').click()
         expect(page.locator('#detail .badge')).to_have_text('EXCEPTION')
         expect(page.locator('.finding')).to_have_count(2)

@@ -7,11 +7,12 @@ from datetime import datetime,timezone
 from pathlib import Path
 from settlementlab.domain import Ledger,DomainError
 from settlementlab.identity import Principal
+from settlementlab.core.calendar import FixedClock
 
 maker=Principal('maker-alex','maker');checker=Principal('checker-sam','checker')
 terms=dict(symbol='NOVA',side='BUY',currency='USD',quantity=100,price='42.75',trade_date='2026-11-06',settlement_date='2026-11-09')
 with tempfile.TemporaryDirectory() as temporary:
-    ledger=Ledger(Path(temporary)/'capture.db')
+    ledger=Ledger(Path(temporary)/'capture.db',clock=FixedClock('2026-11-09'))
     def ready(key):
         t=ledger.create(dict(terms,matching_mode='two-sided',settlement_model='shared-ledger'),key,principal=maker)
         t=ledger.command(t['id'],'manager',dict(terms,version=t['version'],submission_key='manager',allocations=[dict(account='SYN-FUND',quantity=100)]),principal=maker)

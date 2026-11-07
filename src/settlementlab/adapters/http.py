@@ -36,12 +36,16 @@ def handler(ledger, triage=None):
                         personas=[dict(id=p.id,role=p.role) for p in PERSONAS.values()])
 
         def do_GET(self):
+            parts=self.path.strip('/').split('/')
+            if len(parts)==4 and parts[:2]==['api','trades'] and parts[3]=='readiness':
+                try:return self.reply(200,ledger.settlement_readiness(parts[2]))
+                except DomainError as error:return self.reply(error.status,{'error':str(error)})
             if self.path == '/api/session':
                 return self.reply(200,self.session_info(sessions.resolve(self.headers.get('Cookie'))))
             if self.path == '/api/treasury':
                 return self.reply(200,ledger.snapshot()['treasury'])
             if self.path == "/api/health":
-                return self.reply(200, {"status": "healthy", "version": "2.3.0", "ai_enabled": triage.enabled})
+                return self.reply(200, {"status": "healthy", "version": "2.4.0", "ai_enabled": triage.enabled, "business_time":ledger.clock.describe()})
             if self.path == '/api/matching-policy':
                 from ..core.matching import policy_description
                 return self.reply(200, policy_description())

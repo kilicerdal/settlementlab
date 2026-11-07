@@ -1,1 +1,7 @@
-{"database":"artifacts/ci.db","port":8080,"model":"","reports":"artifacts/reports"}
+{
+  "database": "artifacts/ci.db",
+  "port": 8080,
+  "model": "",
+  "reports": "artifacts/reports",
+  "business_date": "2026-11-09"
+}

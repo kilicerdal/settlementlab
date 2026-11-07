@@ -1,13 +1,15 @@
 """Financial workflow orchestration over an injected transaction store."""
 from .ports import Store
 import json
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 from ..core.validation import DomainError, cents, positive_int, next_business_day
 
 class SettlementService:
 
-    def __init__(self, store: "Store"):
+    def __init__(self, store: "Store", clock, calendar):
         self.store = store
+        self.clock = clock
+        self.calendar = calendar
 
     def event(self, repository, trade, actor, action, detail):
         repository.append_audit((trade, datetime.now(timezone.utc).isoformat(), actor, action, detail))
@@ -33,6 +35,8 @@ class SettlementService:
             trade['securities'] = repository.balance(trade['seller_id'], 'SEC:' + trade['symbol'])
             batch = repository.find_settlement_batch((trade_id,))
             trade['settlement_journal'] = batch['id'] if batch else None
+        from ..core.calendar import readiness
+        trade['settlement_readiness']=readiness(trade,self.clock)
         return trade
 
     def create(self, data, key, actor='broker', principal=None):
@@ -77,11 +81,17 @@ class SettlementService:
                 if existing['fingerprint'] != fingerprint and (not legacy_replay):
                     raise DomainError('Idempotency key already used for a different submission', 409)
                 return self.get(repository, existing['id'])
+            if settlement_model=='shared-ledger':
+                if not self.calendar.is_open(date.fromisoformat(trade_date)):
+                    raise DomainError('Trade date is closed under the configured simulation calendar')
+                if settlement_date!=self.calendar.next_day(trade_date):
+                    raise DomainError('Shared trades require next-business-day settlement under the configured calendar')
             number = repository.count_trades() + 1
             trade_id = 'SL-%06d' % number
             repository.insert_trade((trade_id, key, fingerprint, symbol.upper(), quantity, price, trade_date, settlement_date, 'RECEIVED'))
             repository.set_trade_terms((terms['side'], terms['currency'], mode, trade_id))
             repository.set_settlement_parties((settlement_model, buyer, seller, trade_id))
+            repository.pin_calendar((json.dumps(self.calendar.to_dict()),trade_id))
             self.event(repository, trade_id, actor, 'TRADE_RECEIVED', 'Broker submission accepted')
             return self.get(repository, trade_id)
 
@@ -145,6 +155,9 @@ class SettlementService:
                     raise DomainError('Only affirmed or failed trades can attempt settlement', 409)
                 if trade['settlement_model'] == 'shared-ledger':
                     
+                    date_blocks=[b for b in trade['settlement_readiness']['blockers'] if b['code'] in ('NOT_DUE','CALENDAR_CLOSED','INVALID_SETTLEMENT_DAY')]
+                    if date_blocks:
+                        raise DomainError('Settlement calendar blocked: '+', '.join(b['code'] for b in date_blocks),409)
                     batch = repository.settle(trade, actor)
                     if batch:
                         repository.insert_settlement((trade_id, trade['quantity'], trade['quantity'] * trade['price_cents']))
@@ -172,7 +185,7 @@ class SettlementService:
             trades = [self.get(repository, r['id']) for r in repository.list_trade_ids()]
             audit = [dict(r) for r in repository.list_audit()]
             
-            return {'trades': trades, 'audit': audit, 'treasury': repository.treasury_snapshot()}
+            return {'trades': trades, 'audit': audit, 'treasury': repository.treasury_snapshot(), 'business_time':self.clock.describe(), 'calendar':self.calendar.to_dict()}
 
     def reconcile(self, rows):
         if not isinstance(rows, list) or len(rows) > 10000:
@@ -310,3 +323,7 @@ class SettlementService:
             if not result['replayed']:
                 self.event(repository, 'TREASURY', principal.id, 'DEMO_FUNDED', data['participant_id'] + ' / ' + data['asset'] + ' / ' + str(data['amount']))
             return result
+
+    def settlement_readiness(self,trade_id):
+        with self.store.transaction() as repository:
+            return self.get(repository,trade_id)['settlement_readiness']

@@ -126,3 +126,6 @@ class SQLiteRepository:
 
     def participant(self, value):
         return journal.participant(self.db,value)
+
+    def pin_calendar(self,parameters):
+        self.db.execute("UPDATE trades SET calendar_policy=? WHERE id=?",parameters)

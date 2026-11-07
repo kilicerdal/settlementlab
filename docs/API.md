@@ -64,3 +64,12 @@ Cash asset is `CASH:USD` in cents; security asset is `SEC:NOVA` (or another vali
 New manager revisions cancel pending approvals. Replayed submissions do not. Instruction approval increments the trade version and locks manager terms. Request replay returns current trade without adding an approval; use a fresh key after rejection or cancellation. Treasury funding replay returns the original batch ID with replayed=true and no extra credit. A changed funding payload under the key conflicts.
 
 Python assurance client supports `use_persona`, `request_affirmation`, `approve` and `fund`, using an isolated cookie jar. Sessions expire after an hour and are lost on server restart. No real participant data should be used.
+
+
+## V2.4 business dates and readiness
+
+`GET /api/trades/{id}/readiness` returns current eligibility, blocker codes, business_time, agreed settlement_date and pinned calendar. Unknown trades return 404. Snapshot and health responses expose the active clock mode/date. Fixed clocks are explicitly simulated; default is real UTC date.
+
+New shared trades require an open trade date and next-business-day settlement under the configured calendar. Calendar pins are persisted independently of subsequent configuration changes. Settlement rejects NOT_DUE, CALENDAR_CLOSED and INVALID_SETTLEMENT_DAY with 409 before any financial or audit write. Capacity shortfalls on an otherwise allowed date retain the existing FAILED/recovery workflow. Settlement on a later open date is allowed; no intraday cutoff is modeled. Legacy trade-scoped contracts remain compatible and ungated.
+
+Configuration adds business_date, calendar_id and closed_dates. `--business-date` overrides config/environment. Empty business_date uses the system UTC clock. The calendar supports weekends and explicit project-defined closures, not an official holiday dataset.

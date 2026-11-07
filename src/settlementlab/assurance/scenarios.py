@@ -27,7 +27,8 @@ def run_scenario(spec):
     result=dict(id=spec['id'],suite='scenarios',name=spec['title'],status='passed',steps=[],duration=0.0)
     start=time.perf_counter()
     try:
-        with LocalEnvironment() as environment:
+        with LocalEnvironment(business_date=spec.get('business_date','2026-11-09'),closed_dates=spec.get('closed_dates',())) as environment:
+            result['environment']=environment.client.request('/api/health')['business_time']
             client=environment.client;factory=TradeFactory();trade=None
             for index,step in enumerate(spec['steps'],1):
                 item=dict(index=index,action=step['action'],status='passed');tick=time.perf_counter()

@@ -11,11 +11,14 @@ from .client import SettlementClient
 
 
 class LocalEnvironment:
+    def __init__(self,business_date="2026-11-09",closed_dates=()):
+        self.business_date=business_date;self.closed_dates=closed_dates
+
     def __enter__(self):
         self.stack=ExitStack()
         try:
             directory=self.stack.enter_context(TemporaryDirectory(prefix='settlementlab-'))
-            self.app=create_application(Settings(database=str(Path(directory)/'test.db'),port=0,model=''))
+            self.app=create_application(Settings(database=str(Path(directory)/'test.db'),port=0,model='',business_date=self.business_date,closed_dates=self.closed_dates))
             self.server=ThreadingHTTPServer(('127.0.0.1',0),handler(self.app.service,self.app.triage))
             self.stack.callback(self.server.server_close)
             self.thread=Thread(target=lambda:self.server.serve_forever(poll_interval=0.05),daemon=True)

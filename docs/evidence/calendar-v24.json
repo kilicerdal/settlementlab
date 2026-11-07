@@ -1,0 +1,722 @@
+{
+  "version": 1,
+  "generated_at": "2026-11-07T07:32:17.828427+00:00",
+  "python": "3.9.6",
+  "status": "passed",
+  "duration": 1.346695667,
+  "cases": [
+    {
+      "id": "tests.unit.test_ai.TriageTests.test_allowlist_excludes_untrusted_account_and_actor",
+      "suite": "unit",
+      "status": "passed",
+      "duration": 7.870800000001066e-05
+    },
+    {
+      "id": "tests.unit.test_ai.TriageTests.test_extra_fields_and_oversized_text_rejected",
+      "suite": "unit",
+      "status": "passed",
+      "duration": 8.908399999998928e-05
+    },
+    {
+      "id": "tests.unit.test_ai.TriageTests.test_incomplete_and_refused_outputs_rejected",
+      "suite": "unit",
+      "status": "passed",
+      "duration": 6.562499999999971e-05
+    },
+    {
+      "id": "tests.unit.test_ai.TriageTests.test_missing_configuration_never_calls_provider",
+      "suite": "unit",
+      "status": "passed",
+      "duration": 2.8416000000003327e-05
+    },
+    {
+      "id": "tests.unit.test_ai.TriageTests.test_structured_request_and_provenance",
+      "suite": "unit",
+      "status": "passed",
+      "duration": 4.275000000000806e-05
+    },
+    {
+      "id": "tests.unit.test_ai.TriageTests.test_unknown_and_missing_citations_rejected",
+      "suite": "unit",
+      "status": "passed",
+      "duration": 7.287500000000002e-05
+    },
+    {
+      "id": "tests.unit.test_calendar.CalendarControls.test_policies_are_fingerprinted_and_validated",
+      "suite": "unit",
+      "status": "passed",
+      "duration": 9.57079999999999e-05
+    },
+    {
+      "id": "tests.unit.test_calendar.CalendarControls.test_weekends_closures_and_leap_year",
+      "suite": "unit",
+      "status": "passed",
+      "duration": 3.879200000000971e-05
+    },
+    {
+      "id": "tests.unit.test_framework.FrameworkControls.test_assets_must_balance_independently",
+      "suite": "unit",
+      "status": "passed",
+      "duration": 7.333299999999487e-05
+    },
+    {
+      "id": "tests.unit.test_framework.FrameworkControls.test_configuration_precedence_and_invalid_values",
+      "suite": "unit",
+      "status": "passed",
+      "duration": 0.0013184170000000023
+    },
+    {
+      "id": "tests.unit.test_framework.FrameworkControls.test_layer_dependencies_and_sql_stay_in_adapters",
+      "suite": "unit",
+      "status": "passed",
+      "duration": 0.01209325
+    },
+    {
+      "id": "tests.unit.test_framework.FrameworkControls.test_reports_preserve_failure_and_escape_html",
+      "suite": "unit",
+      "status": "passed",
+      "duration": 0.0011267090000000035
+    },
+    {
+      "id": "tests.integration.test_lifecycle.LifecycleTests.test_concurrent_duplicate_submissions",
+      "suite": "integration",
+      "status": "passed",
+      "duration": 0.033120374999999994
+    },
+    {
+      "id": "tests.integration.test_lifecycle.LifecycleTests.test_concurrent_settlement_is_once_only",
+      "suite": "integration",
+      "status": "passed",
+      "duration": 0.008880707999999987
+    },
+    {
+      "id": "tests.integration.test_lifecycle.LifecycleTests.test_duplicate_accounts_rollback",
+      "suite": "integration",
+      "status": "passed",
+      "duration": 0.004199290999999994
+    },
+    {
+      "id": "tests.integration.test_lifecycle.LifecycleTests.test_exception_correction_failure_recovery_and_reconciliation",
+      "suite": "integration",
+      "status": "passed",
+      "duration": 0.00807587500000001
+    },
+    {
+      "id": "tests.integration.test_lifecycle.LifecycleTests.test_external_only_and_duplicate_statement",
+      "suite": "integration",
+      "status": "passed",
+      "duration": 0.0030996249999999947
+    },
+    {
+      "id": "tests.integration.test_lifecycle.LifecycleTests.test_idempotency_and_conflicting_payload",
+      "suite": "integration",
+      "status": "passed",
+      "duration": 0.004407624999999998
+    },
+    {
+      "id": "tests.integration.test_lifecycle.LifecycleTests.test_notional_and_date_bounds",
+      "suite": "integration",
+      "status": "passed",
+      "duration": 0.0029769999999999797
+    },
+    {
+      "id": "tests.integration.test_lifecycle.LifecycleTests.test_persistence",
+      "suite": "integration",
+      "status": "passed",
+      "duration": 0.004465999999999998
+    },
+    {
+      "id": "tests.integration.test_lifecycle.LifecycleTests.test_stale_version_and_invalid_transition_are_atomic",
+      "suite": "integration",
+      "status": "passed",
+      "duration": 0.005604583000000024
+    },
+    {
+      "id": "tests.integration.test_lifecycle.LifecycleTests.test_terminal_trade_cannot_change",
+      "suite": "integration",
+      "status": "passed",
+      "duration": 0.007195084000000018
+    },
+    {
+      "id": "tests.integration.test_lifecycle.LifecycleTests.test_validation_and_calendar",
+      "suite": "integration",
+      "status": "passed",
+      "duration": 0.002833083000000014
+    },
+    {
+      "id": "tests.integration.test_matching.MatchingTests.test_allocation_total_is_distinct_from_trade_quantity",
+      "suite": "integration",
+      "status": "passed",
+      "duration": 0.004415625000000006
+    },
+    {
+      "id": "tests.integration.test_matching.MatchingTests.test_concurrent_distinct_revisions_reject_stale_writer",
+      "suite": "integration",
+      "status": "passed",
+      "duration": 0.005712667000000005
+    },
+    {
+      "id": "tests.integration.test_matching.MatchingTests.test_concurrent_same_key_is_one_revision",
+      "suite": "integration",
+      "status": "passed",
+      "duration": 0.008545875000000008
+    },
+    {
+      "id": "tests.integration.test_matching.MatchingTests.test_correction_preserves_revision_history",
+      "suite": "integration",
+      "status": "passed",
+      "duration": 0.006427416000000019
+    },
+    {
+      "id": "tests.integration.test_matching.MatchingTests.test_each_field_has_an_independent_discrepancy",
+      "suite": "integration",
+      "status": "passed",
+      "duration": 0.010548500000000016
+    },
+    {
+      "id": "tests.integration.test_matching.MatchingTests.test_evidence_contains_break_facts_without_accounts",
+      "suite": "integration",
+      "status": "passed",
+      "duration": 0.005097457999999999
+    },
+    {
+      "id": "tests.integration.test_matching.MatchingTests.test_independent_terms_match_and_broker_is_preserved",
+      "suite": "integration",
+      "status": "passed",
+      "duration": 0.004393209000000009
+    },
+    {
+      "id": "tests.integration.test_matching.MatchingTests.test_invalid_submission_rolls_back",
+      "suite": "integration",
+      "status": "passed",
+      "duration": 0.005204333000000005
+    },
+    {
+      "id": "tests.integration.test_matching.MatchingTests.test_manager_must_supply_complete_terms",
+      "suite": "integration",
+      "status": "passed",
+      "duration": 0.004019500000000009
+    },
+    {
+      "id": "tests.integration.test_matching.MatchingTests.test_no_legacy_bypass_and_affirmation_locks_revisions",
+      "suite": "integration",
+      "status": "passed",
+      "duration": 0.005783499999999997
+    },
+    {
+      "id": "tests.integration.test_matching.MatchingTests.test_replay_returns_original_result_even_after_correction",
+      "suite": "integration",
+      "status": "passed",
+      "duration": 0.0058802500000000035
+    },
+    {
+      "id": "tests.integration.test_matching.MigrationTests.test_existing_v1_database_and_replay_survive_upgrade",
+      "suite": "integration",
+      "status": "passed",
+      "duration": 0.004710875000000003
+    },
+    {
+      "id": "tests.integration.test_settlement_dates.SettlementDateControls.test_calendar_pin_survives_configuration_change",
+      "suite": "integration",
+      "status": "passed",
+      "duration": 0.008766083000000008
+    },
+    {
+      "id": "tests.integration.test_settlement_dates.SettlementDateControls.test_closed_business_date_blocks_late_settlement",
+      "suite": "integration",
+      "status": "passed",
+      "duration": 0.009033041999999991
+    },
+    {
+      "id": "tests.integration.test_settlement_dates.SettlementDateControls.test_early_rejection_preserves_state_journal_and_audit",
+      "suite": "integration",
+      "status": "passed",
+      "duration": 0.010663792000000005
+    },
+    {
+      "id": "tests.integration.test_settlement_dates.SettlementDateControls.test_new_trade_uses_configured_closure_and_replay_remains_valid",
+      "suite": "integration",
+      "status": "passed",
+      "duration": 0.008437207999999974
+    },
+    {
+      "id": "tests.integration.test_shared_ledger.SharedLedgerTests.test_approval_replay_and_stale_checker",
+      "suite": "integration",
+      "status": "passed",
+      "duration": 0.0072510000000000074
+    },
+    {
+      "id": "tests.integration.test_shared_ledger.SharedLedgerTests.test_buy_transfers_four_balanced_lines",
+      "suite": "integration",
+      "status": "passed",
+      "duration": 0.009664457999999987
+    },
+    {
+      "id": "tests.integration.test_shared_ledger.SharedLedgerTests.test_bypass_paths_and_unauthenticated_writes_fail",
+      "suite": "integration",
+      "status": "passed",
+      "duration": 0.005618208000000013
+    },
+    {
+      "id": "tests.integration.test_shared_ledger.SharedLedgerTests.test_competing_checker_decisions_apply_once",
+      "suite": "integration",
+      "status": "passed",
+      "duration": 0.007958040999999971
+    },
+    {
+      "id": "tests.integration.test_shared_ledger.SharedLedgerTests.test_concurrent_funding_replay_posts_one_batch",
+      "suite": "integration",
+      "status": "passed",
+      "duration": 0.02709112500000005
+    },
+    {
+      "id": "tests.integration.test_shared_ledger.SharedLedgerTests.test_failure_preserves_balances_then_recovers_once",
+      "suite": "integration",
+      "status": "passed",
+      "duration": 0.011788624999999997
+    },
+    {
+      "id": "tests.integration.test_shared_ledger.SharedLedgerTests.test_funding_is_checker_only_idempotent_and_conflict_safe",
+      "suite": "integration",
+      "status": "passed",
+      "duration": 0.004522292000000039
+    },
+    {
+      "id": "tests.integration.test_shared_ledger.SharedLedgerTests.test_integrity_break_prevents_settlement_posting",
+      "suite": "integration",
+      "status": "passed",
+      "duration": 0.009385792000000004
+    },
+    {
+      "id": "tests.integration.test_shared_ledger.SharedLedgerTests.test_invalid_funding_and_limits_preserve_journal",
+      "suite": "integration",
+      "status": "passed",
+      "duration": 0.006394292000000024
+    },
+    {
+      "id": "tests.integration.test_shared_ledger.SharedLedgerTests.test_journal_and_settlement_rollback_together_on_failure",
+      "suite": "integration",
+      "status": "passed",
+      "duration": 0.009728457999999995
+    },
+    {
+      "id": "tests.integration.test_shared_ledger.SharedLedgerTests.test_projection_check_detects_direct_balance_corruption",
+      "suite": "integration",
+      "status": "passed",
+      "duration": 0.004858625000000005
+    },
+    {
+      "id": "tests.integration.test_shared_ledger.SharedLedgerTests.test_rejection_requires_reason_and_allows_new_request",
+      "suite": "integration",
+      "status": "passed",
+      "duration": 0.007412666000000012
+    },
+    {
+      "id": "tests.integration.test_shared_ledger.SharedLedgerTests.test_self_approval_and_role_spoof_are_rejected",
+      "suite": "integration",
+      "status": "passed",
+      "duration": 0.008044333000000015
+    },
+    {
+      "id": "tests.integration.test_shared_ledger.SharedLedgerTests.test_sell_reverses_buyer_and_seller",
+      "suite": "integration",
+      "status": "passed",
+      "duration": 0.010102834000000005
+    },
+    {
+      "id": "tests.integration.test_shared_ledger.SharedLedgerTests.test_shared_journal_and_approvals_survive_restart",
+      "suite": "integration",
+      "status": "passed",
+      "duration": 0.010309624999999989
+    },
+    {
+      "id": "tests.integration.test_shared_ledger.SharedLedgerTests.test_terms_revision_cancels_pending_approval",
+      "suite": "integration",
+      "status": "passed",
+      "duration": 0.006711332999999986
+    },
+    {
+      "id": "tests.integration.test_shared_ledger.SharedLedgerTests.test_two_trades_cannot_spend_same_cash",
+      "suite": "integration",
+      "status": "passed",
+      "duration": 0.013896249999999999
+    },
+    {
+      "id": "tests.integration.test_shared_ledger.SharedLedgerTests.test_two_trades_cannot_spend_same_securities",
+      "suite": "integration",
+      "status": "passed",
+      "duration": 0.013905166999999996
+    },
+    {
+      "id": "tests.integration.test_shared_ledger.SharedLedgerTests.test_unbalanced_batch_is_rejected_without_writes",
+      "suite": "integration",
+      "status": "passed",
+      "duration": 0.0036344590000000343
+    },
+    {
+      "id": "tests.api.test_calendar.ReadinessAPIControls.test_readiness_exposes_actual_clock_and_preserves_records",
+      "suite": "api",
+      "status": "passed",
+      "duration": 0.06725512500000003
+    },
+    {
+      "id": "tests.api.test_http.HTTPTests.test_console_assets_are_served",
+      "suite": "api",
+      "status": "passed",
+      "duration": 0.05922824999999998
+    },
+    {
+      "id": "tests.api.test_http.HTTPTests.test_disabled_ai_and_stale_analysis_do_not_mutate_trade",
+      "suite": "api",
+      "status": "passed",
+      "duration": 0.06318425000000005
+    },
+    {
+      "id": "tests.api.test_http.HTTPTests.test_errors_preserve_status",
+      "suite": "api",
+      "status": "passed",
+      "duration": 0.05908899999999995
+    },
+    {
+      "id": "tests.api.test_http.HTTPTests.test_real_http_lifecycle",
+      "suite": "api",
+      "status": "passed",
+      "duration": 0.06424675000000002
+    },
+    {
+      "id": "tests.api.test_http.HTTPTests.test_server_resolved_roles_and_shared_settlement",
+      "suite": "api",
+      "status": "passed",
+      "duration": 0.07302995899999998
+    },
+    {
+      "id": "tests.api.test_http.HTTPTests.test_two_sided_http_submission_revision_and_replay",
+      "suite": "api",
+      "status": "passed",
+      "duration": 0.06398095800000003
+    },
+    {
+      "id": "tests.api.test_http.HTTPTests.test_unknown_cookie_and_invented_persona_do_not_grant_access",
+      "suite": "api",
+      "status": "passed",
+      "duration": 0.05778337499999997
+    },
+    {
+      "id": "tests.api.test_scenarios.ScenarioControls.test_bad_expectation_fails_with_exact_step",
+      "suite": "api",
+      "status": "passed",
+      "duration": 0.0630350420000001
+    },
+    {
+      "id": "tests.api.test_scenarios.ScenarioControls.test_environment_removes_database_and_isolates_clients",
+      "suite": "api",
+      "status": "passed",
+      "duration": 0.10958458400000004
+    },
+    {
+      "id": "tests.api.test_scenarios.ScenarioControls.test_unknown_action_never_runs",
+      "suite": "api",
+      "status": "passed",
+      "duration": 3.870900000002564e-05
+    },
+    {
+      "id": "S01",
+      "suite": "scenarios",
+      "name": "Matching break and preserved correction",
+      "status": "passed",
+      "steps": [
+        {
+          "index": 1,
+          "action": "identity",
+          "status": "passed",
+          "assertions": 0,
+          "duration": 0.0006073339999999039
+        },
+        {
+          "index": 2,
+          "action": "create",
+          "status": "passed",
+          "assertions": 0,
+          "duration": 0.0015381250000001678
+        },
+        {
+          "index": 3,
+          "action": "manager",
+          "status": "passed",
+          "assertions": 3,
+          "duration": 0.001504708999999993
+        },
+        {
+          "index": 4,
+          "action": "manager",
+          "status": "passed",
+          "assertions": 3,
+          "duration": 0.0016160000000000618
+        }
+      ],
+      "duration": 0.06206345800000013,
+      "environment": {
+        "mode": "simulated",
+        "date": "2026-11-09",
+        "timezone": "date-only"
+      }
+    },
+    {
+      "id": "S02",
+      "suite": "scenarios",
+      "name": "Governed settlement failure and recovery",
+      "status": "passed",
+      "steps": [
+        {
+          "index": 1,
+          "action": "identity",
+          "status": "passed",
+          "assertions": 0,
+          "duration": 0.0005362500000001269
+        },
+        {
+          "index": 2,
+          "action": "create",
+          "status": "passed",
+          "assertions": 1,
+          "duration": 0.0016209589999998109
+        },
+        {
+          "index": 3,
+          "action": "manager",
+          "status": "passed",
+          "assertions": 1,
+          "duration": 0.0014858330000000475
+        },
+        {
+          "index": 4,
+          "action": "request",
+          "status": "passed",
+          "assertions": 1,
+          "duration": 0.0015111249999999465
+        },
+        {
+          "index": 5,
+          "action": "approve",
+          "status": "passed",
+          "expected_http_status": 403,
+          "assertions": 1,
+          "duration": 0.0013228750000000566
+        },
+        {
+          "index": 6,
+          "action": "identity",
+          "status": "passed",
+          "assertions": 0,
+          "duration": 0.0007808750000000142
+        },
+        {
+          "index": 7,
+          "action": "approve",
+          "status": "passed",
+          "assertions": 1,
+          "duration": 0.001685707999999897
+        },
+        {
+          "index": 8,
+          "action": "settle",
+          "status": "passed",
+          "assertions": 1,
+          "duration": 0.0014732499999998705
+        },
+        {
+          "index": 9,
+          "action": "fund",
+          "status": "passed",
+          "assertions": 0,
+          "duration": 0.0014640409999999715
+        },
+        {
+          "index": 10,
+          "action": "fund",
+          "status": "passed",
+          "assertions": 0,
+          "duration": 0.0014185829999999733
+        },
+        {
+          "index": 11,
+          "action": "settle",
+          "status": "passed",
+          "assertions": 1,
+          "duration": 0.00218462499999994
+        },
+        {
+          "index": 12,
+          "action": "snapshot",
+          "status": "passed",
+          "assertions": 1,
+          "duration": 0.0013201249999998943
+        }
+      ],
+      "duration": 0.07308254200000008,
+      "environment": {
+        "mode": "simulated",
+        "date": "2026-11-09",
+        "timezone": "date-only"
+      }
+    },
+    {
+      "id": "S03",
+      "suite": "scenarios",
+      "name": "Early settlement is blocked without moving value",
+      "status": "passed",
+      "steps": [
+        {
+          "index": 1,
+          "action": "identity",
+          "status": "passed",
+          "assertions": 0,
+          "duration": 0.0005775839999999643
+        },
+        {
+          "index": 2,
+          "action": "create",
+          "status": "passed",
+          "assertions": 1,
+          "duration": 0.0015570000000000306
+        },
+        {
+          "index": 3,
+          "action": "manager",
+          "status": "passed",
+          "assertions": 1,
+          "duration": 0.001547583000000019
+        },
+        {
+          "index": 4,
+          "action": "request",
+          "status": "passed",
+          "assertions": 1,
+          "duration": 0.0017100420000000227
+        },
+        {
+          "index": 5,
+          "action": "approve",
+          "status": "passed",
+          "expected_http_status": 403,
+          "assertions": 1,
+          "duration": 0.000918290999999849
+        },
+        {
+          "index": 6,
+          "action": "identity",
+          "status": "passed",
+          "assertions": 0,
+          "duration": 0.0005581670000001093
+        },
+        {
+          "index": 7,
+          "action": "approve",
+          "status": "passed",
+          "assertions": 1,
+          "duration": 0.0014038750000000544
+        },
+        {
+          "index": 8,
+          "action": "settle",
+          "status": "passed",
+          "expected_http_status": 409,
+          "assertions": 1,
+          "duration": 0.0009050840000000004
+        },
+        {
+          "index": 9,
+          "action": "snapshot",
+          "status": "passed",
+          "assertions": 2,
+          "duration": 0.0009802089999999541
+        }
+      ],
+      "duration": 0.0675255840000002,
+      "environment": {
+        "mode": "simulated",
+        "date": "2026-11-06",
+        "timezone": "date-only"
+      }
+    },
+    {
+      "id": "S04",
+      "suite": "scenarios",
+      "name": "Closed business date blocks settlement",
+      "status": "passed",
+      "steps": [
+        {
+          "index": 1,
+          "action": "identity",
+          "status": "passed",
+          "assertions": 0,
+          "duration": 0.000588083000000017
+        },
+        {
+          "index": 2,
+          "action": "create",
+          "status": "passed",
+          "assertions": 1,
+          "duration": 0.0014839169999998347
+        },
+        {
+          "index": 3,
+          "action": "manager",
+          "status": "passed",
+          "assertions": 1,
+          "duration": 0.0014975830000001356
+        },
+        {
+          "index": 4,
+          "action": "request",
+          "status": "passed",
+          "assertions": 1,
+          "duration": 0.0014639999999999098
+        },
+        {
+          "index": 5,
+          "action": "approve",
+          "status": "passed",
+          "expected_http_status": 403,
+          "assertions": 1,
+          "duration": 0.0009325419999999252
+        },
+        {
+          "index": 6,
+          "action": "identity",
+          "status": "passed",
+          "assertions": 0,
+          "duration": 0.000599667000000137
+        },
+        {
+          "index": 7,
+          "action": "approve",
+          "status": "passed",
+          "assertions": 1,
+          "duration": 0.001400083000000052
+        },
+        {
+          "index": 8,
+          "action": "settle",
+          "status": "passed",
+          "expected_http_status": 409,
+          "assertions": 1,
+          "duration": 0.0009520410000001256
+        },
+        {
+          "index": 9,
+          "action": "snapshot",
+          "status": "passed",
+          "assertions": 2,
+          "duration": 0.0009512080000000367
+        }
+      ],
+      "duration": 0.06811916700000009,
+      "environment": {
+        "mode": "simulated",
+        "date": "2026-11-14",
+        "timezone": "date-only"
+      }
+    }
+  ]
+}

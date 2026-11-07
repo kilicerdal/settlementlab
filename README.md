@@ -8,6 +8,22 @@ SettlementLab is an independent post-trade simulator and Python assurance framew
 
 ![V2.2 shared participant ledger and controls](docs/images/ledger-v22.png)
 
+## Settlement calendar controls — V2.4
+
+Shared-ledger trades now require next-business-day settlement under a pinned simulation calendar. Settlement is rejected before the agreed date, on a closed business date, or when the agreed date is closed. These rejections do not change lifecycle state, audit records or journal balances. Readiness also lists approval and capacity blockers.
+
+The default clock uses the actual UTC date. To reproduce the fixed November example, start with:
+
+```sh
+PYTHONPATH=src python3 -m settlementlab.server --config environments/showcase.json
+```
+
+That profile clearly displays **SIMULATED BUSINESS DATE: 2026-11-09** and serves port 8085. `--business-date YYYY-MM-DD` or SETTLEMENTLAB_BUSINESS_DATE can override the clock at startup. Real audit timestamps are never changed. There is no unauthenticated API for advancing time.
+
+Calendars skip Saturday/Sunday and can include explicitly configured closure dates via calendar_id and closed_dates. These are project-defined simulation rules, not an official exchange calendar. A policy snapshot and fingerprint are persisted with each trade; changing server configuration does not rewrite existing calendars. Pre-upgrade shared trades receive the weekday-only baseline. Legacy trade-scoped contracts remain outside date governance.
+
+Read `GET /api/trades/{id}/readiness` for current clock, pinned policy and blocker codes. Original replay snapshots can be stale; use this read endpoint or refresh the console for current readiness.
+
 ## Framework architecture — V2.3
 
 ```text
@@ -52,6 +68,8 @@ settlementlab-assure --config environments/ci.json --suite scenarios
 See [framework extension guide](docs/FRAMEWORK.md) for adding scenarios, adapters and controls.
 
 ## Run the workbench
+
+For the fixed browser demonstration, use `environments/showcase.json`; the default command below uses the real UTC date and can correctly block early settlement.
 
 Python 3.9+; the application and core tests have **zero third-party dependencies**.
 

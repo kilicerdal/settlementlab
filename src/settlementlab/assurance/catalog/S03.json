@@ -1,0 +1,64 @@
+{
+  "id": "S03",
+  "title": "Early settlement is blocked without moving value",
+  "steps": [
+    {
+      "action": "identity",
+      "data": {
+        "persona": "maker-alex"
+      }
+    },
+    {
+      "action": "create",
+      "assert": {
+        "state": "RECEIVED"
+      }
+    },
+    {
+      "action": "manager",
+      "assert": {
+        "state": "MATCHED"
+      }
+    },
+    {
+      "action": "request",
+      "assert": {
+        "pending_approval.status": "PENDING"
+      }
+    },
+    {
+      "action": "approve",
+      "expect_status": 403,
+      "assert": {
+        "http_status": 403
+      }
+    },
+    {
+      "action": "identity",
+      "data": {
+        "persona": "checker-sam"
+      }
+    },
+    {
+      "action": "approve",
+      "assert": {
+        "state": "AFFIRMED"
+      }
+    },
+    {
+      "action": "settle",
+      "expect_status": 409,
+      "assert": {
+        "http_status": 409
+      }
+    },
+    {
+      "action": "snapshot",
+      "assert": {
+        "trades.0.state": "AFFIRMED",
+        "treasury.controls.status": "BALANCED"
+      }
+    }
+  ],
+  "business_date": "2026-11-06"
+}

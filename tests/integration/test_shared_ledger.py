@@ -6,6 +6,7 @@ from pathlib import Path
 from settlementlab.domain import Ledger, DomainError
 from settlementlab.identity import Principal
 from settlementlab import journal
+from settlementlab.core.calendar import FixedClock
 
 MAKER=Principal('maker-alex','maker')
 CHECKER=Principal('checker-sam','checker')
@@ -15,7 +16,7 @@ AUDITOR=Principal('auditor-casey','auditor')
 class SharedLedgerTests(unittest.TestCase):
     def setUp(self):
         self.temp=tempfile.TemporaryDirectory();self.addCleanup(self.temp.cleanup)
-        self.ledger=Ledger(Path(self.temp.name)/'shared.db')
+        self.ledger=Ledger(Path(self.temp.name)/'shared.db',clock=FixedClock('2026-11-09'))
         self.terms=dict(symbol='NOVA',side='BUY',currency='USD',quantity=100,price='42.75',
                         trade_date='2026-11-06',settlement_date='2026-11-09')
 
@@ -229,5 +230,5 @@ class SharedLedgerTests(unittest.TestCase):
         t=self.ready();self.fund('SYN-ALPHA','CASH:USD',427500,'cash');self.fund('SYN-BROKER','SEC:NOVA',100,'stock')
         self.command(t,'settle')
         before=self.ledger.snapshot()
-        reopened=Ledger(self.ledger.path)
+        reopened=Ledger(self.ledger.path,clock=FixedClock("2026-11-09"))
         self.assertEqual(reopened.snapshot(),before)

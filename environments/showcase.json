@@ -1,0 +1,9 @@
+{
+  "database": "artifacts/showcase.db",
+  "port": 8085,
+  "model": "qwen2.5:3b",
+  "reports": "artifacts/reports",
+  "business_date": "2026-11-09",
+  "calendar_id": "weekday-v1",
+  "closed_dates": []
+}

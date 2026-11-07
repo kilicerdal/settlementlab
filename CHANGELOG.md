@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.4.0 — Pinned calendars and explicit business clocks
+
+- Pure simulation calendar and clock contracts with real UTC and fixed-date adapters.
+- Per-trade calendar snapshots/fingerprints, next-business-day validation for new shared trades, and early/closed-day settlement guards.
+- Readiness API and console clock/blocker display; simulated dates are explicitly labeled.
+- Deterministic fixture/scenario dates, a showcase configuration, and date-gating controls.
+- Legacy trade-scoped behavior retained; no official market holiday or intraday-cutoff claims.
+
 ## 2.3.0 — Layered architecture and assurance runner
 
 - Extracted pure core policies, application orchestration, repository ports, SQLite persistence/migration adapters and explicit composition.

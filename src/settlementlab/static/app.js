@@ -18,6 +18,7 @@ async function refresh(){snapshot=await api('/api/snapshot');render();}
 function selectedTrade(){return snapshot.trades.find(t=>t.id===selected);}
 function display(field,value,currency='USD'){if(value===undefined||value===null)return 'Not submitted';return field==='price_cents'?new Intl.NumberFormat('en-US',{style:'currency',currency}).format(value/100):typeof value==='number'?value.toLocaleString():value;}
 function render(){
+  if(snapshot.business_time)$('business-clock').textContent=(snapshot.business_time.mode==='simulated'?'SIMULATED BUSINESS DATE: ':'REAL UTC BUSINESS DATE: ')+snapshot.business_time.date+' · Calendar '+snapshot.calendar.id;
   $('total').textContent=snapshot.trades.length;
   $('exceptions').textContent=snapshot.trades.filter(t=>['EXCEPTION','FAILED'].includes(t.state)).length;
   $('notional').textContent=money(snapshot.trades.filter(t=>t.state==='SETTLED').reduce((n,t)=>n+BigInt(t.quantity)*BigInt(t.price_cents),0n));
@@ -95,6 +96,7 @@ function renderDetail(){
     if(t.approval_history.length){const history=node('details',undefined,'revision-history');history.append(node('summary','Instruction approval history · '+t.approval_history.length));for(const a of t.approval_history)history.append(node('p',a.status+' · Maker '+a.maker_id+' · '+(a.decided_by||'Awaiting checker')+(a.reason?' · '+a.reason:'')));box.append(history);}
   }
   box.append(node('pre','Instruction: '+(t.instruction||'Pending')+'\n'+(shared?'Buyer shared cash: ':'Available cash: ')+money(t.cash_cents)+'\n'+(shared?'Seller shared securities: ':'Available securities: ')+t.securities+(t.settlement_journal?'\nSettlement journal: '+t.settlement_journal:'')));
+  if(shared){const readiness=t.settlement_readiness,card=node('div',undefined,'readiness-card');card.append(node('strong',readiness.eligible?'READY FOR SETTLEMENT':'SETTLEMENT READINESS'),node('p','Business date '+readiness.business_time.date+' · Due '+readiness.settlement_date+' · '+readiness.calendar.id));for(const blocker of readiness.blockers)card.append(node('small',blocker.code+' · '+blocker.message));box.append(card);}
   const actions=node('div',undefined,'actions');
   function add(label,action,data,role,key){const b=node('button',label,'secondary');b.disabled=!!role&&!can(role);if(b.disabled)b.title='Switch to the '+role+' demo identity';b.onclick=async()=>{b.disabled=true;try{await api('/api/trades/'+t.id+'/'+action,{version:t.version,...data},key);await refresh();announce('Trade updated: '+action);}catch(e){announce(e.message);b.disabled=false;}};actions.append(b);}
   if(['RECEIVED','EXCEPTION','MATCHED'].includes(t.state)){

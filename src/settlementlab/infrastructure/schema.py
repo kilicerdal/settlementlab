@@ -24,7 +24,9 @@ def migrate(db):
         if name not in columns:
             db.execute('ALTER TABLE trades ADD COLUMN ' + name + ' ' + declaration)
     db.execute('CREATE TABLE IF NOT EXISTS manager_submissions (\n              id INTEGER PRIMARY KEY AUTOINCREMENT, trade_id TEXT NOT NULL REFERENCES trades(id),\n              revision INTEGER NOT NULL, submission_key TEXT NOT NULL, fingerprint TEXT NOT NULL,\n              payload TEXT NOT NULL, timestamp TEXT NOT NULL, result TEXT NOT NULL,\n              UNIQUE(trade_id, revision), UNIQUE(trade_id, submission_key))')
+    if 'calendar_policy' not in columns:
+        db.execute('ALTER TABLE trades ADD COLUMN calendar_policy TEXT NOT NULL DEFAULT \'{"id":"weekday-v1","closed_dates":[]}\'')
     initialize(db)
     db.execute('CREATE TABLE IF NOT EXISTS approval_requests (\n              id TEXT PRIMARY KEY,trade_id TEXT NOT NULL REFERENCES trades(id),maker_id TEXT NOT NULL,\n              instruction TEXT NOT NULL,status TEXT NOT NULL,trade_version INTEGER NOT NULL,\n              request_key TEXT NOT NULL,fingerprint TEXT NOT NULL,created_at TEXT NOT NULL,\n              decided_by TEXT,decided_at TEXT,reason TEXT,UNIQUE(trade_id,request_key))')
     db.execute("CREATE UNIQUE INDEX IF NOT EXISTS one_pending_approval ON approval_requests(trade_id) WHERE status='PENDING'")
-    db.execute('PRAGMA user_version=3')
+    db.execute('PRAGMA user_version=4')

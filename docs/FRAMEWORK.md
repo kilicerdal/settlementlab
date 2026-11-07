@@ -27,3 +27,7 @@ Settings accepts database, port, model and reports. JSON files reject unknown fi
 Architecture controls prohibit SQL/cursor operations and infrastructure/adapter imports in core/application. Fixture tests verify temporary database removal, independent sessions and server teardown. Report controls verify failure preservation and HTML escaping. Negative acceptance tests deliberately assert a wrong state and verify that the scenario fails rather than reporting success.
 
 Runtime remains standard-library-only. Production identity, participant isolation, scale, durable workers and market calendars remain separate work. Layer separation does not establish production readiness.
+
+## Reproducible business time
+
+LocalEnvironment defaults to simulated 2026-11-09 for the catalog inputs. Scenarios can supply business_date and closed_dates; reports record the actual configured clock. S03 proves early settlement fails with 409. The browser journey uses environments/showcase.json or an equivalent --business-date override. Calendar tests cover weekend, closure, leap-year, policy pinning and invalid fingerprint behavior.

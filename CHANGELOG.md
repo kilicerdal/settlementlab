@@ -1,5 +1,16 @@
 # Changelog
 
+## 2.3.0 — Layered architecture and assurance runner
+
+- Extracted pure core policies, application orchestration, repository ports, SQLite persistence/migration adapters and explicit composition.
+- Retained backward-compatible Python facades and existing financial API behavior.
+- Reusable isolated HTTP environments, independent synthetic data factory and allowlisted JSON scenario catalog.
+- Layered unit/integration/API/browser suites and configuration profiles with strict validation.
+- Installed assurance CLI with HTML, JSON and JUnit reports, failure exit codes and CI artifact uploads.
+- Architecture, isolation, negative-scenario and report-integrity controls.
+
+No new financial behavior or production identity claims are introduced.
+
 ## 2.2.0 — Shared ledger and governed instruction approval
 
 - Shared participant cash/security balances and balanced four-line DvP settlement, with atomic projections, lifecycle and audit writes.

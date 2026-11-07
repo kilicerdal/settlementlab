@@ -1,0 +1,83 @@
+{
+  "id": "S02",
+  "title": "Governed settlement failure and recovery",
+  "steps": [
+    {
+      "action": "identity",
+      "data": {
+        "persona": "maker-alex"
+      }
+    },
+    {
+      "action": "create",
+      "assert": {
+        "state": "RECEIVED"
+      }
+    },
+    {
+      "action": "manager",
+      "assert": {
+        "state": "MATCHED"
+      }
+    },
+    {
+      "action": "request",
+      "assert": {
+        "pending_approval.status": "PENDING"
+      }
+    },
+    {
+      "action": "approve",
+      "expect_status": 403,
+      "assert": {
+        "http_status": 403
+      }
+    },
+    {
+      "action": "identity",
+      "data": {
+        "persona": "checker-sam"
+      }
+    },
+    {
+      "action": "approve",
+      "assert": {
+        "state": "AFFIRMED"
+      }
+    },
+    {
+      "action": "settle",
+      "assert": {
+        "state": "FAILED"
+      }
+    },
+    {
+      "action": "fund",
+      "data": {
+        "participant_id": "SYN-ALPHA",
+        "asset": "CASH:USD",
+        "amount": 427500
+      }
+    },
+    {
+      "action": "fund",
+      "data": {
+        "participant_id": "SYN-BROKER",
+        "asset": "SEC:NOVA",
+        "amount": 100
+      }
+    },
+    {
+      "action": "settle",
+      "assert": {
+        "state": "SETTLED"
+      }
+    },
+    {
+      "action": "snapshot",
+      "assert": {
+        "treasury.controls.status": "BALANCED"
+      }
+    }
+  ]
+}

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "settlementlab"
-version = "2.2.0"
+version = "2.3.0"
 readme = "README.md"
 description = "A deterministic post-trade lifecycle simulator and assurance workbench"
 requires-python = ">=3.9"
@@ -12,6 +12,8 @@ dependencies = []
 
 [project.scripts]
 settlementlab = "settlementlab.server:main"
+
+settlementlab-assure = "settlementlab.assurance.runner:main"
 
 [project.optional-dependencies]
 test = ["pytest>=8,<9", "httpx>=0.27,<1", "playwright>=1.48,<2"]
@@ -25,3 +27,4 @@ testpaths = ["tests"]
 
 [tool.setuptools.package-data]
 settlementlab = ["static/*.html", "static/*.css", "static/*.js"]
+"settlementlab.assurance" = ["catalog/*.json"]

@@ -8,6 +8,49 @@ SettlementLab is an independent post-trade simulator and Python assurance framew
 
 ![V2.2 shared participant ledger and controls](docs/images/ledger-v22.png)
 
+## Framework architecture — V2.3
+
+```text
+src/settlementlab/
+  core/                 Pure matching, posting invariants, identity policy, evidence
+  application/          Workflow service and persistence ports; no SQL or HTTP
+  infrastructure/       SQLite repositories, migrations, transactions, demo sessions
+  adapters/             HTTP and local AI transports
+  assurance/            API client, isolated environments, data factories,
+                        JSON scenario catalog, runner and report writers
+  configuration.py      Validated configuration and precedence
+  bootstrap.py          Explicit application composition
+  static/               Operations console
+ tests/
+  unit/                 Policies, AI contracts, configuration, reporting, boundaries
+  integration/          Persistence, migration, lifecycle and concurrency
+  api/                  Real HTTP, role enforcement, fixture and scenario controls
+  browser/              Desktop/mobile end-to-end journey
+ environments/          Local and CI JSON settings
+```
+
+The older top-level Python modules remain compatibility facades. Existing V1/V2 callers continue to work; new integrations should use the composition root or injected application service. Financial behavior and API contracts are preserved.
+
+## Run the assurance framework
+
+```sh
+PYTHONPATH=src python3 -m settlementlab.assurance.runner --suite all
+# Or after pip install .:
+settlementlab-assure --suite all --root .
+settlementlab-assure --suite scenarios
+```
+
+Suites: `unit`, `integration`, `api`, `core` (all three), `scenarios`, and `all`. Core suites require a source checkout; shipped scenarios also run from an installed package. Each acceptance scenario gets a fresh database, ephemeral HTTP server and cookie jar. No model runtime or paid API is required. Browser and live-model checks remain explicit separate runs.
+
+Reports are written to `artifacts/reports/index.html`, `results.json` and `junit.xml`. They record actual case outcomes, duration, failures and scenario steps; failed assertions return a nonzero exit status. CI uploads these reports alongside browser artifacts. Configuration uses defaults < JSON file < environment < CLI. For example:
+
+```sh
+PYTHONPATH=src python3 -m settlementlab.server --config environments/local.json
+settlementlab-assure --config environments/ci.json --suite scenarios
+```
+
+See [framework extension guide](docs/FRAMEWORK.md) for adding scenarios, adapters and controls.
+
 ## Run the workbench
 
 Python 3.9+; the application and core tests have **zero third-party dependencies**.

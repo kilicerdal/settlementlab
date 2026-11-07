@@ -11,17 +11,10 @@ from settlementlab.assurance.client import SettlementClient, APIError
 
 class HTTPTests(unittest.TestCase):
     def setUp(self):
-        self.temp=tempfile.TemporaryDirectory()
-        self.server=ThreadingHTTPServer(('127.0.0.1',0),handler(Ledger(Path(self.temp.name)/'http.db'),triage=Triage(model='')))
-        self.thread=threading.Thread(target=self.server.serve_forever,daemon=True)
-        self.thread.start()
-        self.client=SettlementClient('http://127.0.0.1:%d'%self.server.server_port)
-
-    def tearDown(self):
-        self.server.shutdown()
-        self.server.server_close()
-        self.thread.join()
-        self.temp.cleanup()
+        from settlementlab.assurance.fixtures import LocalEnvironment
+        self.environment=LocalEnvironment().__enter__()
+        self.addCleanup(self.environment.__exit__,None,None,None)
+        self.client=self.environment.client
 
     def test_real_http_lifecycle(self):
         self.assertEqual(self.client.request('/api/health')['status'],'healthy')

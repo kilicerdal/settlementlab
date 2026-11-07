@@ -51,3 +51,9 @@ Instruction requests store maker, current terms version, instruction and idempot
 `identity.py` stores opaque, expiring demo session tokens in memory. The HTTP adapter supplies the resolved Principal to the domain; JSON role/actor fields are not trusted. Anyone at the local console may select a demo persona. This demonstrates role enforcement and different-identity approval, not distinct-person authentication. Participant reads are not isolated. Older trade-scoped contracts remain explicitly outside shared-ledger governance for compatibility.
 
 Startup adds participants, projections, journal batches/lines, instruction approvals and settlement-model columns. Old trades default to trade-scoped behavior; their economics are not silently moved into the shared journal.
+
+## V2.3 module boundaries
+
+Core policies and evidence shaping are persistence/network independent. SettlementService receives an application-owned Store protocol and calls named repository methods. SQLiteRepository owns SQL and row/cursor conversion; SQLiteStore owns migration and transaction lifetime. bootstrap.create_application composes these with explicit Settings and the AI adapter. DemoSessions is an infrastructure identity adapter; Principal and require are pure workflow policy. HTTP and model transports live under adapters.
+
+The assurance layer provides isolated HTTP fixtures, a synthetic input factory, an allowlisted JSON acceptance DSL and report exporters. Unit/integration/API/browser directories reflect execution boundaries. Older domain/server/etc. modules are compatibility facades. See FRAMEWORK.md for extension and remaining coarse journal-adapter boundaries.

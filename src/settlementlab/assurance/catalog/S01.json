@@ -1,0 +1,34 @@
+{
+  "id": "S01",
+  "title": "Matching break and preserved correction",
+  "steps": [
+    {
+      "action": "identity",
+      "data": {
+        "persona": "maker-alex"
+      }
+    },
+    {
+      "action": "create"
+    },
+    {
+      "action": "manager",
+      "data": {
+        "price": "42.76"
+      },
+      "assert": {
+        "state": "EXCEPTION",
+        "matching.findings.0.code": "PRICE_MISMATCH",
+        "price_cents": 4275
+      }
+    },
+    {
+      "action": "manager",
+      "assert": {
+        "state": "MATCHED",
+        "submission_history.0.terms.price_cents": 4276,
+        "submission_history.1.terms.price_cents": 4275
+      }
+    }
+  ]
+}

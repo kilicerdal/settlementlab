@@ -153,8 +153,10 @@ def record(output):
             duration = round(time.monotonic() - clock, 2)
         finally:
             context.close()
-            browser.close()
-        video.save_as(str(output / "walkthrough.webm"))
+            try:
+                video.save_as(str(output / "walkthrough.webm"))
+            finally:
+                browser.close()
     metadata = dict(
         framework_version=__version__,
         source_commit=subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip(),

@@ -1,0 +1,197 @@
+{
+  "generated_at": "2026-11-07T06:15:15.294973+00:00",
+  "mode": "live-local-model",
+  "scope": "Two synthetic examples; citation and mutation checks, not a semantic quality benchmark",
+  "cases": [
+    {
+      "case": "insufficient-cash",
+      "elapsed_seconds": 3.82,
+      "checks": {
+        "required_fact_references": true,
+        "ledger_unchanged": true
+      },
+      "response": {
+        "provider": "ollama-local",
+        "model": "qwen2.5:3b",
+        "mode": "live-model",
+        "prompt_version": "triage-v2",
+        "advisory_only": true,
+        "trade_id": "SL-000001",
+        "trade_version": 5,
+        "analysis": {
+          "summary": "The trade with ID SL-000001 in version 5 has reached a FAILED state. The broker quantity matches the allocation total (100 each), indicating no quantity discrepancy. However, the trade is in a FAILED state due to insufficient available cash (0 cents) to cover the required cash (427,500 cents). The available securities are sufficient (100 each), aligning with the required securities (100 each). This mismatch in cash availability is the primary reason for the trade failing. An investigation is recommended to review the cash allocation process and ensure that funds are correctly managed and available for trades.",
+          "likely_cause": "Insufficient available cash to cover the required cash for the trade.",
+          "next_step": "Review the cash allocation process and ensure that funds are correctly managed and available for trades.",
+          "evidence_ids": [
+            "fact:broker_quantity",
+            "fact:allocation_total",
+            "fact:required_cash_cents",
+            "fact:available_cash_cents",
+            "fact:required_securities",
+            "fact:available_securities"
+          ],
+          "uncertainty": "The exact cause of the insufficient available cash could be due to various factors such as incorrect cash allocation, insufficient funds in the system, or errors in the cash management process."
+        },
+        "evidence": {
+          "trade_id": "SL-000001",
+          "trade_version": 5,
+          "facts": [
+            {
+              "id": "fact:state",
+              "name": "state",
+              "value": "FAILED"
+            },
+            {
+              "id": "fact:broker_quantity",
+              "name": "broker_quantity",
+              "value": 100
+            },
+            {
+              "id": "fact:allocation_total",
+              "name": "allocation_total",
+              "value": 100
+            },
+            {
+              "id": "fact:required_cash_cents",
+              "name": "required_cash_cents",
+              "value": 427500
+            },
+            {
+              "id": "fact:available_cash_cents",
+              "name": "available_cash_cents",
+              "value": 0
+            },
+            {
+              "id": "fact:required_securities",
+              "name": "required_securities",
+              "value": 100
+            },
+            {
+              "id": "fact:available_securities",
+              "name": "available_securities",
+              "value": 100
+            }
+          ],
+          "events": [
+            {
+              "id": "event:1",
+              "action": "TRADE_RECEIVED"
+            },
+            {
+              "id": "event:2",
+              "action": "ALLOCATE"
+            },
+            {
+              "id": "event:3",
+              "action": "AFFIRM"
+            },
+            {
+              "id": "event:4",
+              "action": "FUND"
+            },
+            {
+              "id": "event:5",
+              "action": "SETTLE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "case": "insufficient-securities",
+      "elapsed_seconds": 4.06,
+      "checks": {
+        "required_fact_references": true,
+        "ledger_unchanged": true
+      },
+      "response": {
+        "provider": "ollama-local",
+        "model": "qwen2.5:3b",
+        "mode": "live-model",
+        "prompt_version": "triage-v2",
+        "advisory_only": true,
+        "trade_id": "SL-000001",
+        "trade_version": 5,
+        "analysis": {
+          "summary": "The trade with ID SL-000001 in version 5 has reached a FAILED state. The broker quantity matches the allocation total (100 each), and there is no discrepancy in cash or securities. However, the available securities are zero, which is a critical issue preventing the trade from proceeding. This indicates a failure in the securities allocation or availability, likely due to a mismatch between the allocated securities and what is available. The trade has not settled yet, and the available securities being zero is a significant issue that requires immediate investigation. The trade should not be automatically approved or settled until this is resolved.",
+          "likely_cause": "Insufficient securities availability for the trade, possibly due to a misalignment between allocated securities and actual availability.",
+          "next_step": "Investigate the cause of the zero available securities, review the allocation process, and ensure that securities are correctly managed and available for the trade.",
+          "evidence_ids": [
+            "fact:broker_quantity",
+            "fact:allocation_total",
+            "fact:required_securities",
+            "fact:available_securities",
+            "event:2",
+            "event:3",
+            "event:4",
+            "event:5"
+          ],
+          "uncertainty": "The exact cause of the zero available securities could be due to various factors such as incorrect allocation, system errors, or external issues affecting the securities availability."
+        },
+        "evidence": {
+          "trade_id": "SL-000001",
+          "trade_version": 5,
+          "facts": [
+            {
+              "id": "fact:state",
+              "name": "state",
+              "value": "FAILED"
+            },
+            {
+              "id": "fact:broker_quantity",
+              "name": "broker_quantity",
+              "value": 100
+            },
+            {
+              "id": "fact:allocation_total",
+              "name": "allocation_total",
+              "value": 100
+            },
+            {
+              "id": "fact:required_cash_cents",
+              "name": "required_cash_cents",
+              "value": 427500
+            },
+            {
+              "id": "fact:available_cash_cents",
+              "name": "available_cash_cents",
+              "value": 427500
+            },
+            {
+              "id": "fact:required_securities",
+              "name": "required_securities",
+              "value": 100
+            },
+            {
+              "id": "fact:available_securities",
+              "name": "available_securities",
+              "value": 0
+            }
+          ],
+          "events": [
+            {
+              "id": "event:1",
+              "action": "TRADE_RECEIVED"
+            },
+            {
+              "id": "event:2",
+              "action": "ALLOCATE"
+            },
+            {
+              "id": "event:3",
+              "action": "AFFIRM"
+            },
+            {
+              "id": "event:4",
+              "action": "FUND"
+            },
+            {
+              "id": "event:5",
+              "action": "SETTLE"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

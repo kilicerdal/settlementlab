@@ -5,11 +5,15 @@ import os
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from .domain import Ledger, DomainError
+from .ai import Triage
+from threading import BoundedSemaphore
 
 ASSETS = Path(__file__).resolve().parent / "static"
 
 
-def handler(ledger):
+def handler(ledger, triage=None):
+    triage = triage or Triage()
+    ai_slots = BoundedSemaphore(1)
     class Handler(BaseHTTPRequestHandler):
         def reply(self, status, body, content_type="application/json"):
             raw = json.dumps(body).encode() if content_type == "application/json" else body
@@ -24,7 +28,7 @@ def handler(ledger):
 
         def do_GET(self):
             if self.path == "/api/health":
-                return self.reply(200, {"status": "healthy", "version": "1.0.0"})
+                return self.reply(200, {"status": "healthy", "version": "1.0.0", "ai_enabled": triage.enabled})
             if self.path == "/api/snapshot":
                 return self.reply(200, ledger.snapshot())
             assets = {"/": ("index.html", "text/html; charset=utf-8"), "/app.js": ("app.js", "text/javascript"), "/style.css": ("style.css", "text/css")}
@@ -51,6 +55,14 @@ def handler(ledger):
                     return self.reply(200, ledger.reconcile(data.get("statement")))
                 parts = self.path.strip("/").split("/")
                 if len(parts) == 4 and parts[:2] == ["api", "trades"]:
+                    if parts[3] == "analyze":
+                        evidence = ledger.evidence(parts[2], data.get("version"))
+                        if not ai_slots.acquire(blocking=False):
+                            raise DomainError("An AI analysis is already running; try again shortly", 429)
+                        try:
+                            return self.reply(200, triage.analyze(evidence))
+                        finally:
+                            ai_slots.release()
                     return self.reply(200, ledger.command(parts[2], parts[3], data))
                 raise DomainError("Not found", 404)
             except DomainError as error:

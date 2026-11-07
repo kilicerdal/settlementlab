@@ -31,6 +31,24 @@ function renderDetail(){
   if(t.state==='MATCHED')add('Affirm instructions','affirm',{instruction:'SYN-CUSTODY-USD-001'});
   if(['AFFIRMED','FAILED'].includes(t.state)){add('Provision demo balances','fund',{cash_cents:t.quantity*t.price_cents,securities:t.quantity});add('Attempt settlement','settle',{});}
   if(t.state==='SETTLED'){const b=node('button','Reconcile statement','secondary');b.onclick=async()=>{try{const statement=snapshot.trades.filter(x=>x.state==='SETTLED').map(x=>({trade_id:x.id,quantity:x.quantity,amount_cents:x.quantity*x.price_cents}));const r=await api('/api/reconcile',{statement});announce('Reconciliation: '+r.status+' · '+r.internal_count+' settled trades checked against a synthetic matching statement.');}catch(e){announce(e.message);}};actions.append(b);}
+  if(['EXCEPTION','FAILED'].includes(t.state)){
+    const ai=node('button','Analyze exception with AI','secondary');
+    ai.onclick=async()=>{
+      ai.disabled=true;ai.textContent='Analyzing evidence…';
+      const report=node('div',undefined,'ai-report');report.setAttribute('role','status');box.append(report);
+      try{
+        const r=await api('/api/trades/'+t.id+'/analyze',{version:t.version});
+        report.append(node('h3','AI analysis · advisory only'),node('small',r.provider+' / '+r.model+' · trade version '+r.trade_version));
+        for(const [label,key] of [['Summary','summary'],['Likely cause','likely_cause'],['Next investigation','next_step'],['Uncertainty','uncertainty']]){
+          report.append(node('h4',label),node('p',r.analysis[key]));
+        }
+        report.append(node('small','Evidence: '+r.analysis.evidence_ids.join(', ')));
+      }catch(e){report.append(node('p',e.message));}
+      finally{ai.disabled=false;ai.textContent='Analyze exception with AI';}
+    };
+    actions.append(ai);
+    box.append(node('p','Local AI reads bounded synthetic facts through Ollama. No API key or cloud call. It cannot change the ledger.','ai-note'));
+  }
   box.append(actions);
 }
 $('refresh').onclick=()=>refresh().catch(e=>announce(e.message));

@@ -2,6 +2,7 @@
 
 ## 1.0.0 — Initial local showcase
 
+- Optional read-only AI triage with structured output, evidence references, and explicit provider configuration.
 - Post-trade lifecycle with allocation exceptions, affirmation, simulated settlement, failure recovery, and statement reconciliation.
 - Responsive operations console with a synthetic demonstration and persisted audit timeline.
 - Exact integer-cent accounting within documented bounds, request idempotency, optimistic versions, and transactional updates.

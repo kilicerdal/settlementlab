@@ -1,0 +1,145 @@
+{
+  "generated_at": "2026-11-07T06:11:12.346984+00:00",
+  "source_commit": "fa9703af2445375be39e3aecbf76c0b68f85c8e0",
+  "origin": "recorded-local-domain-execution",
+  "model_calls": 0,
+  "symbol": "NOVA",
+  "price_cents": 4275,
+  "notional_cents": 42750000,
+  "stages": [
+    {
+      "label": "Broker submission",
+      "state": "RECEIVED",
+      "version": 1,
+      "quantity": 10000,
+      "allocation_total": 0,
+      "cash_cents": 0,
+      "securities": 0,
+      "reason": null
+    },
+    {
+      "label": "Allocation break",
+      "state": "EXCEPTION",
+      "version": 2,
+      "quantity": 10000,
+      "allocation_total": 9900,
+      "cash_cents": 0,
+      "securities": 0,
+      "reason": "Allocation quantity 9900 differs from broker quantity 10000"
+    },
+    {
+      "label": "Allocation corrected",
+      "state": "MATCHED",
+      "version": 3,
+      "quantity": 10000,
+      "allocation_total": 10000,
+      "cash_cents": 0,
+      "securities": 0,
+      "reason": null
+    },
+    {
+      "label": "Instruction affirmed",
+      "state": "AFFIRMED",
+      "version": 4,
+      "quantity": 10000,
+      "allocation_total": 10000,
+      "cash_cents": 0,
+      "securities": 0,
+      "reason": null
+    },
+    {
+      "label": "Settlement failed",
+      "state": "FAILED",
+      "version": 5,
+      "quantity": 10000,
+      "allocation_total": 10000,
+      "cash_cents": 0,
+      "securities": 0,
+      "reason": "Insufficient simulated cash or securities"
+    },
+    {
+      "label": "Balances provisioned",
+      "state": "FAILED",
+      "version": 6,
+      "quantity": 10000,
+      "allocation_total": 10000,
+      "cash_cents": 42750000,
+      "securities": 10000,
+      "reason": "Insufficient simulated cash or securities"
+    },
+    {
+      "label": "Settlement completed",
+      "state": "SETTLED",
+      "version": 7,
+      "quantity": 10000,
+      "allocation_total": 10000,
+      "cash_cents": 0,
+      "securities": 0,
+      "reason": null
+    }
+  ],
+  "reconciliation": {
+    "status": "BALANCED",
+    "breaks": [],
+    "internal_count": 1,
+    "external_count": 1
+  },
+  "audit": [
+    {
+      "seq": 7,
+      "trade_id": "SL-000001",
+      "timestamp": "2026-11-07T06:11:12.346516+00:00",
+      "actor": "operator",
+      "action": "SETTLE",
+      "detail": "State: SETTLED"
+    },
+    {
+      "seq": 6,
+      "trade_id": "SL-000001",
+      "timestamp": "2026-11-07T06:11:12.345866+00:00",
+      "actor": "operator",
+      "action": "FUND",
+      "detail": "Demo balances provisioned; cash cents: 42750000, securities: 10000"
+    },
+    {
+      "seq": 5,
+      "trade_id": "SL-000001",
+      "timestamp": "2026-11-07T06:11:12.345244+00:00",
+      "actor": "operator",
+      "action": "SETTLE",
+      "detail": "Insufficient simulated cash or securities"
+    },
+    {
+      "seq": 4,
+      "trade_id": "SL-000001",
+      "timestamp": "2026-11-07T06:11:12.344509+00:00",
+      "actor": "operator",
+      "action": "AFFIRM",
+      "detail": "State: AFFIRMED"
+    },
+    {
+      "seq": 3,
+      "trade_id": "SL-000001",
+      "timestamp": "2026-11-07T06:11:12.343757+00:00",
+      "actor": "operator",
+      "action": "ALLOCATE",
+      "detail": "State: MATCHED"
+    },
+    {
+      "seq": 2,
+      "trade_id": "SL-000001",
+      "timestamp": "2026-11-07T06:11:12.343047+00:00",
+      "actor": "operator",
+      "action": "ALLOCATE",
+      "detail": "Allocation quantity 9900 differs from broker quantity 10000"
+    },
+    {
+      "seq": 1,
+      "trade_id": "SL-000001",
+      "timestamp": "2026-11-07T06:11:12.342110+00:00",
+      "actor": "broker",
+      "action": "TRADE_RECEIVED",
+      "detail": "Broker submission accepted"
+    }
+  ]
+}

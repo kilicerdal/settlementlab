@@ -1,0 +1,59 @@
+{
+  "provider": "ollama-local",
+  "model": "qwen2.5:3b",
+  "mode": "live-model",
+  "prompt_version": "triage-v2",
+  "advisory_only": true,
+  "trade_id": "SL-000001",
+  "trade_version": 2,
+  "analysis": {
+    "summary": "The trade with ID SL-000001 is in an EXCEPTION state. The broker provided a quantity of 100, but the allocated total is 99. This indicates a quantity discrepancy, likely due to a submitted allocation that did not match the received quantity. Further investigation is recommended to review the submitted allocations and ensure they align with the received quantities. The trade is not yet settled and funding is not part of this simulation stage.",
+    "likely_cause": "A submitted allocation might have been incorrect or incomplete, leading to a quantity mismatch.",
+    "next_step": "Review submitted allocations to ensure they match the received quantities.",
+    "evidence_ids": [
+      "fact:state",
+      "fact:broker_quantity",
+      "fact:allocation_total"
+    ],
+    "uncertainty": "The exact cause of the discrepancy is uncertain, but it likely stems from an error in the allocation process."
+  },
+  "evidence": {
+    "trade_id": "SL-000001",
+    "trade_version": 2,
+    "facts": [
+      {
+        "id": "fact:state",
+        "name": "state",
+        "value": "EXCEPTION"
+      },
+      {
+        "id": "fact:broker_quantity",
+        "name": "broker_quantity",
+        "value": 100
+      },
+      {
+        "id": "fact:allocation_total",
+        "name": "allocation_total",
+        "value": 99
+      }
+    ],
+    "events": [
+      {
+        "id": "event:1",
+        "action": "TRADE_RECEIVED"
+      },
+      {
+        "id": "event:2",
+        "action": "ALLOCATE"
+      }
+    ]
+  },
+  "elapsed_seconds": 2.84,
+  "evaluation": {
+    "case": "allocation-mismatch",
+    "ledger_unchanged": true,
+    "citation_validation_passed": true,
+    "model_quality_score": null,
+    "review": "Quantity discrepancy identified with stage-relevant references. Some speculative causal language remains; operator review is required."
+  }
+}

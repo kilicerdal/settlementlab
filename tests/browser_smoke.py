@@ -15,6 +15,11 @@ with sync_playwright() as p:
         expect(page.get_by_role('heading',name='Every trade. Accounted for.')).to_be_visible()
         page.get_by_role('button',name='Run showcase scenario').click()
         expect(page.locator('#detail .badge')).to_have_text('EXCEPTION')
+        if os.getenv('SETTLEMENTLAB_TEST_LOCAL_AI') == '1':
+            page.get_by_role('button',name='Analyze exception with AI').click()
+            expect(page.locator('.ai-report h3')).to_have_text('AI analysis · advisory only',timeout=65000)
+            expect(page.locator('.ai-report')).to_contain_text('ollama-local')
+            page.screenshot(path=str(output/'local-ai.png'),full_page=True)
         page.get_by_role('button',name='Match full allocation').click()
         expect(page.locator('#detail .badge')).to_have_text('MATCHED')
         page.get_by_role('button',name='Affirm instructions').click()

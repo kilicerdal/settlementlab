@@ -5,13 +5,14 @@ from http.server import ThreadingHTTPServer
 from pathlib import Path
 from settlementlab.domain import Ledger
 from settlementlab.server import handler
+from settlementlab.ai import Triage
 from settlementlab.assurance.client import SettlementClient, APIError
 
 
 class HTTPTests(unittest.TestCase):
     def setUp(self):
         self.temp=tempfile.TemporaryDirectory()
-        self.server=ThreadingHTTPServer(('127.0.0.1',0),handler(Ledger(Path(self.temp.name)/'http.db')))
+        self.server=ThreadingHTTPServer(('127.0.0.1',0),handler(Ledger(Path(self.temp.name)/'http.db'),triage=Triage(model='')))
         self.thread=threading.Thread(target=self.server.serve_forever,daemon=True)
         self.thread.start()
         self.client=SettlementClient('http://127.0.0.1:%d'%self.server.server_port)
@@ -46,3 +47,15 @@ class HTTPTests(unittest.TestCase):
                     self.assertEqual(response.status,200)
                     self.assertIn(expected,response.read().decode())
                     self.assertEqual(response.headers['X-Content-Type-Options'],'nosniff')
+
+    def test_disabled_ai_and_stale_analysis_do_not_mutate_trade(self):
+        t=self.client.create(dict(symbol='NOVA',quantity=10,price='0.29',trade_date='2026-11-06'),'ai-http')
+        before=self.client.request('/api/snapshot')
+        with self.assertRaises(APIError) as error:
+            self.client.request('/api/trades/'+t['id']+'/analyze',{'version':t['version']-1})
+        self.assertEqual(error.exception.status,409)
+        self.assertEqual(self.client.request('/api/snapshot'),before)
+        with self.assertRaises(APIError) as error:
+            self.client.request('/api/trades/'+t['id']+'/analyze',{'version':t['version']})
+        self.assertEqual(error.exception.status,503)
+        self.assertEqual(self.client.request('/api/snapshot'),before)

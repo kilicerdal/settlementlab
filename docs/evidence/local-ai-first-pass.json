@@ -1,0 +1,83 @@
+{
+  "provider": "ollama-local",
+  "model": "qwen2.5:3b",
+  "mode": "live-model",
+  "prompt_version": "triage-v1",
+  "advisory_only": true,
+  "trade_id": "SL-000001",
+  "trade_version": 2,
+  "analysis": {
+    "summary": "The trade with ID SL-000001 is in an EXCEPTION state due to the broker quantity (100) not matching the allocation total (99). The available cash and securities are zero, indicating insufficient funds or assets to complete the trade. This discrepancy suggests a potential issue in the allocation process or a missing step in the trade lifecycle. Further investigation is recommended to understand why the allocation did not match the broker quantity and to ensure that the system did not inadvertently allocate resources beyond available resources. ",
+    "likely_cause": "The allocation process did not correctly reflect the broker quantity, leading to an exception state. ",
+    "next_step": "Review the allocation logic and ensure that the broker quantity is accurately reflected in the allocation process. Investigate why the allocation total is less than the broker quantity. ",
+    "evidence_ids": [
+      "fact:state",
+      "fact:broker_quantity",
+      "fact:allocation_total",
+      "fact:required_cash_cents",
+      "fact:available_cash_cents",
+      "fact:required_securities",
+      "fact:available_securities"
+    ],
+    "uncertainty": "The exact cause of the discrepancy is uncertain, but it could be due to a programming error, a missing step in the trade lifecycle, or an unexpected event in the system. "
+  },
+  "evidence": {
+    "trade_id": "SL-000001",
+    "trade_version": 2,
+    "facts": [
+      {
+        "id": "fact:state",
+        "name": "state",
+        "value": "EXCEPTION"
+      },
+      {
+        "id": "fact:broker_quantity",
+        "name": "broker_quantity",
+        "value": 100
+      },
+      {
+        "id": "fact:allocation_total",
+        "name": "allocation_total",
+        "value": 99
+      },
+      {
+        "id": "fact:required_cash_cents",
+        "name": "required_cash_cents",
+        "value": 427500
+      },
+      {
+        "id": "fact:available_cash_cents",
+        "name": "available_cash_cents",
+        "value": 0
+      },
+      {
+        "id": "fact:required_securities",
+        "name": "required_securities",
+        "value": 100
+      },
+      {
+        "id": "fact:available_securities",
+        "name": "available_securities",
+        "value": 0
+      }
+    ],
+    "events": [
+      {
+        "id": "event:1",
+        "action": "TRADE_RECEIVED"
+      },
+      {
+        "id": "event:2",
+        "action": "ALLOCATE"
+      }
+    ]
+  },
+  "elapsed_seconds": 5.48,
+  "evaluation": {
+    "case": "allocation-mismatch",
+    "ledger_unchanged": true,
+    "citation_validation_passed": true,
+    "model_quality_score": null,
+    "review": "Identified quantity mismatch, but discussed funding before affirmation. Superseded by stage-specific evidence and triage-v2."
+  }
+}

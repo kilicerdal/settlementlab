@@ -9,3 +9,7 @@ artifacts/
 *.egg-info/
 build/
 dist/
+
+.env
+.env.*
+!.env.example

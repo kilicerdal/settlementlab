@@ -207,3 +207,12 @@ class Ledger:
                 breaks.append({"trade_id": key, "reason": "VALUE_MISMATCH"})
         return {"status": "BREAKS" if breaks else "BALANCED", "breaks": breaks,
                 "internal_count": len(internal), "external_count": len(external)}
+
+    def evidence(self, trade_id, version):
+        from .ai import build_evidence
+        with self.connection() as db:
+            trade = self.get(db, trade_id)
+            if isinstance(version, bool) or not isinstance(version, int) or version != trade["version"]:
+                raise DomainError("Stale or missing version; refresh before analysis", 409)
+            events = [dict(r) for r in db.execute("SELECT * FROM audit WHERE trade_id=? ORDER BY seq", (trade_id,))]
+            return build_evidence(trade, events)

@@ -1,0 +1,60 @@
+{
+  "id": "C02",
+  "title": "Reservation replay preserves identity and inventory",
+  "target": "collateral",
+  "steps": [
+    {
+      "action": "http",
+      "method": "POST",
+      "path": "/inventory",
+      "data": {
+        "asset": "ASSET-${run_id}",
+        "quantity": 100
+      },
+      "status": 201,
+      "assert": {
+        "body.available": 100
+      }
+    },
+    {
+      "action": "http",
+      "method": "POST",
+      "path": "/reservations",
+      "key": "${run_id}-reserve",
+      "data": {
+        "asset": "ASSET-${run_id}",
+        "quantity": 10
+      },
+      "status": 201,
+      "save": "reservation",
+      "assert": {
+        "body.status": "ACTIVE",
+        "body.quantity": 10
+      }
+    },
+    {
+      "action": "http",
+      "method": "POST",
+      "path": "/reservations",
+      "key": "${run_id}-reserve",
+      "data": {
+        "asset": "ASSET-${run_id}",
+        "quantity": 10
+      },
+      "status": 200,
+      "save": "replayed",
+      "assert": {
+        "body.id": {
+          "$ref": "reservation.id"
+        }
+      }
+    },
+    {
+      "action": "http",
+      "path": "/inventory/ASSET-${run_id}",
+      "assert": {
+        "body.available": 90
+      }
+    }
+  ]
+}

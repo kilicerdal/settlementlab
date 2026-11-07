@@ -4,7 +4,7 @@ from copy import deepcopy
 from uuid import uuid4
 
 
-class TradeFactory:
+class RunKeys:
     def __init__(self, namespace=None):
         self.namespace = namespace or uuid4().hex[:12]
         self.sequence = 0
@@ -13,6 +13,8 @@ class TradeFactory:
         self.sequence += 1
         return self.namespace + "-" + label + "-" + str(self.sequence)
 
+
+class TradeFactory(RunKeys):
     def terms(self, **changes):
         values = dict(
             symbol="NOVA",

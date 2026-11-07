@@ -8,6 +8,19 @@ SettlementLab is an independent post-trade simulator and Python assurance framew
 
 ![V2.2 shared participant ledger and controls](docs/images/ledger-v22.png)
 
+## Reusability release — V2.6
+
+The assurance engine now runs against a second, independently implemented collateral reservation API. Shared transport, fixtures, target profiles, assertions and reports are reused; the second service has no SettlementLab imports. A deliberately broken replay implementation is detected with expected/observed status and a failing report.
+
+```sh
+# Launch the separate reference service from this checkout:
+python3 -m examples.collateral_service.server --port 8090 --db /tmp/collateral-demo.db
+# In another terminal, after installing the framework:
+settlementlab-assure --suite scenarios --target-profile targets/collateral.json --report-dir artifacts/reuse-control
+```
+
+The example and fault mode are documented in [the second service](examples/collateral_service/README.md). See [reuse contracts, configuration, failure evidence and limitations](docs/REUSE.md). This is proof across two synthetic local applications, not a claim of production integration.
+
 ## Quality release — V2.5
 
 V2.5 fixes atomic migration, future-schema protection, report failure preservation, journal integrity and stored-calendar validation defects. Development-only lint, format, strict core/config typing and branch coverage gates now run in CI. No new product features were added.

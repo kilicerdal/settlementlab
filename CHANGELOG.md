@@ -1,5 +1,15 @@
 # Changelog
 
+## 2.6.0 — Second-target reuse and structured failure evidence
+
+- Reusable bounded JSON transport and generic HTTP server fixture, with the financial client/environment layered on top.
+- Target profiles and CLI overrides, generic HTTP steps, response references, exact status/assertion diagnostics and configuration-failure reports.
+- Separate collateral reservation example with independent storage and no framework imports.
+- Healthy reservation/release/replay scenarios plus an explicit duplicate-replay fault caught by the same runner.
+- Installed-CLI reuse CI, isolated run keys, redirect/error/timeout/size controls and report evidence tests.
+
+No paid services required. Generic HTTP authentication and production integration remain outside this increment.
+
 ## 2.5.0 — Quality review and repeatable gates
 
 - Atomic migrations with future-schema refusal and rollback regressions.

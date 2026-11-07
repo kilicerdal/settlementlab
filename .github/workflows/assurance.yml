@@ -14,8 +14,8 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
       - run: pip install . -r requirements-quality.txt
-      - run: ruff check src tests scripts
-      - run: ruff format --check src tests scripts
+      - run: ruff check src tests scripts examples
+      - run: ruff format --check src tests scripts examples
       - run: mypy
       - run: python -c "from importlib.resources import files; assert files('settlementlab').joinpath('static/index.html').is_file()"
       - run: settlementlab --help
@@ -59,3 +59,45 @@ jobs:
         with:
           name: browser-evidence
           path: artifacts/
+
+  reuse:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - run: pip install .
+      - run: |
+          python -m examples.collateral_service.server --port 8090 --db /tmp/collateral-control.db > /tmp/collateral-control.log 2>&1 &
+          python -m examples.collateral_service.server --port 8091 --db /tmp/collateral-fault.db --fault-duplicate-replay > /tmp/collateral-fault.log 2>&1 &
+          python - <<'PY'
+          import time, urllib.request
+          for port in (8090,8091):
+              for _ in range(50):
+                  try:
+                      urllib.request.urlopen('http://127.0.0.1:'+str(port)+'/health')
+                      break
+                  except OSError:
+                      time.sleep(0.1)
+              else:
+                  raise SystemExit('Independent service failed readiness')
+          PY
+          settlementlab-assure --suite scenarios --target-profile targets/collateral.json --report-dir artifacts/reuse-control
+          if settlementlab-assure --suite scenarios --target collateral --base-url http://127.0.0.1:8091 --report-dir artifacts/reuse-fault; then
+            echo "Injected defect was not rejected"
+            exit 1
+          fi
+          python - <<'PY'
+          import json
+          report=json.load(open('artifacts/reuse-fault/results.json'))
+          assert report['status']=='failed'
+          cases={case['id']:case for case in report['cases']}
+          assert cases['C01']['status']=='passed'
+          assert cases['C02']['steps'][-1]['failure']=={'kind':'http_status','expected':200,'actual':201}
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: independent-target-evidence
+          path: artifacts/reuse-*/

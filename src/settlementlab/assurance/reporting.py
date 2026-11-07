@@ -36,7 +36,13 @@ def write_reports(report, directory):
         steps = "".join(
             "<li>"
             + html.escape(str(step["index"]) + " / " + step["action"] + " / " + step["status"])
-            + "</li>"
+            + "<pre>"
+            + html.escape(
+                json.dumps(
+                    {key: step[key] for key in ("request", "failure") if key in step}, indent=2
+                )
+            )
+            + "</pre></li>"
             for step in case.get("steps", [])
         )
         rows.append(
@@ -64,7 +70,9 @@ def write_reports(report, directory):
         + str(len(cases))
         + " cases · "
         + str(failures)
-        + " failed</p><small>"
+        + " failed · Target: "
+        + html.escape(report.get("target", "settlement"))
+        + "</p><small>"
         + html.escape(report["generated_at"])
         + " · Python "
         + html.escape(report["python"])

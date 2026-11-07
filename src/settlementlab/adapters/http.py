@@ -68,7 +68,7 @@ def handler(ledger, triage=None):
                     200,
                     {
                         "status": "healthy",
-                        "version": "2.5.0",
+                        "version": "2.6.0",
                         "ai_enabled": triage.enabled,
                         "business_time": ledger.clock.describe(),
                     },

@@ -9,8 +9,10 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from ..configuration import Settings
+from ..core.validation import DomainError
 from .reporting import write_reports
 from .scenarios import catalog, run_scenario
+from .targets import TargetProfile
 
 
 class EvidenceResult(unittest.TextTestResult):
@@ -59,7 +61,8 @@ class EvidenceResult(unittest.TextTestResult):
         super().stopTest(test)
 
 
-def run(suite, root, report_directory):
+def run(suite, root, report_directory, profile=None):
+    profile = profile or TargetProfile()
     cases = []
     start = time.perf_counter()
     setup_error = None
@@ -93,8 +96,11 @@ def run(suite, root, report_directory):
                     )
                 )
         if suite in ("all", "scenarios"):
-            for spec in catalog():
-                cases.append(run_scenario(spec))
+            specs = catalog(profile.target)
+            if not specs:
+                raise ValueError("No scenarios registered for target " + profile.target)
+            for spec in specs:
+                cases.append(run_scenario(spec, profile.base_url, profile.timeout))
     except Exception as error:
         setup_error = str(error)
         cases.append(
@@ -122,6 +128,7 @@ def run(suite, root, report_directory):
         )
     report = dict(
         version=1,
+        target=profile.target,
         generated_at=datetime.now(timezone.utc).isoformat(),
         python=platform.python_version(),
         status="failed" if not cases or any(c["status"] == "failed" for c in cases) else "passed",
@@ -140,9 +147,37 @@ def main(argv=None):
     parser.add_argument("--root", default=".")
     parser.add_argument("--report-dir")
     parser.add_argument("--config")
+    parser.add_argument("--target")
+    parser.add_argument("--base-url")
+    parser.add_argument("--timeout", type=float)
+    parser.add_argument("--target-profile")
     args = parser.parse_args(argv)
-    settings = Settings.load(args.config)
-    report = run(args.suite, args.root, args.report_dir or settings.reports)
+    try:
+        settings = Settings.load(args.config)
+        profile = TargetProfile.load(
+            args.target_profile, target=args.target, base_url=args.base_url, timeout=args.timeout
+        )
+    except (OSError, ValueError, DomainError) as error:
+        report = dict(
+            version=1,
+            generated_at=datetime.now(timezone.utc).isoformat(),
+            python=platform.python_version(),
+            status="failed",
+            duration=0,
+            cases=[
+                dict(
+                    id="runner.configuration",
+                    suite="runner",
+                    status="failed",
+                    duration=0,
+                    detail=str(error),
+                )
+            ],
+        )
+        write_reports(report, args.report_dir or "artifacts/reports")
+        print("FAILED: invalid configuration; see generated report")
+        return 2
+    report = run(args.suite, args.root, args.report_dir or settings.reports, profile)
     print(
         report["status"].upper()
         + ": "

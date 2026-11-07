@@ -8,6 +8,8 @@ A Python financial systems assurance framework with two runnable reference appli
 
 **V3.0 completes the local showcase release.** Standard-library runtime, reproducible scenarios, exact failure evidence and optional free local AI. Built by Erdal Kilic.
 
+[Watch the captioned walkthrough](https://github.com/kilicerdal/settlementlab/releases/download/v3.0.0/settlementlab-walkthrough.webm) · [Engineering decisions](docs/decisions/README.md) · [Narration script](docs/WALKTHROUGH.md)
+
 [Website case study](https://www.eai.engineering/engineering/settlementlab) · [Five-minute walkthrough](docs/SHOWCASE.md) · [Architecture](docs/ARCHITECTURE.md) · [Extension guide](docs/FRAMEWORK.md) · [Release history](CHANGELOG.md)
 
 ![V3.0 portable execution showcase](docs/images/showcase-v30.png)

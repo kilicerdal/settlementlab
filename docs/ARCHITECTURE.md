@@ -1,5 +1,7 @@
 # Architecture and decisions — V3.0
 
+For implementation links, alternatives, tradeoffs and focused regression commands, read the [three engineering decision records](decisions/README.md).
+
 ```mermaid
 flowchart LR
     UI[Operations console] --> HTTP[HTTP adapter]

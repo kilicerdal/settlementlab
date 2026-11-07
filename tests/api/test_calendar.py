@@ -24,3 +24,27 @@ class ReadinessAPIControls(unittest.TestCase):
             with self.assertRaises(APIError) as error:
                 client.request("/api/trades/UNKNOWN/readiness")
             self.assertEqual(error.exception.status, 404)
+
+    def test_corrupt_pin_returns_controlled_error_without_trade_mutation(self):
+        with LocalEnvironment() as environment:
+            client = environment.client
+            factory = TradeFactory()
+            client.use_persona("maker-alex")
+            trade = client.create(factory.broker(), factory.key())
+            with environment.app.service.store.connection() as db:
+                db.execute("UPDATE trades SET calendar_policy='invalid' WHERE id=?", (trade["id"],))
+            for path in ["/api/snapshot", "/api/trades/" + trade["id"] + "/readiness"]:
+                with self.subTest(path=path):
+                    with self.assertRaises(APIError) as error:
+                        client.request(path)
+                    self.assertEqual(error.exception.status, 409)
+            with environment.app.service.store.connection() as db:
+                self.assertEqual(
+                    db.execute("SELECT version FROM trades WHERE id=?", (trade["id"],)).fetchone()[
+                        0
+                    ],
+                    1,
+                )
+                self.assertEqual(
+                    db.execute("SELECT COUNT(*) FROM journal_batches").fetchone()[0], 0
+                )

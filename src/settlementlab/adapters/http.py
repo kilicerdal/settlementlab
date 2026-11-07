@@ -42,6 +42,15 @@ def handler(ledger, triage=None):
             )
 
         def do_GET(self):
+            try:
+                self.read_request()
+            except DomainError as error:
+                self.reply(error.status, {"error": str(error)})
+            except Exception:
+                self.log_error("Unhandled read failure")
+                self.reply(500, {"error": "Internal server error"})
+
+        def read_request(self):
             parts = self.path.strip("/").split("/")
             if len(parts) == 4 and parts[:2] == ["api", "trades"] and parts[3] == "readiness":
                 try:

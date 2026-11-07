@@ -13,6 +13,8 @@ This release is an agent self-review, not an independent human security audit. N
 | An empty journal batch could be treated as balanced | Require each recorded batch to have at least two balanced lines | Empty batch produces an integrity break |
 | Unsupported stored calendar fields or empty hashes were accepted | Validate stored shape, weekend convention and provided fingerprint | Invalid pins fail closed with 409 |
 
+GET invariant failures are also translated to structured HTTP errors rather than dropping the connection. A corrupt-pin API regression verifies this without changing trade version or journal data.
+
 ## Repeatable checks
 
 Install the application and pinned development tools in a virtual environment:

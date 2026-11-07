@@ -43,3 +43,7 @@ Prompt `triage-v4` receives the matching policy identity, rules applicable to cu
 `PYTHONPATH=src python3 scripts/capture_matching.py --ai` records a two-sided price/allocation example and verifies that analysis did not mutate the trade. The capture reports whether both break references were cited. These checks measure reference presence and mutation boundaries; they do not establish causal correctness. Prior V1 captures retain their original prompt versions.
 
 The first V2.1 model capture is retained with a failed human review: it confused manager/broker quantities and invented tolerance language. The revised prompt supplies only relevant break context. This is why reference validation is tested separately from semantic review.
+
+## V2.2 capacity evidence
+
+Shared-ledger trades supply current buyer cash and seller securities, their required amounts, the shared-balance source, and approval status. The AI remains read-only and does not receive session tokens. Maker/checker enforcement and settlement arithmetic remain deterministic domain controls.

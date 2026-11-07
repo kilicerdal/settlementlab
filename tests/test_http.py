@@ -76,3 +76,41 @@ class HTTPTests(unittest.TestCase):
         policy=self.client.request('/api/matching-policy')
         self.assertEqual(policy['id'],'equity-exact-v1')
         self.assertEqual(len(policy['rules']),8)
+
+    def test_server_resolved_roles_and_shared_settlement(self):
+        terms=dict(symbol='NOVA',side='BUY',currency='USD',quantity=100,price='42.75',
+                   trade_date='2026-11-06',settlement_date='2026-11-09')
+        payload=dict(terms,matching_mode='two-sided',settlement_model='shared-ledger')
+        with self.assertRaises(APIError) as error:self.client.create(dict(payload,role='maker'),'governed')
+        self.assertEqual(error.exception.status,403)
+        self.client.use_persona('maker-alex')
+        t=self.client.create(payload,'governed')
+        t=self.client.submit_manager(t,dict(terms,allocations=[dict(account='SYN-A',quantity=100)]),'manager')
+        t=self.client.request_affirmation(t,'SYN-CUSTODY','review')
+        with self.assertRaises(APIError) as error:self.client.command(t,'approve',approval_id=t['pending_approval']['id'],role='checker',actor='checker-sam')
+        self.assertEqual(error.exception.status,403)
+        self.client.use_persona('checker-sam')
+        t=self.client.approve(t)
+        self.assertEqual(t['state'],'AFFIRMED')
+        self.client.fund('SYN-ALPHA','CASH:USD',427500,'cash')
+        self.client.fund('SYN-BROKER','SEC:NOVA',100,'stock')
+        t=self.client.command(t,'settle')
+        self.assertEqual(t['state'],'SETTLED')
+        treasury=self.client.request('/api/treasury')
+        self.assertEqual(treasury['controls']['status'],'BALANCED')
+        self.client.use_persona('auditor-casey')
+        with self.assertRaises(APIError) as error:self.client.fund('SYN-ALPHA','CASH:USD',1,'unauthorized')
+        self.assertEqual(error.exception.status,403)
+        self.assertEqual(self.client.request('/api/session')['principal']['role'],'auditor')
+
+    def test_unknown_cookie_and_invented_persona_do_not_grant_access(self):
+        with self.assertRaises(APIError) as error:self.client.use_persona('root')
+        self.assertEqual(error.exception.status,422)
+        from urllib.request import Request,urlopen
+        from urllib.error import HTTPError
+        import json
+        request=Request(self.client.base_url+'/api/treasury/fund',
+            data=json.dumps(dict(participant_id='SYN-ALPHA',asset='CASH:USD',amount=1,role='checker')).encode(),
+            headers={'Cookie':'settlementlab_session=forged','Content-Type':'application/json','Idempotency-Key':'forged'})
+        with self.assertRaises(HTTPError) as error:urlopen(request)
+        self.assertEqual(error.exception.code,403)

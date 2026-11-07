@@ -1,3 +1,15 @@
+# V2.2 showcase: approval to balanced settlement
+
+As Alex · Maker, create and match independent submissions. Request instruction approval and demonstrate that Alex cannot approve it. Switch to Sam · Checker, inspect and approve the current matched version. Attempt settlement with insufficient shared capacity; it fails without journal changes. Fund the buyer's shared cash and seller's securities, retry and inspect the four balanced cash/security lines. Reconcile the settled trade. Switch to Casey · Auditor to show read-only shared controls.
+
+A second trade using the same buyer and seller cannot spend the depleted capacity again. Concurrency tests exercise that race for both cash and securities. Manager corrections cancel pending approvals; the maker must request review again. Rejection preserves a reason. Reserve funding is synthetic and idempotent.
+
+Run `PYTHONPATH=src python3 scripts/capture_ledger.py` for recorded approval, recovery and competing-trade evidence. The browser journey tests the console, demo roles, mobile submissions and local AI (when explicitly enabled). Default CI requires no model runtime or paid API.
+
+Demo personas are openly switchable and are not production identity proof. The public website presents recorded synthetic evidence; the actual workflow and local inference run on the developer's computer.
+
+---
+
 # V2.1 showcase walkthrough
 
 ## The narrative

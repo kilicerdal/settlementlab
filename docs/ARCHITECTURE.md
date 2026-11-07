@@ -1,4 +1,4 @@
-# Architecture and decisions — V2.1
+# Architecture and decisions — V2.2
 
 ```mermaid
 flowchart LR
@@ -35,4 +35,19 @@ Domain tests use independent expected amounts and findings. They cover every mat
 
 ## Scope
 
-SQLite and the standard library keep the local demonstration reproducible. Identity, participant isolation, maker/checker, a shared double-entry ledger, durable workers, market calendars and production serving remain later increments. Broker trades are USD; no currency conversion or settlement date eligibility is claimed. Prices use a fixed two-decimal simulation policy.
+SQLite and the standard library keep the local demonstration reproducible. Verified identity, participant isolation, durable workers, market calendars and production serving remain later increments. V2.2 adds shared multi-asset posting and demo maker/checker controls as described below. Broker trades are USD; no currency conversion or settlement date eligibility is claimed. Prices use a fixed two-decimal simulation policy.
+
+
+## Shared-ledger transaction boundary
+
+`journal.py` validates per-asset zero sums, bounded integer deltas, known participants and nonnegative trading balances. Synthetic reserve offsets may be negative. One write transaction posts four cash/security lines, updates balance projections, inserts the settlement record, updates lifecycle state, and writes audit evidence. Failed funding or settlement rolls back the whole transaction. A unique settlement journal per trade plus lifecycle/version guards prevent repeat spending. SQLite writer serialization also protects balances shared by different trades.
+
+Before posting, stored projections are compared with Python-integer reconstruction from journal lines and batches are checked for per-asset balance. Breaks stop new postings. This full scan favors inspectability over scale; it is not a production journal architecture. Direct database access can alter records; no tamper-proof audit claim is made.
+
+## Approval and session boundaries
+
+Instruction requests store maker, current terms version, instruction and idempotency key. A different checker can approve or reject against the current version. New manager revisions cancel pending requests. Approval and the AFFIRMED transition commit together. Funding does not advance trade version because it changes participant capacity, not approved economics.
+
+`identity.py` stores opaque, expiring demo session tokens in memory. The HTTP adapter supplies the resolved Principal to the domain; JSON role/actor fields are not trusted. Anyone at the local console may select a demo persona. This demonstrates role enforcement and different-identity approval, not distinct-person authentication. Participant reads are not isolated. Older trade-scoped contracts remain explicitly outside shared-ledger governance for compatibility.
+
+Startup adds participants, projections, journal batches/lines, instruction approvals and settlement-model columns. Old trades default to trade-scoped behavior; their economics are not silently moved into the shared journal.

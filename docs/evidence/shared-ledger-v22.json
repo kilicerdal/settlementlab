@@ -1,0 +1,704 @@
+{
+  "version": "2.2.0",
+  "generated_at": "2026-11-07T06:56:51.365543+00:00",
+  "origin": "recorded-local-execution",
+  "source_commit": "2ad0023c523f370937d3471112ea5ffaa77e83c9",
+  "source_state": "working-tree",
+  "source_hashes": {
+    "src/settlementlab/server.py": "a9625aa0506792d49a1dfb0ed1d6604b704acbce8b01918352a8e89a86f4dd0b",
+    "src/settlementlab/journal.py": "e55dfeb1ff3a0d31c403ef7e74e64e5e7e79e0d91e550cd5031b8c3cc4190ee8",
+    "src/settlementlab/domain.py": "4c5981d01a8be1d20f6af218cae8c3a82dea68d2aeb03a64bb68627f47c7ef88",
+    "src/settlementlab/ai.py": "9eb51e7f4e42303dd355ce6ba45462197600b6f00fd64c4b23263a8f27bb27b5",
+    "src/settlementlab/__init__.py": "c7479d6ab3e50e406c555ce3231595d093e8c6725ee38b298255b82cbfcaede1",
+    "src/settlementlab/matching.py": "0ccd0969ea4057333b4b67eda42245bdde63aa08bd7d7af2006f53cd28fb601c",
+    "src/settlementlab/identity.py": "a7c3dfecc26870ed8fe7189f83d0e7eb8ec5ca554f219d14f304986e8a1938c4",
+    "src/settlementlab/validation.py": "3f58668d46b42994b9012088e80eb0e7d17088ccd6b5ee8131cf125a82b88ab0"
+  },
+  "model_calls": 0,
+  "identity_scope": "Freely switchable demo personas; not production authentication",
+  "pending": {
+    "id": "SL-000001",
+    "request_key": "first",
+    "fingerprint": "{\"broker_id\": \"SYN-BROKER\", \"currency\": \"USD\", \"manager_id\": \"SYN-ALPHA\", \"matching_mode\": \"two-sided\", \"price_cents\": 4275, \"quantity\": 100, \"settlement_date\": \"2026-11-09\", \"settlement_model\": \"shared-ledger\", \"side\": \"BUY\", \"symbol\": \"NOVA\", \"trade_date\": \"2026-11-06\"}",
+    "symbol": "NOVA",
+    "quantity": 100,
+    "price_cents": 4275,
+    "trade_date": "2026-11-06",
+    "settlement_date": "2026-11-09",
+    "state": "MATCHED",
+    "version": 3,
+    "allocations": "[{\"account\": \"SYN-FUND\", \"quantity\": 100}]",
+    "instruction": null,
+    "reason": null,
+    "cash_cents": 0,
+    "securities": 0,
+    "side": "BUY",
+    "currency": "USD",
+    "matching_mode": "two-sided",
+    "matching_result": "{\"policy\": \"equity-exact-v1\", \"status\": \"MATCHED\", \"compared_fields\": 7, \"findings\": []}",
+    "settlement_model": "shared-ledger",
+    "buyer_id": "SYN-ALPHA",
+    "seller_id": "SYN-BROKER",
+    "manager_submission": {
+      "symbol": "NOVA",
+      "side": "BUY",
+      "currency": "USD",
+      "quantity": 100,
+      "price_cents": 4275,
+      "trade_date": "2026-11-06",
+      "settlement_date": "2026-11-09",
+      "allocations": [
+        {
+          "account": "SYN-FUND",
+          "quantity": 100
+        }
+      ]
+    },
+    "submission_history": [
+      {
+        "revision": 1,
+        "timestamp": "2026-11-07T06:56:51.353990+00:00",
+        "terms": {
+          "symbol": "NOVA",
+          "side": "BUY",
+          "currency": "USD",
+          "quantity": 100,
+          "price_cents": 4275,
+          "trade_date": "2026-11-06",
+          "settlement_date": "2026-11-09",
+          "allocations": [
+            {
+              "account": "SYN-FUND",
+              "quantity": 100
+            }
+          ]
+        }
+      }
+    ],
+    "matching": {
+      "policy": "equity-exact-v1",
+      "status": "MATCHED",
+      "compared_fields": 7,
+      "findings": []
+    },
+    "approval_history": [
+      {
+        "id": "A-F94CE4A0D42F4F4C",
+        "trade_id": "SL-000001",
+        "maker_id": "maker-alex",
+        "instruction": "SYN-CUSTODY",
+        "status": "PENDING",
+        "trade_version": 3,
+        "request_key": "review",
+        "created_at": "2026-11-07T06:56:51.354930+00:00",
+        "decided_by": null,
+        "decided_at": null,
+        "reason": null
+      }
+    ],
+    "pending_approval": {
+      "id": "A-F94CE4A0D42F4F4C",
+      "trade_id": "SL-000001",
+      "maker_id": "maker-alex",
+      "instruction": "SYN-CUSTODY",
+      "status": "PENDING",
+      "trade_version": 3,
+      "request_key": "review",
+      "created_at": "2026-11-07T06:56:51.354930+00:00",
+      "decided_by": null,
+      "decided_at": null,
+      "reason": null
+    },
+    "settlement_journal": null
+  },
+  "approved": {
+    "id": "SL-000001",
+    "request_key": "first",
+    "fingerprint": "{\"broker_id\": \"SYN-BROKER\", \"currency\": \"USD\", \"manager_id\": \"SYN-ALPHA\", \"matching_mode\": \"two-sided\", \"price_cents\": 4275, \"quantity\": 100, \"settlement_date\": \"2026-11-09\", \"settlement_model\": \"shared-ledger\", \"side\": \"BUY\", \"symbol\": \"NOVA\", \"trade_date\": \"2026-11-06\"}",
+    "symbol": "NOVA",
+    "quantity": 100,
+    "price_cents": 4275,
+    "trade_date": "2026-11-06",
+    "settlement_date": "2026-11-09",
+    "state": "AFFIRMED",
+    "version": 4,
+    "allocations": "[{\"account\": \"SYN-FUND\", \"quantity\": 100}]",
+    "instruction": "SYN-CUSTODY",
+    "reason": null,
+    "cash_cents": 0,
+    "securities": 0,
+    "side": "BUY",
+    "currency": "USD",
+    "matching_mode": "two-sided",
+    "matching_result": "{\"policy\": \"equity-exact-v1\", \"status\": \"MATCHED\", \"compared_fields\": 7, \"findings\": []}",
+    "settlement_model": "shared-ledger",
+    "buyer_id": "SYN-ALPHA",
+    "seller_id": "SYN-BROKER",
+    "manager_submission": {
+      "symbol": "NOVA",
+      "side": "BUY",
+      "currency": "USD",
+      "quantity": 100,
+      "price_cents": 4275,
+      "trade_date": "2026-11-06",
+      "settlement_date": "2026-11-09",
+      "allocations": [
+        {
+          "account": "SYN-FUND",
+          "quantity": 100
+        }
+      ]
+    },
+    "submission_history": [
+      {
+        "revision": 1,
+        "timestamp": "2026-11-07T06:56:51.353990+00:00",
+        "terms": {
+          "symbol": "NOVA",
+          "side": "BUY",
+          "currency": "USD",
+          "quantity": 100,
+          "price_cents": 4275,
+          "trade_date": "2026-11-06",
+          "settlement_date": "2026-11-09",
+          "allocations": [
+            {
+              "account": "SYN-FUND",
+              "quantity": 100
+            }
+          ]
+        }
+      }
+    ],
+    "matching": {
+      "policy": "equity-exact-v1",
+      "status": "MATCHED",
+      "compared_fields": 7,
+      "findings": []
+    },
+    "approval_history": [
+      {
+        "id": "A-F94CE4A0D42F4F4C",
+        "trade_id": "SL-000001",
+        "maker_id": "maker-alex",
+        "instruction": "SYN-CUSTODY",
+        "status": "APPROVED",
+        "trade_version": 3,
+        "request_key": "review",
+        "created_at": "2026-11-07T06:56:51.354930+00:00",
+        "decided_by": "checker-sam",
+        "decided_at": "2026-11-07T06:56:51.356664+00:00",
+        "reason": null
+      }
+    ],
+    "pending_approval": null,
+    "settlement_journal": null
+  },
+  "failed": {
+    "id": "SL-000001",
+    "request_key": "first",
+    "fingerprint": "{\"broker_id\": \"SYN-BROKER\", \"currency\": \"USD\", \"manager_id\": \"SYN-ALPHA\", \"matching_mode\": \"two-sided\", \"price_cents\": 4275, \"quantity\": 100, \"settlement_date\": \"2026-11-09\", \"settlement_model\": \"shared-ledger\", \"side\": \"BUY\", \"symbol\": \"NOVA\", \"trade_date\": \"2026-11-06\"}",
+    "symbol": "NOVA",
+    "quantity": 100,
+    "price_cents": 4275,
+    "trade_date": "2026-11-06",
+    "settlement_date": "2026-11-09",
+    "state": "FAILED",
+    "version": 5,
+    "allocations": "[{\"account\": \"SYN-FUND\", \"quantity\": 100}]",
+    "instruction": "SYN-CUSTODY",
+    "reason": "Insufficient shared buyer cash or seller securities",
+    "cash_cents": 0,
+    "securities": 0,
+    "side": "BUY",
+    "currency": "USD",
+    "matching_mode": "two-sided",
+    "matching_result": "{\"policy\": \"equity-exact-v1\", \"status\": \"MATCHED\", \"compared_fields\": 7, \"findings\": []}",
+    "settlement_model": "shared-ledger",
+    "buyer_id": "SYN-ALPHA",
+    "seller_id": "SYN-BROKER",
+    "manager_submission": {
+      "symbol": "NOVA",
+      "side": "BUY",
+      "currency": "USD",
+      "quantity": 100,
+      "price_cents": 4275,
+      "trade_date": "2026-11-06",
+      "settlement_date": "2026-11-09",
+      "allocations": [
+        {
+          "account": "SYN-FUND",
+          "quantity": 100
+        }
+      ]
+    },
+    "submission_history": [
+      {
+        "revision": 1,
+        "timestamp": "2026-11-07T06:56:51.353990+00:00",
+        "terms": {
+          "symbol": "NOVA",
+          "side": "BUY",
+          "currency": "USD",
+          "quantity": 100,
+          "price_cents": 4275,
+          "trade_date": "2026-11-06",
+          "settlement_date": "2026-11-09",
+          "allocations": [
+            {
+              "account": "SYN-FUND",
+              "quantity": 100
+            }
+          ]
+        }
+      }
+    ],
+    "matching": {
+      "policy": "equity-exact-v1",
+      "status": "MATCHED",
+      "compared_fields": 7,
+      "findings": []
+    },
+    "approval_history": [
+      {
+        "id": "A-F94CE4A0D42F4F4C",
+        "trade_id": "SL-000001",
+        "maker_id": "maker-alex",
+        "instruction": "SYN-CUSTODY",
+        "status": "APPROVED",
+        "trade_version": 3,
+        "request_key": "review",
+        "created_at": "2026-11-07T06:56:51.354930+00:00",
+        "decided_by": "checker-sam",
+        "decided_at": "2026-11-07T06:56:51.356664+00:00",
+        "reason": null
+      }
+    ],
+    "pending_approval": null,
+    "settlement_journal": null
+  },
+  "settled": {
+    "id": "SL-000001",
+    "request_key": "first",
+    "fingerprint": "{\"broker_id\": \"SYN-BROKER\", \"currency\": \"USD\", \"manager_id\": \"SYN-ALPHA\", \"matching_mode\": \"two-sided\", \"price_cents\": 4275, \"quantity\": 100, \"settlement_date\": \"2026-11-09\", \"settlement_model\": \"shared-ledger\", \"side\": \"BUY\", \"symbol\": \"NOVA\", \"trade_date\": \"2026-11-06\"}",
+    "symbol": "NOVA",
+    "quantity": 100,
+    "price_cents": 4275,
+    "trade_date": "2026-11-06",
+    "settlement_date": "2026-11-09",
+    "state": "SETTLED",
+    "version": 6,
+    "allocations": "[{\"account\": \"SYN-FUND\", \"quantity\": 100}]",
+    "instruction": "SYN-CUSTODY",
+    "reason": null,
+    "cash_cents": 0,
+    "securities": 0,
+    "side": "BUY",
+    "currency": "USD",
+    "matching_mode": "two-sided",
+    "matching_result": "{\"policy\": \"equity-exact-v1\", \"status\": \"MATCHED\", \"compared_fields\": 7, \"findings\": []}",
+    "settlement_model": "shared-ledger",
+    "buyer_id": "SYN-ALPHA",
+    "seller_id": "SYN-BROKER",
+    "manager_submission": {
+      "symbol": "NOVA",
+      "side": "BUY",
+      "currency": "USD",
+      "quantity": 100,
+      "price_cents": 4275,
+      "trade_date": "2026-11-06",
+      "settlement_date": "2026-11-09",
+      "allocations": [
+        {
+          "account": "SYN-FUND",
+          "quantity": 100
+        }
+      ]
+    },
+    "submission_history": [
+      {
+        "revision": 1,
+        "timestamp": "2026-11-07T06:56:51.353990+00:00",
+        "terms": {
+          "symbol": "NOVA",
+          "side": "BUY",
+          "currency": "USD",
+          "quantity": 100,
+          "price_cents": 4275,
+          "trade_date": "2026-11-06",
+          "settlement_date": "2026-11-09",
+          "allocations": [
+            {
+              "account": "SYN-FUND",
+              "quantity": 100
+            }
+          ]
+        }
+      }
+    ],
+    "matching": {
+      "policy": "equity-exact-v1",
+      "status": "MATCHED",
+      "compared_fields": 7,
+      "findings": []
+    },
+    "approval_history": [
+      {
+        "id": "A-F94CE4A0D42F4F4C",
+        "trade_id": "SL-000001",
+        "maker_id": "maker-alex",
+        "instruction": "SYN-CUSTODY",
+        "status": "APPROVED",
+        "trade_version": 3,
+        "request_key": "review",
+        "created_at": "2026-11-07T06:56:51.354930+00:00",
+        "decided_by": "checker-sam",
+        "decided_at": "2026-11-07T06:56:51.356664+00:00",
+        "reason": null
+      }
+    ],
+    "pending_approval": null,
+    "settlement_journal": "J-7BCB93987BDD413F"
+  },
+  "competing_trade": {
+    "id": "SL-000002",
+    "request_key": "competing",
+    "fingerprint": "{\"broker_id\": \"SYN-BROKER\", \"currency\": \"USD\", \"manager_id\": \"SYN-ALPHA\", \"matching_mode\": \"two-sided\", \"price_cents\": 4275, \"quantity\": 100, \"settlement_date\": \"2026-11-09\", \"settlement_model\": \"shared-ledger\", \"side\": \"BUY\", \"symbol\": \"NOVA\", \"trade_date\": \"2026-11-06\"}",
+    "symbol": "NOVA",
+    "quantity": 100,
+    "price_cents": 4275,
+    "trade_date": "2026-11-06",
+    "settlement_date": "2026-11-09",
+    "state": "FAILED",
+    "version": 5,
+    "allocations": "[{\"account\": \"SYN-FUND\", \"quantity\": 100}]",
+    "instruction": "SYN-CUSTODY",
+    "reason": "Insufficient shared buyer cash or seller securities",
+    "cash_cents": 0,
+    "securities": 0,
+    "side": "BUY",
+    "currency": "USD",
+    "matching_mode": "two-sided",
+    "matching_result": "{\"policy\": \"equity-exact-v1\", \"status\": \"MATCHED\", \"compared_fields\": 7, \"findings\": []}",
+    "settlement_model": "shared-ledger",
+    "buyer_id": "SYN-ALPHA",
+    "seller_id": "SYN-BROKER",
+    "manager_submission": {
+      "symbol": "NOVA",
+      "side": "BUY",
+      "currency": "USD",
+      "quantity": 100,
+      "price_cents": 4275,
+      "trade_date": "2026-11-06",
+      "settlement_date": "2026-11-09",
+      "allocations": [
+        {
+          "account": "SYN-FUND",
+          "quantity": 100
+        }
+      ]
+    },
+    "submission_history": [
+      {
+        "revision": 1,
+        "timestamp": "2026-11-07T06:56:51.362309+00:00",
+        "terms": {
+          "symbol": "NOVA",
+          "side": "BUY",
+          "currency": "USD",
+          "quantity": 100,
+          "price_cents": 4275,
+          "trade_date": "2026-11-06",
+          "settlement_date": "2026-11-09",
+          "allocations": [
+            {
+              "account": "SYN-FUND",
+              "quantity": 100
+            }
+          ]
+        }
+      }
+    ],
+    "matching": {
+      "policy": "equity-exact-v1",
+      "status": "MATCHED",
+      "compared_fields": 7,
+      "findings": []
+    },
+    "approval_history": [
+      {
+        "id": "A-7A468D2F48064DA1",
+        "trade_id": "SL-000002",
+        "maker_id": "maker-alex",
+        "instruction": "SYN-CUSTODY",
+        "status": "APPROVED",
+        "trade_version": 3,
+        "request_key": "review",
+        "created_at": "2026-11-07T06:56:51.363159+00:00",
+        "decided_by": "checker-sam",
+        "decided_at": "2026-11-07T06:56:51.363963+00:00",
+        "reason": null
+      }
+    ],
+    "pending_approval": null,
+    "settlement_journal": null
+  },
+  "treasury": {
+    "participants": [
+      {
+        "id": "SYN-ALPHA",
+        "name": "Alpha Investment Manager"
+      },
+      {
+        "id": "SYN-BETA",
+        "name": "Beta Investment Manager"
+      },
+      {
+        "id": "SYN-BROKER",
+        "name": "Synthetic Broker"
+      },
+      {
+        "id": "SYN-RESERVE",
+        "name": "Synthetic funding reserve"
+      }
+    ],
+    "balances": [
+      {
+        "participant_id": "SYN-ALPHA",
+        "asset": "CASH:USD",
+        "balance": 0
+      },
+      {
+        "participant_id": "SYN-ALPHA",
+        "asset": "SEC:NOVA",
+        "balance": 100
+      },
+      {
+        "participant_id": "SYN-BROKER",
+        "asset": "CASH:USD",
+        "balance": 427500
+      },
+      {
+        "participant_id": "SYN-BROKER",
+        "asset": "SEC:NOVA",
+        "balance": 0
+      },
+      {
+        "participant_id": "SYN-RESERVE",
+        "asset": "CASH:USD",
+        "balance": -427500
+      },
+      {
+        "participant_id": "SYN-RESERVE",
+        "asset": "SEC:NOVA",
+        "balance": -100
+      }
+    ],
+    "batches": [
+      {
+        "id": "J-7BCB93987BDD413F",
+        "request_key": "settlement:SL-000001",
+        "kind": "DVP_SETTLEMENT",
+        "trade_id": "SL-000001",
+        "actor": "checker-sam",
+        "timestamp": "2026-11-07T06:56:51.360544+00:00",
+        "lines": [
+          {
+            "batch_id": "J-7BCB93987BDD413F",
+            "line": 1,
+            "participant_id": "SYN-ALPHA",
+            "asset": "CASH:USD",
+            "delta": -427500
+          },
+          {
+            "batch_id": "J-7BCB93987BDD413F",
+            "line": 2,
+            "participant_id": "SYN-BROKER",
+            "asset": "CASH:USD",
+            "delta": 427500
+          },
+          {
+            "batch_id": "J-7BCB93987BDD413F",
+            "line": 3,
+            "participant_id": "SYN-BROKER",
+            "asset": "SEC:NOVA",
+            "delta": -100
+          },
+          {
+            "batch_id": "J-7BCB93987BDD413F",
+            "line": 4,
+            "participant_id": "SYN-ALPHA",
+            "asset": "SEC:NOVA",
+            "delta": 100
+          }
+        ]
+      },
+      {
+        "id": "J-C9EF840326604421",
+        "request_key": "funding:stock",
+        "kind": "DEMO_FUNDING",
+        "trade_id": null,
+        "actor": "checker-sam",
+        "timestamp": "2026-11-07T06:56:51.359509+00:00",
+        "lines": [
+          {
+            "batch_id": "J-C9EF840326604421",
+            "line": 1,
+            "participant_id": "SYN-RESERVE",
+            "asset": "SEC:NOVA",
+            "delta": -100
+          },
+          {
+            "batch_id": "J-C9EF840326604421",
+            "line": 2,
+            "participant_id": "SYN-BROKER",
+            "asset": "SEC:NOVA",
+            "delta": 100
+          }
+        ]
+      },
+      {
+        "id": "J-685DABD7E98C4EB6",
+        "request_key": "funding:cash",
+        "kind": "DEMO_FUNDING",
+        "trade_id": null,
+        "actor": "checker-sam",
+        "timestamp": "2026-11-07T06:56:51.358686+00:00",
+        "lines": [
+          {
+            "batch_id": "J-685DABD7E98C4EB6",
+            "line": 1,
+            "participant_id": "SYN-RESERVE",
+            "asset": "CASH:USD",
+            "delta": -427500
+          },
+          {
+            "batch_id": "J-685DABD7E98C4EB6",
+            "line": 2,
+            "participant_id": "SYN-ALPHA",
+            "asset": "CASH:USD",
+            "delta": 427500
+          }
+        ]
+      }
+    ],
+    "controls": {
+      "balanced_batches": true,
+      "projection_consistent": true,
+      "status": "BALANCED"
+    }
+  },
+  "audit": [
+    {
+      "seq": 13,
+      "trade_id": "SL-000002",
+      "timestamp": "2026-11-07T06:56:51.364866+00:00",
+      "actor": "checker-sam",
+      "action": "SETTLE",
+      "detail": "Insufficient shared buyer cash or seller securities"
+    },
+    {
+      "seq": 12,
+      "trade_id": "SL-000002",
+      "timestamp": "2026-11-07T06:56:51.364131+00:00",
+      "actor": "checker-sam",
+      "action": "AFFIRMATION_APPROVED",
+      "detail": "Instruction request A-7A468D2F48064DA1 approved"
+    },
+    {
+      "seq": 11,
+      "trade_id": "SL-000002",
+      "timestamp": "2026-11-07T06:56:51.363346+00:00",
+      "actor": "maker-alex",
+      "action": "AFFIRMATION_REQUESTED",
+      "detail": "Instruction review requested for matched terms; A-7A468D2F48064DA1"
+    },
+    {
+      "seq": 10,
+      "trade_id": "SL-000002",
+      "timestamp": "2026-11-07T06:56:51.362509+00:00",
+      "actor": "maker-alex",
+      "action": "MANAGER_SUBMITTED",
+      "detail": "Revision 1 \u00b7 MATCHED \u00b7 0 discrepancy(s) \u00b7 equity-exact-v1"
+    },
+    {
+      "seq": 9,
+      "trade_id": "SL-000002",
+      "timestamp": "2026-11-07T06:56:51.361696+00:00",
+      "actor": "maker-alex",
+      "action": "TRADE_RECEIVED",
+      "detail": "Broker submission accepted"
+    },
+    {
+      "seq": 8,
+      "trade_id": "SL-000001",
+      "timestamp": "2026-11-07T06:56:51.360914+00:00",
+      "actor": "checker-sam",
+      "action": "SETTLE",
+      "detail": "State: SETTLED"
+    },
+    {
+      "seq": 7,
+      "trade_id": "TREASURY",
+      "timestamp": "2026-11-07T06:56:51.359765+00:00",
+      "actor": "checker-sam",
+      "action": "DEMO_FUNDED",
+      "detail": "SYN-BROKER / SEC:NOVA / 100"
+    },
+    {
+      "seq": 6,
+      "trade_id": "TREASURY",
+      "timestamp": "2026-11-07T06:56:51.358904+00:00",
+      "actor": "checker-sam",
+      "action": "DEMO_FUNDED",
+      "detail": "SYN-ALPHA / CASH:USD / 427500"
+    },
+    {
+      "seq": 5,
+      "trade_id": "SL-000001",
+      "timestamp": "2026-11-07T06:56:51.357829+00:00",
+      "actor": "checker-sam",
+      "action": "SETTLE",
+      "detail": "Insufficient shared buyer cash or seller securities"
+    },
+    {
+      "seq": 4,
+      "trade_id": "SL-000001",
+      "timestamp": "2026-11-07T06:56:51.356824+00:00",
+      "actor": "checker-sam",
+      "action": "AFFIRMATION_APPROVED",
+      "detail": "Instruction request A-F94CE4A0D42F4F4C approved"
+    },
+    {
+      "seq": 3,
+      "trade_id": "SL-000001",
+      "timestamp": "2026-11-07T06:56:51.355143+00:00",
+      "actor": "maker-alex",
+      "action": "AFFIRMATION_REQUESTED",
+      "detail": "Instruction review requested for matched terms; A-F94CE4A0D42F4F4C"
+    },
+    {
+      "seq": 2,
+      "trade_id": "SL-000001",
+      "timestamp": "2026-11-07T06:56:51.354240+00:00",
+      "actor": "maker-alex",
+      "action": "MANAGER_SUBMITTED",
+      "detail": "Revision 1 \u00b7 MATCHED \u00b7 0 discrepancy(s) \u00b7 equity-exact-v1"
+    },
+    {
+      "seq": 1,
+      "trade_id": "SL-000001",
+      "timestamp": "2026-11-07T06:56:51.353265+00:00",
+      "actor": "maker-alex",
+      "action": "TRADE_RECEIVED",
+      "detail": "Broker submission accepted"
+    }
+  ],
+  "checks": {
+    "self_approval_rejected": true,
+    "failed_settlement_left_balances_unchanged": true,
+    "four_balanced_settlement_lines": true,
+    "shared_cash_not_spent_twice": true,
+    "journal_projection_consistent": true
+  }
+}

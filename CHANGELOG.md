@@ -1,5 +1,16 @@
 # Changelog
 
+## 2.2.0 — Shared ledger and governed instruction approval
+
+- Shared participant cash/security balances and balanced four-line DvP settlement, with atomic projections, lifecycle and audit writes.
+- Checker-only idempotent synthetic reserve funding; no trade-scoped funding bypass for shared trades.
+- Maker instruction requests, different-checker approval/rejection, reason history, stale guards and cancellation after revised terms.
+- Opaque server-resolved demo sessions and role checks; personas are freely switchable, not production authentication.
+- Participant balances, approval controls and journal inspection in the responsive console.
+- Integrity checks, contention tests, injected-failure rollback tests and session-spoofing HTTP tests.
+
+Legacy records retain trade-scoped settlement. Verified identity, participant isolation and market calendars remain future increments.
+
 ## 2.1.0 — Independent matching, first V2 increment
 
 - Independent broker/manager terms with exact matching across seven fields and a separate manager allocation-total rule.

@@ -34,6 +34,8 @@ class Ledger:
                 ('currency', "TEXT NOT NULL DEFAULT 'USD'"),
                 ('matching_mode', "TEXT NOT NULL DEFAULT 'allocation-only'"),
                 ('matching_result', "TEXT NOT NULL DEFAULT '{}'"),
+                ('settlement_model', "TEXT NOT NULL DEFAULT 'trade-scoped'"),
+                ('buyer_id', 'TEXT'), ('seller_id', 'TEXT'),
             ):
                 if name not in columns:
                     db.execute('ALTER TABLE trades ADD COLUMN '+name+' '+declaration)
@@ -42,7 +44,15 @@ class Ledger:
               revision INTEGER NOT NULL, submission_key TEXT NOT NULL, fingerprint TEXT NOT NULL,
               payload TEXT NOT NULL, timestamp TEXT NOT NULL, result TEXT NOT NULL,
               UNIQUE(trade_id, revision), UNIQUE(trade_id, submission_key))''')
-            db.execute('PRAGMA user_version=2')
+            from .journal import initialize
+            initialize(db)
+            db.execute('''CREATE TABLE IF NOT EXISTS approval_requests (
+              id TEXT PRIMARY KEY,trade_id TEXT NOT NULL REFERENCES trades(id),maker_id TEXT NOT NULL,
+              instruction TEXT NOT NULL,status TEXT NOT NULL,trade_version INTEGER NOT NULL,
+              request_key TEXT NOT NULL,fingerprint TEXT NOT NULL,created_at TEXT NOT NULL,
+              decided_by TEXT,decided_at TEXT,reason TEXT,UNIQUE(trade_id,request_key))''')
+            db.execute("CREATE UNIQUE INDEX IF NOT EXISTS one_pending_approval ON approval_requests(trade_id) WHERE status='PENDING'")
+            db.execute('PRAGMA user_version=3')
 
     @contextmanager
     def connection(self):
@@ -74,26 +84,61 @@ class Ledger:
         trade['submission_history'] = [dict(revision=r['revision'], timestamp=r['timestamp'],
                                              terms=json.loads(r['payload'])) for r in history]
         trade['matching'] = json.loads(trade['matching_result'])
+        approvals=[dict(r) for r in db.execute('SELECT * FROM approval_requests WHERE trade_id=? ORDER BY created_at',(trade_id,))]
+        for request in approvals:
+            request.pop('fingerprint')
+        trade['approval_history']=approvals
+        trade['pending_approval']=next((r for r in approvals if r['status']=='PENDING'),None)
+        trade['settlement_journal']=None
+        if trade['settlement_model']=='shared-ledger':
+            from .journal import balance
+            trade['cash_cents']=balance(db,trade['buyer_id'],'CASH:USD')
+            trade['securities']=balance(db,trade['seller_id'],'SEC:'+trade['symbol'])
+            batch=db.execute('SELECT id FROM journal_batches WHERE trade_id=?',(trade_id,)).fetchone()
+            trade['settlement_journal']=batch['id'] if batch else None
         return trade
 
-    def create(self, data, key, actor="broker"):
+    def create(self, data, key, actor="broker", principal=None):
         if not isinstance(key, str) or not 1 <= len(key) <= 120:
             raise DomainError("An Idempotency-Key of 1–120 characters is required")
         from .matching import normalize_terms
         mode = data.get('matching_mode', 'allocation-only')
         if mode not in ('allocation-only', 'two-sided'):
             raise DomainError('matching_mode must be allocation-only or two-sided')
+        settlement_model=data.get('settlement_model','trade-scoped')
+        if settlement_model not in ('trade-scoped','shared-ledger'):
+            raise DomainError('Unknown settlement model')
+        if settlement_model=='shared-ledger':
+            from .identity import require
+            require(principal,'maker')
+            if mode!='two-sided':
+                raise DomainError('Shared-ledger trades require independent two-sided matching')
+            actor=principal.id
         terms = normalize_terms(data, complete=mode == 'two-sided')
         if terms['currency'] != 'USD':
-            raise DomainError('V2.1 broker trades support USD only; no FX conversion is simulated')
+            raise DomainError('Broker trades support USD only; no FX conversion is simulated')
+        if settlement_model=='shared-ledger':
+            from .journal import LIMIT
+            if terms['quantity']*terms['price_cents']>LIMIT:
+                raise DomainError('Shared-ledger notional exceeds the exact browser-safe limit')
         symbol, quantity, price = terms['symbol'], terms['quantity'], terms['price_cents']
         trade_date, settlement_date = terms['trade_date'], terms['settlement_date']
         fingerprint = json.dumps(dict(terms, matching_mode=mode), sort_keys=True)
         with self.connection() as db:
+            buyer=seller=None
+            if settlement_model=='shared-ledger':
+                from .journal import participant
+                manager=participant(db,data.get('manager_id','SYN-ALPHA'))
+                broker=participant(db,data.get('broker_id','SYN-BROKER'))
+                if manager==broker:
+                    raise DomainError('Buyer and seller must be different participants')
+                buyer,seller=(manager,broker) if terms['side']=='BUY' else (broker,manager)
+                fingerprint=json.dumps(dict(terms,matching_mode=mode,settlement_model=settlement_model,
+                                            manager_id=manager,broker_id=broker),sort_keys=True)
             existing = db.execute("SELECT * FROM trades WHERE request_key=?", (key,)).fetchone()
             if existing:
                 legacy_fingerprint = json.dumps([symbol, quantity, price, trade_date])
-                legacy_replay = (mode == 'allocation-only' and terms['side'] == 'BUY'
+                legacy_replay = (settlement_model=='trade-scoped' and mode == 'allocation-only' and terms['side'] == 'BUY'
                                  and existing['fingerprint'] == legacy_fingerprint)
                 if existing["fingerprint"] != fingerprint and not legacy_replay:
                     raise DomainError("Idempotency key already used for a different submission", 409)
@@ -106,14 +151,26 @@ class Ledger:
                         settlement_date, "RECEIVED"))
             db.execute('UPDATE trades SET side=?,currency=?,matching_mode=? WHERE id=?',
                        (terms['side'],terms['currency'],mode,trade_id))
+            db.execute('UPDATE trades SET settlement_model=?,buyer_id=?,seller_id=? WHERE id=?',
+                       (settlement_model,buyer,seller,trade_id))
             self.event(db, trade_id, actor, "TRADE_RECEIVED", "Broker submission accepted")
             return self.get(db, trade_id)
 
-    def command(self, trade_id, action, data, actor="operator"):
+    def command(self, trade_id, action, data, actor="operator", principal=None):
         if action == 'manager':
-            return self.submit_manager(trade_id, data)
+            return self.submit_manager(trade_id, data, principal)
         with self.connection() as db:
             trade = self.get(db, trade_id)
+            if trade['settlement_model']=='shared-ledger':
+                from .identity import require
+                if action in ('request-affirmation','approve','reject'):
+                    return self.approval_command(db,trade,action,data,principal)
+                if action in ('affirm','fund'):
+                    raise DomainError('Shared-ledger trades require checker approval and participant treasury funding',403)
+                require(principal,'checker' if action=='settle' else 'maker')
+                actor=principal.id
+            elif action in ('request-affirmation','approve','reject'):
+                raise DomainError('Approval commands require a shared-ledger trade',409)
             version = data.get("version")
             if isinstance(version, bool) or not isinstance(version, int) or version != trade["version"]:
                 raise DomainError("Stale or missing version; refresh before updating", 409)
@@ -158,13 +215,22 @@ class Ledger:
             elif action == "settle":
                 if state not in ("AFFIRMED", "FAILED"):
                     raise DomainError("Only affirmed or failed trades can attempt settlement", 409)
-                amount = trade["quantity"] * trade["price_cents"]
-                ready = trade["cash_cents"] >= amount and trade["securities"] >= trade["quantity"]
-                if ready:
-                    db.execute("INSERT INTO settlements VALUES (?,?,?)", (trade_id, trade["quantity"], amount))
-                    db.execute("UPDATE trades SET state='SETTLED',reason=NULL,cash_cents=cash_cents-?,securities=securities-? WHERE id=?", (amount, trade["quantity"], trade_id))
+                if trade['settlement_model']=='shared-ledger':
+                    from .journal import settle
+                    batch=settle(db,trade,actor)
+                    if batch:
+                        db.execute('INSERT INTO settlements VALUES (?,?,?)',(trade_id,trade['quantity'],trade['quantity']*trade['price_cents']))
+                        db.execute("UPDATE trades SET state='SETTLED',reason=NULL WHERE id=?",(trade_id,))
+                    else:
+                        db.execute("UPDATE trades SET state='FAILED',reason=? WHERE id=?",('Insufficient shared buyer cash or seller securities',trade_id))
                 else:
-                    db.execute("UPDATE trades SET state='FAILED',reason=? WHERE id=?", ("Insufficient simulated cash or securities", trade_id))
+                    amount = trade["quantity"] * trade["price_cents"]
+                    ready = trade["cash_cents"] >= amount and trade["securities"] >= trade["quantity"]
+                    if ready:
+                        db.execute("INSERT INTO settlements VALUES (?,?,?)", (trade_id, trade["quantity"], amount))
+                        db.execute("UPDATE trades SET state='SETTLED',reason=NULL,cash_cents=cash_cents-?,securities=securities-? WHERE id=?", (amount, trade["quantity"], trade_id))
+                    else:
+                        db.execute("UPDATE trades SET state='FAILED',reason=? WHERE id=?", ("Insufficient simulated cash or securities", trade_id))
             else:
                 raise DomainError("Unknown action", 404)
             db.execute("UPDATE trades SET version=version+1 WHERE id=?", (trade_id,))
@@ -177,7 +243,8 @@ class Ledger:
         with self.connection() as db:
             trades = [self.get(db, r["id"]) for r in db.execute("SELECT id FROM trades ORDER BY id DESC").fetchall()]
             audit = [dict(r) for r in db.execute("SELECT * FROM audit ORDER BY seq DESC LIMIT 100")]
-            return {"trades": trades, "audit": audit}
+            from .journal import snapshot
+            return {"trades": trades, "audit": audit, "treasury": snapshot(db)}
 
     def reconcile(self, rows):
         if not isinstance(rows, list) or len(rows) > 10000:
@@ -214,7 +281,7 @@ class Ledger:
             events = [dict(r) for r in db.execute("SELECT * FROM audit WHERE trade_id=? ORDER BY seq", (trade_id,))]
             return build_evidence(trade, events)
 
-    def submit_manager(self, trade_id, data):
+    def submit_manager(self, trade_id, data, principal=None):
         from .matching import normalize_terms, normalize_allocations, compare
         key = data.get('submission_key')
         if not isinstance(key, str) or not 1 <= len(key) <= 120:
@@ -224,6 +291,11 @@ class Ledger:
         fingerprint = json.dumps(manager, sort_keys=True)
         with self.connection() as db:
             trade = self.get(db, trade_id)
+            actor='investment-manager'
+            if trade['settlement_model']=='shared-ledger':
+                from .identity import require
+                require(principal,'maker')
+                actor=principal.id
             if trade['matching_mode'] != 'two-sided':
                 raise DomainError('Manager submissions require a two-sided trade', 409)
             previous = db.execute('SELECT fingerprint,result FROM manager_submissions WHERE trade_id=? AND submission_key=?', (trade_id,key)).fetchone()
@@ -236,6 +308,11 @@ class Ledger:
                 raise DomainError('Stale or missing version; refresh before submitting', 409)
             if trade['state'] not in ('RECEIVED','EXCEPTION','MATCHED'):
                 raise DomainError('Manager terms are locked after affirmation', 409)
+            pending=trade['pending_approval']
+            if pending:
+                db.execute("UPDATE approval_requests SET status='CANCELLED',decided_by='system',decided_at=?,reason=? WHERE id=?",
+                           (datetime.now(timezone.utc).isoformat(),'Manager terms revised; prior approval context invalidated',pending['id']))
+                self.event(db,trade_id,actor,'APPROVAL_CANCELLED','Manager terms changed; a new instruction approval is required')
             report = compare(trade, manager)
             reason = '; '.join(f['message'] for f in report['findings']) or None
             revision = len(trade['submission_history']) + 1
@@ -244,9 +321,72 @@ class Ledger:
                        (json.dumps(manager['allocations']),json.dumps(report),report['status'],reason,trade_id))
             db.execute('INSERT INTO manager_submissions(trade_id,revision,submission_key,fingerprint,payload,timestamp,result) VALUES (?,?,?,?,?,?,?)',
                        (trade_id,revision,key,fingerprint,json.dumps(manager),timestamp,'{}'))
-            self.event(db,trade_id,'investment-manager','MANAGER_SUBMITTED',
+            self.event(db,trade_id,actor,'MANAGER_SUBMITTED',
                        'Revision %s · %s · %s discrepancy(s) · %s' % (revision,report['status'],len(report['findings']),report['policy']))
             result = self.get(db,trade_id)
             db.execute('UPDATE manager_submissions SET result=? WHERE trade_id=? AND submission_key=?',
                        (json.dumps(result),trade_id,key))
+            return result
+
+    def approval_command(self, db, trade, action, data, principal):
+        from .identity import require
+        from uuid import uuid4
+        trade_id=trade['id']
+        if action=='request-affirmation':
+            require(principal,'maker')
+            instruction=data.get('instruction','')
+            if not isinstance(instruction,str) or not instruction.startswith('SYN-') or len(instruction)>80:
+                raise DomainError('Provide a synthetic instruction beginning SYN-')
+            key=data.get('request_key')
+            if not isinstance(key,str) or not 1<=len(key)<=120:
+                raise DomainError('Approval request requires an Idempotency-Key')
+            fingerprint=json.dumps([instruction,principal.id])
+            previous=db.execute('SELECT fingerprint FROM approval_requests WHERE trade_id=? AND request_key=?',(trade_id,key)).fetchone()
+            if previous:
+                if previous['fingerprint']!=fingerprint:
+                    raise DomainError('Approval key conflicts with an earlier request',409)
+                return self.get(db,trade_id)
+        else:
+            pending=trade['pending_approval']
+            if not pending or data.get('approval_id')!=pending['id']:
+                raise DomainError('No matching pending approval request',409)
+            if principal is not None and principal.id==pending['maker_id']:
+                raise DomainError('A maker cannot approve or reject their own request',403)
+            require(principal,'checker')
+        version=data.get('version')
+        if isinstance(version,bool) or not isinstance(version,int) or version!=trade['version']:
+            raise DomainError('Stale or missing version; refresh the approval context',409)
+        now=datetime.now(timezone.utc).isoformat()
+        if action=='request-affirmation':
+            if trade['state']!='MATCHED' or trade['pending_approval']:
+                raise DomainError('Request requires a matched trade without another pending approval',409)
+            request_id='A-'+uuid4().hex[:16].upper()
+            db.execute('INSERT INTO approval_requests VALUES (?,?,?,?,?,?,?,?,?,?,?,?)',
+                       (request_id,trade_id,principal.id,instruction,'PENDING',trade['version']+1,key,fingerprint,now,None,None,None))
+            detail='Instruction review requested for matched terms; '+request_id
+            event='AFFIRMATION_REQUESTED'
+        else:
+            if pending['trade_version']!=trade['version'] or trade['state']!='MATCHED':
+                raise DomainError('Approval no longer refers to current matched terms',409)
+            reason=data.get('reason','')
+            if action=='reject' and (not isinstance(reason,str) or not 5<=len(reason.strip())<=300):
+                raise DomainError('Rejection requires a reason of 5–300 characters')
+            if action=='approve':
+                db.execute("UPDATE trades SET state='AFFIRMED',instruction=?,reason=NULL WHERE id=?",(pending['instruction'],trade_id))
+            db.execute('UPDATE approval_requests SET status=?,decided_by=?,decided_at=?,reason=? WHERE id=?',
+                       ('APPROVED' if action=='approve' else 'REJECTED',principal.id,now,reason if action=='reject' else None,pending['id']))
+            detail='Instruction request '+pending['id']+' '+('approved' if action=='approve' else 'rejected: '+reason)
+            event='AFFIRMATION_APPROVED' if action=='approve' else 'AFFIRMATION_REJECTED'
+        db.execute('UPDATE trades SET version=version+1 WHERE id=?',(trade_id,))
+        self.event(db,trade_id,principal.id,event,detail)
+        return self.get(db,trade_id)
+
+    def fund_participant(self,data,key,principal):
+        from .identity import require
+        from .journal import provision
+        require(principal,'checker')
+        with self.connection() as db:
+            result=provision(db,data,key,principal.id)
+            if not result['replayed']:
+                self.event(db,'TREASURY',principal.id,'DEMO_FUNDED',data['participant_id']+' / '+data['asset']+' / '+str(data['amount']))
             return result

@@ -43,6 +43,9 @@ def build_evidence(trade, events):
     }
     if trade["state"] in ("RECEIVED", "EXCEPTION", "MATCHED"):
         facts = {name: facts[name] for name in ("state", "broker_quantity", "allocation_total")}
+    if trade.get('settlement_model')=='shared-ledger':
+        facts['balance_source']='Shared participant ledger; buyer cash and seller securities'
+        facts['approval_status']='PENDING' if trade.get('pending_approval') else ('APPROVED' if trade['state'] in ('AFFIRMED','FAILED','SETTLED') else 'NOT_APPROVED')
     matching = trade.get('matching', {})
     if trade.get('matching_mode') == 'two-sided':
         from .matching import policy_description

@@ -6,6 +6,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from .domain import Ledger, DomainError
 from .ai import Triage
+from .identity import DemoSessions, PERSONAS
 from threading import BoundedSemaphore
 
 ASSETS = Path(__file__).resolve().parent / "static"
@@ -14,8 +15,9 @@ ASSETS = Path(__file__).resolve().parent / "static"
 def handler(ledger, triage=None):
     triage = triage or Triage()
     ai_slots = BoundedSemaphore(1)
+    sessions = DemoSessions()
     class Handler(BaseHTTPRequestHandler):
-        def reply(self, status, body, content_type="application/json"):
+        def reply(self, status, body, content_type="application/json", cookie=None):
             raw = json.dumps(body).encode() if content_type == "application/json" else body
             self.send_response(status)
             self.send_header("Content-Type", content_type)
@@ -23,12 +25,23 @@ def handler(ledger, triage=None):
             self.send_header("Cache-Control", "no-store")
             self.send_header("X-Content-Type-Options", "nosniff")
             self.send_header("Content-Security-Policy", "default-src 'self'; script-src 'self'; style-src 'self'; frame-ancestors 'none'; base-uri 'none'")
+            if cookie:
+                self.send_header('Set-Cookie',cookie)
             self.end_headers()
             self.wfile.write(raw)
 
+        def session_info(self, principal):
+            return dict(principal=dict(id=principal.id,role=principal.role) if principal else None,
+                        mode='freely-switchable-local-demo',
+                        personas=[dict(id=p.id,role=p.role) for p in PERSONAS.values()])
+
         def do_GET(self):
+            if self.path == '/api/session':
+                return self.reply(200,self.session_info(sessions.resolve(self.headers.get('Cookie'))))
+            if self.path == '/api/treasury':
+                return self.reply(200,ledger.snapshot()['treasury'])
             if self.path == "/api/health":
-                return self.reply(200, {"status": "healthy", "version": "2.1.0", "ai_enabled": triage.enabled})
+                return self.reply(200, {"status": "healthy", "version": "2.2.0", "ai_enabled": triage.enabled})
             if self.path == '/api/matching-policy':
                 from .matching import policy_description
                 return self.reply(200, policy_description())
@@ -52,8 +65,14 @@ def handler(ledger, triage=None):
                 data = json.loads(self.rfile.read(length))
                 if not isinstance(data, dict):
                     raise DomainError("Request body must be an object")
+                principal=sessions.resolve(self.headers.get('Cookie'))
+                if self.path == '/api/session':
+                    token,principal=sessions.start(data.get('persona'))
+                    return self.reply(200,self.session_info(principal),cookie='settlementlab_session='+token+'; HttpOnly; SameSite=Strict; Path=/; Max-Age=3600')
+                if self.path == '/api/treasury/fund':
+                    return self.reply(200,ledger.fund_participant(data,self.headers.get('Idempotency-Key'),principal))
                 if self.path == "/api/trades":
-                    return self.reply(201, ledger.create(data, self.headers.get("Idempotency-Key")))
+                    return self.reply(201, ledger.create(data, self.headers.get("Idempotency-Key"),principal=principal))
                 if self.path == "/api/reconcile":
                     return self.reply(200, ledger.reconcile(data.get("statement")))
                 parts = self.path.strip("/").split("/")
@@ -66,9 +85,11 @@ def handler(ledger, triage=None):
                             return self.reply(200, triage.analyze(evidence))
                         finally:
                             ai_slots.release()
+                    if parts[3] == 'request-affirmation':
+                        data['request_key']=self.headers.get('Idempotency-Key')
                     if parts[3] == 'manager':
                         data['submission_key'] = self.headers.get('Idempotency-Key')
-                    return self.reply(200, ledger.command(parts[2], parts[3], data))
+                    return self.reply(200, ledger.command(parts[2], parts[3], data,principal=principal))
                 raise DomainError("Not found", 404)
             except DomainError as error:
                 self.reply(error.status, {"error": str(error)})

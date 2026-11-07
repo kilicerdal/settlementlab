@@ -39,7 +39,7 @@ def record(output):
             page.evaluate(
                 """({title, detail}) => {
                 let caption = document.getElementById('recording-caption');
-                if (!caption) { caption = document.createElement('aside');
+                if (!caption) { caption = document.createElement('div');
                   caption.id = 'recording-caption'; document.body.append(caption); }
                 caption.style.cssText = 'position:fixed;bottom:0;left:0;right:0;z-index:2147483647;background:#06131ff5;color:#e8f3ef;padding:18px 32px;border-top:2px solid #a3dfca;font:16px/1.5 system-ui;pointer-events:none';
                 caption.replaceChildren();

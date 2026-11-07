@@ -1,9 +1,12 @@
 """Bounded, transport-independent investigation facts."""
-import json
 
-def build_evidence(trade, events):
+import json
+from typing import Any, Mapping, Sequence
+
+
+def build_evidence(trade: Mapping[str, Any], events: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
     # Deliberately exclude free-form accounts, instructions, request keys and actor names.
-    facts = {
+    facts: dict[str, Any] = {
         "state": trade["state"],
         "broker_quantity": trade["quantity"],
         "allocation_total": sum(a["quantity"] for a in json.loads(trade["allocations"])),
@@ -14,25 +17,42 @@ def build_evidence(trade, events):
     }
     if trade["state"] in ("RECEIVED", "EXCEPTION", "MATCHED"):
         facts = {name: facts[name] for name in ("state", "broker_quantity", "allocation_total")}
-    if trade.get('settlement_model')=='shared-ledger':
-        facts['balance_source']='Shared participant ledger; buyer cash and seller securities'
-        facts['approval_status']='PENDING' if trade.get('pending_approval') else ('APPROVED' if trade['state'] in ('AFFIRMED','FAILED','SETTLED') else 'NOT_APPROVED')
-    matching = trade.get('matching', {})
-    if trade.get('matching_mode') == 'two-sided':
+    if trade.get("settlement_model") == "shared-ledger":
+        facts["balance_source"] = "Shared participant ledger; buyer cash and seller securities"
+        facts["approval_status"] = (
+            "PENDING"
+            if trade.get("pending_approval")
+            else (
+                "APPROVED"
+                if trade["state"] in ("AFFIRMED", "FAILED", "SETTLED")
+                else "NOT_APPROVED"
+            )
+        )
+    matching = trade.get("matching", {})
+    if trade.get("matching_mode") == "two-sided":
         from .matching import policy_description
-        policy = policy_description()
-        if trade['state'] in ('RECEIVED','EXCEPTION','MATCHED'):
-            facts = {'state': trade['state']}
-        active_rules = {finding['rule_id'] for finding in matching.get('findings', [])}
-        facts['matching_policy'] = dict(id=policy['id'],
-            rules=[rule for rule in policy['rules'] if rule['id'] in active_rules])
-    evidence_facts = [{"id": "fact:"+name, "name": name, "value": value} for name,value in facts.items()]
-    for finding in matching.get('findings', []):
-        evidence_facts.append(dict(id='break:'+finding['field'], name=finding['code'],
-                                   value={key:finding[key] for key in ('expected','observed','rule_id')}))
-    return {
-        "trade_id": trade["id"], "trade_version": trade["version"],
-        "facts": evidence_facts,
-        "events": [{"id": "event:"+str(e["seq"]), "action": e["action"]} for e in events[-20:]],
-    }
 
+        policy = policy_description()
+        if trade["state"] in ("RECEIVED", "EXCEPTION", "MATCHED"):
+            facts = {"state": trade["state"]}
+        active_rules = {finding["rule_id"] for finding in matching.get("findings", [])}
+        facts["matching_policy"] = dict(
+            id=policy["id"], rules=[rule for rule in policy["rules"] if rule["id"] in active_rules]
+        )
+    evidence_facts = [
+        {"id": "fact:" + name, "name": name, "value": value} for name, value in facts.items()
+    ]
+    for finding in matching.get("findings", []):
+        evidence_facts.append(
+            dict(
+                id="break:" + finding["field"],
+                name=finding["code"],
+                value={key: finding[key] for key in ("expected", "observed", "rule_id")},
+            )
+        )
+    return {
+        "trade_id": trade["id"],
+        "trade_version": trade["version"],
+        "facts": evidence_facts,
+        "events": [{"id": "event:" + str(e["seq"]), "action": e["action"]} for e in events[-20:]],
+    }

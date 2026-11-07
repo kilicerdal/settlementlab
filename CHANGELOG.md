@@ -1,5 +1,15 @@
 # Changelog
 
+## 2.5.0 — Quality review and repeatable gates
+
+- Atomic migrations with future-schema refusal and rollback regressions.
+- Sticky failure reporting across skipped subtests; runner failure fallback.
+- Integrity checks before underfunded settlement, empty-batch rejection, and stricter stored-calendar validation.
+- Consistent formatting, lint/import checks, strict pure-core/configuration typing and an 85% combined coverage gate.
+- Pinned development tools, measured coverage artifacts and documented review boundaries.
+
+No new financial features; review is agent self-review, not an independent security audit.
+
 ## 2.4.0 — Pinned calendars and explicit business clocks
 
 - Pure simulation calendar and clock contracts with real UTC and fixed-date adapters.

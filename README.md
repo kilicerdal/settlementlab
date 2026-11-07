@@ -8,6 +8,12 @@ SettlementLab is an independent post-trade simulator and Python assurance framew
 
 ![V2.2 shared participant ledger and controls](docs/images/ledger-v22.png)
 
+## Quality release — V2.5
+
+V2.5 fixes atomic migration, future-schema protection, report failure preservation, journal integrity and stored-calendar validation defects. Development-only lint, format, strict core/config typing and branch coverage gates now run in CI. No new product features were added.
+
+See [review findings, exact check scope and remaining gaps](docs/QUALITY.md). Type checking is deliberately scoped; this is not a claim that the whole framework is statically typed or independently audited.
+
 ## Settlement calendar controls — V2.4
 
 Shared-ledger trades now require next-business-day settlement under a pinned simulation calendar. Settlement is rejected before the agreed date, on a closed business date, or when the agreed date is closed. These rejections do not change lifecycle state, audit records or journal balances. Readiness also lists approval and capacity blockers.

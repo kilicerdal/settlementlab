@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "settlementlab"
-version = "2.4.0"
+version = "2.5.0"
 readme = "README.md"
 description = "A deterministic post-trade lifecycle simulator and assurance workbench"
 requires-python = ">=3.9"
@@ -28,3 +28,33 @@ testpaths = ["tests"]
 [tool.setuptools.package-data]
 settlementlab = ["static/*.html", "static/*.css", "static/*.js"]
 "settlementlab.assurance" = ["catalog/*.json"]
+
+[tool.ruff]
+target-version = "py39"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F", "I"]
+
+[tool.mypy]
+python_version = "3.9"
+strict = true
+files = ["src/settlementlab/core", "src/settlementlab/configuration.py"]
+
+[tool.coverage.run]
+branch = true
+source = ["settlementlab"]
+data_file = "artifacts/coverage/.coverage"
+
+[tool.coverage.report]
+show_missing = true
+fail_under = 85
+
+[tool.coverage.html]
+directory = "artifacts/coverage/html"
+
+[tool.coverage.xml]
+output = "artifacts/coverage/coverage.xml"
+
+[tool.coverage.json]
+output = "artifacts/coverage/coverage.json"

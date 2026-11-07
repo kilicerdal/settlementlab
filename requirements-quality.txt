@@ -1,0 +1,4 @@
+# Pinned development-only tools; application runtime remains standard-library-only.
+ruff==0.11.13
+mypy==1.15.0
+coverage==7.8.2

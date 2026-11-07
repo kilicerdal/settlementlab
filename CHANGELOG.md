@@ -1,5 +1,14 @@
 # Changelog
 
+## 3.0.0 — Reproducible showcase package
+
+- Single-command local showcase: four settlement scenarios, two independent collateral controls and an exact injected-defect demonstration.
+- Portable HTML entry page, JSON/HTML/JUnit reports and a versioned execution manifest with source state and SHA-256 file checksums.
+- Offline verification rejects missing or changed artifacts and unrelated negative failures; CI builds and verifies the package.
+- Rewritten project overview, current capability/limitation matrix, walkthrough and contributor/release instructions.
+
+V3.0 completes the planned local showcase scope. It does not introduce production authentication, external market connectivity or a new model-quality claim.
+
 ## 2.6.0 — Second-target reuse and structured failure evidence
 
 - Reusable bounded JSON transport and generic HTTP server fixture, with the financial client/environment layered on top.

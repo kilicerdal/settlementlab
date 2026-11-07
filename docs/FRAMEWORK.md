@@ -1,4 +1,4 @@
-# Framework extension guide — V2.3
+# Framework extension guide — V3.0
 
 ## Run and inspect
 
@@ -31,3 +31,9 @@ Runtime remains standard-library-only. Production identity, participant isolatio
 ## Reproducible business time
 
 LocalEnvironment defaults to simulated 2026-11-09 for the catalog inputs. Scenarios can supply business_date and closed_dates; reports record the actual configured clock. S03 proves early settlement fails with 409. The browser journey uses environments/showcase.json or an equivalent --business-date override. Calendar tests cover weekend, closure, leap-year, policy pinning and invalid fingerprint behavior.
+
+## Generic targets and portable demonstration
+
+For a non-financial target use the generic `http` action, explicit target profile and response references described in [REUSE.md](REUSE.md). Its fixture does not start the financial application. GET/POST are the supported transport surface; there is no arbitrary auth/protocol plugin system.
+
+`python -m scripts.showcase` executes both applications from a checkout, creates portable evidence and checks the deliberately negative result. `--verify` rechecks artifacts without starting services. See [SHOWCASE.md](SHOWCASE.md) for exact scope and manifest limits. This source tool is not included as an installed framework command.

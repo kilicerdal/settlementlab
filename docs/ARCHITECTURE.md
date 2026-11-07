@@ -1,4 +1,4 @@
-# Architecture and decisions — V2.2
+# Architecture and decisions — V3.0
 
 ```mermaid
 flowchart LR
@@ -13,7 +13,7 @@ flowchart LR
 
 ## Transaction boundaries
 
-The lifecycle service owns SQLite transactions and has no HTTP/UI dependency. Shared validators define exact monetary constraints. The matching module normalizes independent terms and compares them without storage or network access. Each new manager revision atomically stores the submission, matching result, lifecycle update, audit event and replay response. Failed commands roll back. BEGIN IMMEDIATE serializes local writers; version guards reject stale independent submissions. Unique trade/key and trade/revision constraints protect history.
+The lifecycle service requests transactions through an application-owned store port and has no SQL, HTTP or UI dependency. SQLiteStore implements the transaction boundary. Shared validators define exact monetary constraints. The matching module normalizes independent terms and compares them without storage or network access. Each new manager revision atomically stores the submission, matching result, lifecycle update, audit event and replay response. Failed commands roll back. BEGIN IMMEDIATE serializes local writers; version guards reject stale independent submissions. Unique trade/key and trade/revision constraints protect history.
 
 Manager revisions never change broker economics. The matching report is stored with the trade and carries a policy ID plus all discrepancy records. Replaying a manager key returns its stored response snapshot, even if the trade later advanced. A successful new command increments the version; replay does not.
 
@@ -35,7 +35,7 @@ Domain tests use independent expected amounts and findings. They cover every mat
 
 ## Scope
 
-SQLite and the standard library keep the local demonstration reproducible. Verified identity, participant isolation, durable workers, market calendars and production serving remain later increments. V2.2 adds shared multi-asset posting and demo maker/checker controls as described below. Broker trades are USD; no currency conversion or settlement date eligibility is claimed. Prices use a fixed two-decimal simulation policy.
+SQLite and the standard library keep the local demonstration reproducible. Verified identity, participant isolation, durable workers, official market calendar datasets and production serving remain outside this release. Shared multi-asset posting and demo maker/checker controls are implemented as described below. Broker trades are USD; currency conversion is not implemented. Shared trades enforce settlement eligibility under a pinned project calendar. Prices use a fixed two-decimal simulation policy.
 
 
 ## Shared-ledger transaction boundary
@@ -57,3 +57,13 @@ Startup adds participants, projections, journal batches/lines, instruction appro
 Core policies and evidence shaping are persistence/network independent. SettlementService receives an application-owned Store protocol and calls named repository methods. SQLiteRepository owns SQL and row/cursor conversion; SQLiteStore owns migration and transaction lifetime. bootstrap.create_application composes these with explicit Settings and the AI adapter. DemoSessions is an infrastructure identity adapter; Principal and require are pure workflow policy. HTTP and model transports live under adapters.
 
 The assurance layer provides isolated HTTP fixtures, a synthetic input factory, an allowlisted JSON acceptance DSL and report exporters. Unit/integration/API/browser directories reflect execution boundaries. Older domain/server/etc. modules are compatibility facades. See FRAMEWORK.md for extension and remaining coarse journal-adapter boundaries.
+
+## Pinned calendar and business time
+
+A shared trade persists its calendar policy and fingerprint. Creation validates next-business-day settlement under that policy; posting rejects early or closed dates without lifecycle, audit or journal mutation. Settings changes do not rewrite existing trades. Default business time is actual UTC; showcase profiles use an explicitly labeled fixed date. Audit time remains real. Weekends and configured project closures are supported; official holiday datasets and intraday cutoffs are not.
+
+## Reusable assurance and evidence delivery
+
+JsonClient owns bounded transport, timeout/error classification, cookie isolation and sanitized request metadata. SettlementClient adds domain helpers. The generic HTTP scenario action uses target profiles and saved JSON references against a separately running application. The independent collateral example has no framework imports and owns its own SQLite schema.
+
+The V3.0 showcase orchestrator composes financial fixtures and healthy/faulty collateral fixtures with temporary storage. It requires exact control/fault outcomes and writes portable HTML/JSON/JUnit plus a checksum manifest. Verification is offline and does not invoke a model or imply full-suite/browser coverage. CI runs full controls, browser, separate-process reuse and showcase verification as distinct jobs.

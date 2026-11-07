@@ -1,8 +1,10 @@
 """Run against a fresh local server: python tests/browser_smoke.py."""
 import os
+from uuid import uuid4
 from pathlib import Path
 from playwright.sync_api import sync_playwright, expect
 
+manual_symbol='T'+uuid4().hex[:8].upper()
 output=Path('artifacts')
 output.mkdir(exist_ok=True)
 with sync_playwright() as p:
@@ -49,7 +51,7 @@ with sync_playwright() as p:
         # Exercise manual independent submissions and a real mobile form, not only the seeded demo.
         page.get_by_role('button',name='Submit broker trade').click()
         dialog=page.get_by_role('dialog')
-        dialog.get_by_label('Security symbol').fill('LUMA')
+        dialog.get_by_label('Security symbol').fill(manual_symbol)
         dialog.get_by_label('Quantity',exact=True).fill('25')
         dialog.get_by_label('Price per share').fill('10.25')
         dialog.get_by_label('Trade date',exact=True).fill('2026-11-06')
@@ -58,7 +60,7 @@ with sync_playwright() as p:
         expect(dialog).not_to_be_visible()
         expect(page.locator('#detail .badge')).to_have_text('RECEIVED')
         page.get_by_role('button',name='Submit manager terms').click()
-        dialog.get_by_label('Security symbol').fill('LUMA')
+        dialog.get_by_label('Security symbol').fill(manual_symbol)
         dialog.get_by_label('Quantity',exact=True).fill('25')
         dialog.get_by_label('Price per share').fill('10.25')
         dialog.get_by_label('Trade date',exact=True).fill('2026-11-06')
@@ -68,9 +70,9 @@ with sync_playwright() as p:
         dialog.get_by_role('button',name='Submit independent terms').click()
         expect(dialog).not_to_be_visible()
         expect(page.locator('#detail .badge')).to_have_text('MATCHED')
-        page.get_by_label('Search trades').fill('LUMA')
+        page.get_by_label('Search trades').fill(manual_symbol)
         expect(page.locator('#trades tr')).to_have_count(1)
-        expect(page.locator('#trades')).to_contain_text('LUMA')
+        expect(page.locator('#trades')).to_contain_text(manual_symbol)
         page.get_by_label('Lifecycle status').select_option('EXCEPTION')
         expect(page.locator('#trades')).to_contain_text('No trades match your filters.')
         print('Browser journey passed: two-sided breaks → revision → settlement recovery → reconciliation; mobile manual submissions and filters')

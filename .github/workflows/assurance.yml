@@ -10,7 +10,7 @@ jobs:
         python: ['3.9', '3.13']
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: ${{ matrix.python }}
       - run: pip install . -r requirements-quality.txt
@@ -24,7 +24,7 @@ jobs:
       - run: coverage json
       - run: coverage xml
       - run: coverage html
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: assurance-python-${{ matrix.python }}
@@ -35,7 +35,7 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: '3.13'
       - run: pip install 'playwright>=1.48,<2'
@@ -54,7 +54,7 @@ jobs:
               raise SystemExit('Server failed readiness check')
           PY
           python tests/browser_smoke.py
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: browser-evidence
@@ -64,7 +64,7 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: '3.13'
       - run: pip install .
@@ -96,7 +96,7 @@ jobs:
           assert cases['C01']['status']=='passed'
           assert cases['C02']['steps'][-1]['failure']=={'kind':'http_status','expected':200,'actual':201}
           PY
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: independent-target-evidence
@@ -106,13 +106,13 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: '3.13'
       - run: pip install .
       - run: python -m scripts.showcase
       - run: python -m scripts.showcase --verify
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: portable-showcase

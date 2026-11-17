@@ -111,6 +111,10 @@ Financial scope is USD equity trades with exact cent prices and bounded integer 
 
 Existing databases migrate additively: back up first. Legacy allocation-only and trade-scoped contracts remain supported; new console trades use two-sided matching and shared-ledger controls. [API contract](docs/API.md) · [Matching policy](docs/MATCHING.md).
 
+## Maintenance
+
+[Dependency update and review policy](docs/DEPENDENCY_MAINTENANCE.md) · [Contributing](CONTRIBUTING.md) · [Security reporting](SECURITY.md).
+
 ## License
 
 [MIT](LICENSE) — copyright 2026 Erdal Kilic.

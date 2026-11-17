@@ -31,3 +31,7 @@ Read [architecture](docs/ARCHITECTURE.md), [extension contracts](docs/FRAMEWORK.
 5. Publish only reviewed synthetic evidence on the portfolio. Verify links, desktop/mobile layout and deployment status. The repository is public; keep credentials and real financial data out of all artifacts.
 
 The showcase is a source-checkout tool. Its ZIP is portable evidence; it does not include an application installer. JSON/HTML/JUnit reports are generated from execution, not manually edited to appear passing. Checksums detect accidental changes relative to the manifest and do not replace signed provenance or independent review.
+
+## Dependency updates
+
+Follow [the dependency maintenance guide](docs/DEPENDENCY_MAINTENANCE.md) for scheduled proposals and review requirements. Dependency PRs do not automatically merge or authorize live model calls.

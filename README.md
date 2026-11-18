@@ -1,5 +1,7 @@
 # SettlementLab
 
+![Python 3.9+](https://img.shields.io/badge/Python-3.9%2B-3776AB?logo=python) ![Tests: Python assurance](https://img.shields.io/badge/Tests-Python%20assurance-3776AB) [![MIT license](https://img.shields.io/github/license/kilicerdal/settlementlab)](LICENSE)
+
 **Confidence starts with the match.**
 
 [![Settlement assurance](https://github.com/kilicerdal/settlementlab/actions/workflows/assurance.yml/badge.svg)](https://github.com/kilicerdal/settlementlab/actions/workflows/assurance.yml)
@@ -118,3 +120,7 @@ Existing databases migrate additively: back up first. Legacy allocation-only and
 ## License
 
 [MIT](LICENSE) — copyright 2026 Erdal Kilic.
+
+## Compatibility and maintenance
+
+[Supported versions, quick/full checks, dependency decisions and upgrade policy](docs/MAINTENANCE.md). Historical evidence stays dated; current CI status is linked above.

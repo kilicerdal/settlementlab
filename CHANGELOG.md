@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased — framework depth
+
+- User-owned external HTTP scenario packs with bounded preflight validation and packaged CLI support.
+- Post-commit response-loss/timeout, hard process restart and incomplete-body regressions.
+- Reviewed historical/synthetic AI corpus with offline criterion reporting; no model-accuracy claim.
+- Six additional strict-typed assurance modules and type-exact JSON assertions.
+- Failure-first offline HTML with step anchors, declared controls and sanitized request/comparison metadata.
+
 ## 3.0.0 — Reproducible showcase package
 
 - Single-command local showcase: four settlement scenarios, two independent collateral controls and an exact injected-defect demonstration.

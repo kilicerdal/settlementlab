@@ -7,7 +7,7 @@ from importlib.resources import files
 from .client import APIError
 from .data import RunKeys, TradeFactory
 from .fixtures import LocalEnvironment
-from .http_steps import StepFailure, execute_http, external_environment, resolve
+from .http_steps import StepFailure, equal_json, execute_http, external_environment, resolve
 from .transport import TransportError
 
 ACTIONS = {"identity", "create", "manager", "request", "approve", "fund", "settle", "snapshot"}
@@ -44,6 +44,9 @@ def run_scenario(spec, base_url=None, timeout=10):
         steps=[],
         duration=0.0,
     )
+    for field in ("control", "source"):
+        if field in spec:
+            result[field] = spec[field]
     start = time.perf_counter()
     try:
         fixture = (
@@ -68,6 +71,9 @@ def run_scenario(spec, base_url=None, timeout=10):
             context = {"run_id": factory.namespace.upper()}
             for index, step in enumerate(spec["steps"], 1):
                 item = dict(index=index, action=step["action"], status="passed")
+                if "control" in step:
+                    item["control"] = step["control"]
+                client.last_exchange = None
                 tick = time.perf_counter()
                 try:
                     action = step["action"]
@@ -113,13 +119,18 @@ def run_scenario(spec, base_url=None, timeout=10):
                         item["expected_http_status"] = error.status
                     else:
                         if action != "http" and "expect_status" in step:
-                            raise AssertionError(
-                                "Expected HTTP failure " + str(step["expect_status"])
+                            raise StepFailure(
+                                "Expected HTTP failure " + str(step["expect_status"]),
+                                kind="http_status",
+                                expected=step["expect_status"],
+                                actual=client.last_exchange["status"]
+                                if client.last_exchange
+                                else None,
                             )
                     for path, expected in step.get("assert", {}).items():
                         expected = resolve(expected, context)
                         actual = lookup(view, path)
-                        if actual != expected:
+                        if not equal_json(actual, expected):
                             raise StepFailure(
                                 "Assertion differs from contract",
                                 kind="assertion",
@@ -133,11 +144,17 @@ def run_scenario(spec, base_url=None, timeout=10):
                     if isinstance(error, StepFailure):
                         item["failure"] = error.evidence
                         item["detail"] = str(error) + ": " + str(error.evidence)
+                    if isinstance(error, APIError):
+                        item["failure"] = dict(
+                            kind="http_status",
+                            expected=step.get("expect_status", "2xx"),
+                            actual=error.status,
+                        )
                     if isinstance(error, TransportError):
                         item["failure"] = {"kind": error.kind}
                     result.update(status="failed", detail="Step %s: %s" % (index, item["detail"]))
                 finally:
-                    if action == "http" and client.last_exchange:
+                    if client.last_exchange:
                         item["request"] = dict(client.last_exchange)
                     item["duration"] = time.perf_counter() - tick
                     result["steps"].append(item)

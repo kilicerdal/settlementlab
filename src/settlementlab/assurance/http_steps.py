@@ -2,17 +2,34 @@
 
 import re
 from contextlib import contextmanager
+from dataclasses import dataclass
+from typing import Any, Iterator
 
 from .transport import APIError, JsonClient
 
 
-def lookup(value, path):
+def lookup(value: Any, path: str) -> Any:
     for part in path.split("."):
         value = value[int(part)] if isinstance(value, list) else value[part]
     return value
 
 
-def resolve(value, context):
+def equal_json(actual: Any, expected: Any) -> bool:
+    """JSON assertions distinguish booleans from numbers, including nested values."""
+    if type(actual) is not type(expected):
+        return False
+    if isinstance(actual, dict):
+        return actual.keys() == expected.keys() and all(
+            equal_json(v, expected[k]) for k, v in actual.items()
+        )
+    if isinstance(actual, list):
+        return len(actual) == len(expected) and all(
+            equal_json(a, e) for a, e in zip(actual, expected)
+        )
+    return bool(actual == expected)
+
+
+def resolve(value: Any, context: dict[str, Any]) -> Any:
     if isinstance(value, dict):
         if set(value) == {"$ref"}:
             return lookup(context, value["$ref"])
@@ -26,23 +43,25 @@ def resolve(value, context):
     return value
 
 
-@contextmanager
-def external_environment(base_url, timeout):
-    class Environment:
-        pass
+@dataclass
+class ExternalEnvironment:
+    client: JsonClient
 
-    env = Environment()
-    env.client = JsonClient(base_url, timeout)
-    yield env
+
+@contextmanager
+def external_environment(base_url: str, timeout: float) -> Iterator[ExternalEnvironment]:
+    yield ExternalEnvironment(JsonClient(base_url, timeout))
 
 
 class StepFailure(AssertionError):
-    def __init__(self, message, **evidence):
+    def __init__(self, message: str, **evidence: Any) -> None:
         super().__init__(message)
         self.evidence = evidence
 
 
-def execute_http(client, step, context):
+def execute_http(
+    client: JsonClient, step: dict[str, Any], context: dict[str, Any]
+) -> dict[str, Any]:
     client.last_exchange = None
     path = resolve(step["path"], context)
     payload = resolve(step.get("data"), context)
@@ -55,6 +74,8 @@ def execute_http(client, step, context):
         body = client.request(path, payload, key, method)
     except APIError as error:
         body = error.body
+    if client.last_exchange is None:
+        raise RuntimeError("Transport returned without request metadata")
     status = client.last_exchange["status"]
     if status != expected:
         raise StepFailure(

@@ -56,5 +56,6 @@
         "body.available": 90
       }
     }
-  ]
+  ],
+  "control": "reservation-replay"
 }

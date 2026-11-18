@@ -5,7 +5,7 @@ from pathlib import Path
 from unittest.mock import Mock
 from urllib.error import URLError
 
-from settlementlab.assurance.http_steps import resolve
+from settlementlab.assurance.http_steps import equal_json, resolve
 from settlementlab.assurance.targets import TargetProfile
 from settlementlab.assurance.transport import JsonClient, TransportError
 
@@ -79,3 +79,11 @@ class TargetTransportControls(unittest.TestCase):
             report = json.loads((Path(directory) / "results.json").read_text())
             self.assertEqual(report["status"], "failed")
             self.assertEqual(report["cases"][0]["id"], "runner.configuration")
+
+
+class JsonAssertionTypes(unittest.TestCase):
+    def test_boolean_numeric_and_nested_values_are_not_interchangeable(self):
+        self.assertFalse(equal_json(True, 1))
+        self.assertFalse(equal_json({"valid": [True]}, {"valid": [1]}))
+        self.assertFalse(equal_json([1], [1, 2]))
+        self.assertTrue(equal_json({"value": [1, False]}, {"value": [1, False]}))

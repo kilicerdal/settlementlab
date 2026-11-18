@@ -3,25 +3,27 @@
 import json
 import socket
 import time
+from http.client import IncompleteRead
 from http.cookiejar import CookieJar
+from typing import Any, Optional
 from urllib.error import HTTPError, URLError
 from urllib.parse import urlsplit
 from urllib.request import HTTPCookieProcessor, HTTPRedirectHandler, Request, build_opener
 
 
 class APIError(Exception):
-    def __init__(self, status, body):
+    def __init__(self, status: int, body: Any) -> None:
         self.status, self.body = status, body
         super().__init__("HTTP " + str(status))
 
 
 class TransportError(Exception):
-    def __init__(self, kind):
+    def __init__(self, kind: str) -> None:
         self.kind = kind
         super().__init__("Transport failure: " + kind)
 
 
-def validate_base_url(value):
+def validate_base_url(value: str) -> str:
     if not isinstance(value, str):
         raise ValueError("Base URL must be a string")
     try:
@@ -44,12 +46,12 @@ def validate_base_url(value):
 
 
 class NoRedirect(HTTPRedirectHandler):
-    def redirect_request(self, *args, **kwargs):
+    def redirect_request(self, *args: Any, **kwargs: Any) -> None:
         return None
 
 
 class JsonClient:
-    def __init__(self, base_url, timeout=10):
+    def __init__(self, base_url: str, timeout: float = 10) -> None:
         self.base_url = validate_base_url(base_url)
         if (
             isinstance(timeout, bool)
@@ -60,9 +62,11 @@ class JsonClient:
         self.timeout = timeout
         self.cookies = CookieJar()
         self.opener = build_opener(HTTPCookieProcessor(self.cookies), NoRedirect())
-        self.last_exchange = None
+        self.last_exchange: Optional[dict[str, Any]] = None
 
-    def request(self, path, data=None, key=None, method=None):
+    def request(
+        self, path: str, data: Any = None, key: Optional[str] = None, method: Optional[str] = None
+    ) -> Any:
         if not isinstance(path, str) or not path.startswith("/") or path.startswith("//"):
             raise ValueError("Request path must be relative to the configured target")
         verb = method or ("GET" if data is None else "POST")
@@ -86,7 +90,13 @@ class JsonClient:
                 response = error
             with response:
                 self.last_exchange["status"] = response.code
+                advertised = response.headers.get("Content-Length")
+                length = int(advertised) if advertised and advertised.isdigit() else None
+                if length is not None and length > 1048576:
+                    raise TransportError("response_too_large")
                 raw = response.read(1048577)
+                if length is not None and len(raw) < length:
+                    raise TransportError("incomplete_response")
             if len(raw) > 1048576:
                 raise TransportError("response_too_large")
             try:
@@ -99,6 +109,8 @@ class JsonClient:
             if self.last_exchange["status"] >= 300:
                 raise APIError(self.last_exchange["status"], body)
             return body
+        except IncompleteRead:
+            raise TransportError("incomplete_response")
         except (TimeoutError, socket.timeout):
             raise TransportError("timeout")
         except URLError as error:

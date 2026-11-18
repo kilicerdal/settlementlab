@@ -79,5 +79,6 @@
         "treasury.controls.status": "BALANCED"
       }
     }
-  ]
+  ],
+  "control": "governed-settlement"
 }

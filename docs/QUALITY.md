@@ -33,7 +33,7 @@ coverage html
 
 The application retains zero runtime dependencies. These tools are development-only and require no paid API. Tool versions are pinned in requirements-quality.txt.
 
-Ruff checks import order, unused/undefined names and selected Python correctness/style rules across source, tests and scripts. Formatting is checked separately. Mypy uses strict mode for the pure core and configuration; the application, persistence, HTTP, AI transport and assurance modules are not yet fully type-checked. Validated dictionaries still contain explicit Any at external data boundaries.
+Ruff checks import order, unused/undefined names and selected Python correctness/style rules across source, tests and scripts. Formatting is checked separately. The original V2.5 gate used strict mode for pure core and configuration. The framework-depth branch extends it to catalogs, transport, targets, HTTP steps, reporting and offline AI evaluation; application, persistence and orchestration remain outside full typing. Validated dictionaries still contain explicit Any at external data boundaries.
 
 Coverage includes all settlementlab runtime modules, including compatibility entry points and uncovered failure paths. No module exclusions or artificial no-cover annotations were introduced. It is measured from deterministic controls and acceptance scenarios; browser and live-model checks are separate. The CI minimum is 85% combined statement/branch coverage. Coverage percentage does not establish correctness, security or model accuracy.
 

@@ -1,6 +1,6 @@
 # V4 durable operations verification
 
-Status: 4.0.0.dev1, development upgrade stacked on framework-depth PR #14. Not a production release.
+Release preparation: 4.0.0 incorporates framework-depth PR #14 and durable operations PR #15. This remains a synthetic local showcase, not a production financial system.
 
 Implemented persistent batch acceptance, leased workers with fencing and bounded retries, atomic settlement/receipt/outbox commits, a separately delivered observer with inbox deduplication, reviewed dead-letter recovery, and the `/operations` console. See [the operational guide](DURABLE_OPERATIONS.md) and [architecture decision](decisions/004-durable-settlement.md).
 

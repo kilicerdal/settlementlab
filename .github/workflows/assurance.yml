@@ -137,3 +137,19 @@ jobs:
         with:
           name: durable-recovery-evidence
           path: artifacts/durable-showcase/
+
+  reviewer-ready:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.13'
+      - run: pip install . -r requirements-quality.txt
+      - run: python -m scripts.reviewer_ready --quality
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: v41-engineering-scorecard
+          path: artifacts/reviewer-ready/

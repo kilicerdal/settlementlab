@@ -9,4 +9,6 @@ These records explain decisions visible in the current implementation. They are 
 | [004](004-durable-settlement.md) | Persist work and separate atomic financial effects from at-least-once observation | Six real process crash checkpoints and reviewed recovery |
 | [003](003-advisory-ai.md) | Give AI bounded facts and no mutation interface | Envelope minimization, citation rejection and unchanged-trade API tests |
 
+| [005](005-independent-assurance.md) | Retain independent economic expectations and report measured limits | Balanced-but-wrong mutation, generated sequences and full-day scorecard |
+
 Read the tradeoff and limits alongside the evidence. A passing local test is not a throughput benchmark, identity audit or model-quality evaluation.

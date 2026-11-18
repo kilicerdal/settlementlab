@@ -4,6 +4,7 @@ import json
 from http.server import BaseHTTPRequestHandler
 from pathlib import Path
 from threading import BoundedSemaphore
+from urllib.parse import urlsplit
 
 from .. import __version__
 from ..core.validation import DomainError
@@ -22,6 +23,23 @@ def handler(ledger, triage=None, operations=None):
     sessions = DemoSessions()
 
     class Handler(BaseHTTPRequestHandler):
+        def validate_host(self):
+            try:
+                parsed = urlsplit("http://" + self.headers.get("Host", ""))
+                valid = (
+                    parsed.hostname in ("127.0.0.1", "localhost", "::1")
+                    and parsed.username is None
+                    and parsed.password is None
+                    and not parsed.path
+                    and not parsed.query
+                    and not parsed.fragment
+                    and (parsed.port is None or 0 < parsed.port <= 65535)
+                )
+            except ValueError:
+                valid = False
+            if not valid:
+                raise DomainError("Local demo requires a loopback Host", 400)
+
         def reply(self, status, body, content_type="application/json", cookie=None):
             raw = json.dumps(body).encode() if content_type == "application/json" else body
             self.send_response(status)
@@ -67,6 +85,7 @@ def handler(ledger, triage=None, operations=None):
                 self.reply(500, {"error": "Internal server error"})
 
         def read_request(self):
+            self.validate_host()
             parts = self.path.strip("/").split("/")
             if len(parts) == 4 and parts[:2] == ["api", "trades"] and parts[3] == "readiness":
                 try:
@@ -111,6 +130,10 @@ def handler(ledger, triage=None, operations=None):
             self.reply(404, {"error": "Not found"})
 
         def do_POST(self):
+            try:
+                self.validate_host()
+            except DomainError as error:
+                return self.reply(error.status, {"error": str(error)})
             # Reject cross-origin browser writes to the unauthenticated local demo.
             origin = self.headers.get("Origin")
             if origin and origin != "http://" + self.headers.get("Host", ""):
@@ -119,7 +142,23 @@ def handler(ledger, triage=None, operations=None):
                 length = int(self.headers.get("Content-Length", "0"))
                 if length <= 0 or length > 65536:
                     raise DomainError("Request body must contain 1–65536 bytes", 413)
-                data = json.loads(self.rfile.read(length))
+
+                def unique_fields(pairs):
+                    result = {}
+                    for key, value in pairs:
+                        if key in result:
+                            raise ValueError("Duplicate JSON field")
+                        result[key] = value
+                    return result
+
+                def reject_constant(value):
+                    raise ValueError("Nonfinite JSON number")
+
+                data = json.loads(
+                    self.rfile.read(length),
+                    object_pairs_hook=unique_fields,
+                    parse_constant=reject_constant,
+                )
                 if not isinstance(data, dict):
                     raise DomainError("Request body must be an object")
                 principal = sessions.resolve(self.headers.get("Cookie"))
@@ -148,6 +187,8 @@ def handler(ledger, triage=None, operations=None):
                 if len(operation_parts) == 5 and operation_parts[:2] == ["api", "operations"]:
                     kind, identifier, action = operation_parts[2:]
                     if kind == "jobs" and action == "requeue":
+                        if set(data) != {"version", "reason"}:
+                            raise DomainError("Requeue requires only version and reason")
                         return self.operation_reply(
                             200,
                             operations.requeue(
@@ -155,10 +196,14 @@ def handler(ledger, triage=None, operations=None):
                             ),
                         )
                     if kind == "events" and action == "retry":
+                        if set(data) != {"reason"}:
+                            raise DomainError("Retry requires only reason")
                         return self.reply(
                             200, operations.retry_event(identifier, data.get("reason"), principal)
                         )
                     if kind == "events" and action == "redeliver":
+                        if data:
+                            raise DomainError("Redelivery takes an empty object")
                         return self.reply(200, operations.redeliver(identifier, principal))
                 if self.path == "/api/treasury/fund":
                     return self.reply(
@@ -198,7 +243,7 @@ def handler(ledger, triage=None, operations=None):
                 raise DomainError("Not found", 404)
             except DomainError as error:
                 self.reply(error.status, {"error": str(error)})
-            except (ValueError, UnicodeError):
+            except (ValueError, UnicodeError, RecursionError):
                 self.reply(400, {"error": "Malformed JSON or content length"})
             except Exception:
                 self.log_error("Unhandled request failure")

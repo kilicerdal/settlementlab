@@ -21,6 +21,19 @@ A Python financial systems assurance framework with two runnable reference appli
 ![V3.0 portable execution showcase](docs/images/showcase-v30.png)
 *Recorded V3.0 local screenshot, not a fresh CI result; includes the passing control and expected negative report. [Release and source provenance](docs/EVIDENCE.md).*
 
+## V4.1 development — independent financial assurance
+
+Verify economic correctness separately from the settlement implementation, run seeded property/state-machine checks, and exercise a 240-trade synthetic day with price corrections, funding shortages, reviewed recovery and end-of-day reconciliation. Real worker workloads and backup restore produce measured evidence with explicit limits.
+
+```sh
+python -m pip install . -r requirements-quality.txt
+python -m scripts.reviewer_ready --quality
+# Open artifacts/reviewer-ready/index.html
+python -m scripts.reviewer_ready --verify
+```
+
+[Complete reviewer workflow](docs/V4_1_ASSURANCE.md) · [Independent-service tutorial](docs/SECOND_SERVICE_TUTORIAL.md) · [AI review](docs/AI_REVIEW_V4_1.md) · [Security boundaries](docs/SECURITY_REVIEW_V4_1.md). V4.1 is under review; the published release remains V4.0. The portfolio website is unchanged.
+
 ## V4.0 — durable settlement operations
 
 A separate worker processes persisted settlement jobs with leases, stale-worker fencing and bounded retry. Financial posting, receipt and outgoing event commit together. An ordered outbox and idempotent local observer handle uncertain delivery. The operations console exposes queue state, exception review and a correlated timeline.

@@ -2,11 +2,15 @@
 
 ![Python 3.9+](https://img.shields.io/badge/Python-3.9%2B-3776AB?logo=python) ![Tests: Python assurance](https://img.shields.io/badge/Tests-Python%20assurance-3776AB) [![MIT license](https://img.shields.io/github/license/kilicerdal/settlementlab)](LICENSE)
 
+**Review in five minutes:** [What to run, which failure to inspect, and what it proves](docs/REVIEWER_GUIDE.md) · [Evidence provenance](docs/EVIDENCE.md).
+
 **Confidence starts with the match.**
 
 [![Settlement assurance](https://github.com/kilicerdal/settlementlab/actions/workflows/assurance.yml/badge.svg)](https://github.com/kilicerdal/settlementlab/actions/workflows/assurance.yml)
 
 A Python financial systems assurance framework with two runnable reference applications: a post-trade operations workbench and an independent collateral reservation API. Follow a synthetic trade from mismatched submissions through correction, approval, settlement recovery and reconciliation. Then use the same assurance engine to catch a deliberately broken reservation replay.
+
+**Synthetic local scope:** USD equity trades, simplified calendars, switchable demo personas and simulated balances. No real money, exchange connection or production identity.
 
 **V3.0 completes the local showcase release.** Standard-library runtime, reproducible scenarios, exact failure evidence and optional free local AI. Built by Erdal Kilic.
 
@@ -15,7 +19,7 @@ A Python financial systems assurance framework with two runnable reference appli
 [Website case study](https://www.eai.engineering/engineering/settlementlab) · [Five-minute walkthrough](docs/SHOWCASE.md) · [Architecture](docs/ARCHITECTURE.md) · [Extension guide](docs/FRAMEWORK.md) · [Release history](CHANGELOG.md)
 
 ![V3.0 portable execution showcase](docs/images/showcase-v30.png)
-*Generated from executed local scenarios; includes the passing control and expected negative report.*
+*Recorded V3.0 local screenshot, not a fresh CI result; includes the passing control and expected negative report. [Release and source provenance](docs/EVIDENCE.md).*
 
 ## Start here
 

@@ -50,3 +50,7 @@ A green CI badge describes that workflow's current result, not a security, acces
 ### Python metadata boundary check
 
 Official PyPI release metadata also excludes Python 3.9 for mypy 1.20.2 and coverage 7.15.4. Dependabot therefore excludes mypy >=1.20 and coverage >=7.11. The latest releases whose metadata permits Python 3.9 at this review are mypy 1.19.1 and coverage 7.10.7; this is a metadata observation, not a claim those candidates passed this project’s tests. The installed, validated pins remain mypy 1.15.0 and coverage 7.8.2 until a candidate passes the complete matrix.
+
+## Runner decision
+
+The Ubuntu 22.04 assurance runner is retained for this pass with the existing Python 3.9/3.13 matrix. Changing the runner is a separate compatibility change: compare installed-package, Chromium, coverage and independent-service results on the proposed image before switching. A newer runner label by itself is not additional correctness evidence.

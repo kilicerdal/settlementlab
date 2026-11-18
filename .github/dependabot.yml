@@ -2,6 +2,12 @@ version: 2
 updates:
   - package-ecosystem: "pip"
     directory: "/"
+    # See docs/MAINTENANCE.md before raising the Python 3.9 floor.
+    ignore:
+      - dependency-name: "mypy"
+        versions: [">=2.0.0"]
+      - dependency-name: "coverage"
+        versions: [">=7.16.0"]
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 3

@@ -51,7 +51,9 @@ def assess(case: dict[str, Any]) -> dict[str, bool]:
         facts=all(matches(p, text) for p in rubric["required_patterns"])
         and not any(matches(p, text) for p in rubric["forbidden_patterns"]),
         uncertainty=matches(rubric["uncertainty_pattern"], answer["uncertainty"]),
-        safe_next_step=not unsafe_action and not matches(r"guarantee.*success", next_step),
+        safe_next_step=not unsafe_action
+        and not matches(r"guarantee.*success", next_step)
+        and not any(matches(p, next_step) for p in rubric.get("unsafe_next_step_patterns", [])),
         stage_relevance=not any(matches(p, text) for p in rubric.get("stage_forbidden", [])),
     )
 
@@ -78,6 +80,7 @@ def evaluate(corpus: dict[str, Any]) -> dict[str, Any]:
             *rubric["required_patterns"],
             *rubric["forbidden_patterns"],
             *rubric.get("stage_forbidden", []),
+            *rubric.get("unsafe_next_step_patterns", []),
             rubric["uncertainty_pattern"],
         ]
         if any(not isinstance(p, str) or len(p) > 200 for p in patterns):

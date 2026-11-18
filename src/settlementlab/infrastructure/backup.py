@@ -1,0 +1,51 @@
+"""Local SQLite online backup with exclusive destination and integrity verification."""
+
+import argparse
+import hashlib
+import json
+import os
+import sqlite3
+from pathlib import Path
+
+
+def backup(source, destination):
+    source, destination = Path(source).resolve(), Path(destination).absolute()
+    if not source.is_file() or source == destination.resolve():
+        raise ValueError("Source must be an existing database; destination must differ")
+    # Exclusive create prevents accidental replacement, including symlink targets.
+    fd = os.open(destination, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)
+    os.close(fd)
+    try:
+        with sqlite3.connect(source.as_uri() + "?mode=ro", uri=True) as original:
+            with sqlite3.connect(destination) as copy:
+                original.backup(copy)
+                if copy.execute("PRAGMA integrity_check").fetchone()[0] != "ok":
+                    raise ValueError("Backup integrity verification failed")
+                if copy.execute("PRAGMA foreign_key_check").fetchall():
+                    raise ValueError("Backup contains foreign key violations")
+                schema = copy.execute("PRAGMA user_version").fetchone()[0]
+        return dict(
+            path=str(destination),
+            schema_version=schema,
+            sha256=hashlib.sha256(destination.read_bytes()).hexdigest(),
+            integrity="ok",
+        )
+    except BaseException:
+        destination.unlink(missing_ok=True)
+        raise
+
+
+def main(argv=None):
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--source", required=True)
+    parser.add_argument("--destination", required=True)
+    args = parser.parse_args(argv)
+    try:
+        print(json.dumps(backup(args.source, args.destination)))
+        return 0
+    except (OSError, ValueError, sqlite3.Error) as error:
+        parser.exit(2, "Backup failed: " + str(error) + "\n")
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

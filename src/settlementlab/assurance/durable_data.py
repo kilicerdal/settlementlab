@@ -7,13 +7,22 @@ CHECKER = Principal("checker-sam", "checker")
 AUDITOR = Principal("auditor-casey", "auditor")
 
 
-def approved_trade(service, key="durable-trade", funded=True):
+def approved_trade(
+    service,
+    key="durable-trade",
+    funded=True,
+    quantity=100,
+    price="42.75",
+    side="BUY",
+    symbol="NOVA",
+    initial_manager_price=None,
+):
     terms = dict(
-        symbol="NOVA",
-        side="BUY",
+        symbol=symbol,
+        side=side,
         currency="USD",
-        quantity=100,
-        price="42.75",
+        quantity=quantity,
+        price=price,
         trade_date="2026-11-06",
         settlement_date="2026-11-09",
     )
@@ -22,6 +31,21 @@ def approved_trade(service, key="durable-trade", funded=True):
         key,
         principal=MAKER,
     )
+    if initial_manager_price is not None:
+        trade = service.command(
+            trade["id"],
+            "manager",
+            dict(
+                terms,
+                price=initial_manager_price,
+                version=trade["version"],
+                submission_key=key + "-manager-initial",
+                allocations=[dict(account="SYN-FUND", quantity=quantity)],
+            ),
+            principal=MAKER,
+        )
+        if trade["state"] != "EXCEPTION":
+            raise AssertionError("Planned initial price break was not detected")
     trade = service.command(
         trade["id"],
         "manager",
@@ -29,7 +53,7 @@ def approved_trade(service, key="durable-trade", funded=True):
             terms,
             version=trade["version"],
             submission_key=key + "-manager",
-            allocations=[dict(account="SYN-FUND", quantity=100)],
+            allocations=[dict(account="SYN-FUND", quantity=quantity)],
         ),
         principal=MAKER,
     )

@@ -56,6 +56,7 @@ jobs:
               raise SystemExit('Server failed readiness check')
           PY
           python tests/browser_smoke.py
+          PYTHONPATH=src python tests/browser/durable_smoke.py
       - uses: actions/upload-artifact@v7
         if: always()
         with:
@@ -120,3 +121,19 @@ jobs:
         with:
           name: portable-showcase
           path: artifacts/showcase/
+
+  durable:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.13'
+      - run: pip install .
+      - run: settlementlab-worker --help
+      - run: python -m scripts.durable_showcase
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: durable-recovery-evidence
+          path: artifacts/durable-showcase/

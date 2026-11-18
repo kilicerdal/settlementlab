@@ -32,7 +32,7 @@ class LocalEnvironment:
                 )
             )
             self.http = self.stack.enter_context(
-                HTTPEnvironment(handler(self.app.service, self.app.triage))
+                HTTPEnvironment(handler(self.app.service, self.app.triage, self.app.operations))
             )
             self.server, self.thread, self.base_url = (
                 self.http.server,

@@ -5,6 +5,7 @@ from http.server import BaseHTTPRequestHandler
 from pathlib import Path
 from threading import BoundedSemaphore
 
+from .. import __version__
 from ..core.validation import DomainError
 from ..infrastructure.demo_sessions import PERSONAS, DemoSessions
 from .ai import Triage
@@ -12,7 +13,10 @@ from .ai import Triage
 ASSETS = Path(__file__).resolve().parents[1] / "static"
 
 
-def handler(ledger, triage=None):
+def handler(ledger, triage=None, operations=None):
+    from ..application.operations import DurableOperations
+
+    operations = operations or DurableOperations(ledger)
     triage = triage or Triage()
     ai_slots = BoundedSemaphore(1)
     sessions = DemoSessions()
@@ -33,6 +37,18 @@ def handler(ledger, triage=None):
                 self.send_header("Set-Cookie", cookie)
             self.end_headers()
             self.wfile.write(raw)
+
+        def operation_reply(self, status, body):
+            def public(value):
+                if isinstance(value, dict):
+                    return {
+                        key: public(item) for key, item in value.items() if key != "lease_token"
+                    }
+                if isinstance(value, list):
+                    return [public(item) for item in value]
+                return value
+
+            return self.reply(status, public(body))
 
         def session_info(self, principal):
             return dict(
@@ -57,6 +73,8 @@ def handler(ledger, triage=None):
                     return self.reply(200, ledger.settlement_readiness(parts[2]))
                 except DomainError as error:
                     return self.reply(error.status, {"error": str(error)})
+            if self.path == "/api/operations":
+                return self.reply(200, operations.snapshot())
             if self.path == "/api/session":
                 return self.reply(
                     200, self.session_info(sessions.resolve(self.headers.get("Cookie")))
@@ -68,7 +86,7 @@ def handler(ledger, triage=None):
                     200,
                     {
                         "status": "healthy",
-                        "version": "3.0.0",
+                        "version": __version__,
                         "ai_enabled": triage.enabled,
                         "business_time": ledger.clock.describe(),
                     },
@@ -83,6 +101,9 @@ def handler(ledger, triage=None):
                 "/": ("index.html", "text/html; charset=utf-8"),
                 "/app.js": ("app.js", "text/javascript"),
                 "/style.css": ("style.css", "text/css"),
+                "/operations": ("operations.html", "text/html; charset=utf-8"),
+                "/operations.js": ("operations.js", "text/javascript"),
+                "/operations.css": ("operations.css", "text/css"),
             }
             if self.path in assets:
                 name, mime = assets[self.path]
@@ -111,6 +132,34 @@ def handler(ledger, triage=None):
                         + token
                         + "; HttpOnly; SameSite=Strict; Path=/; Max-Age=3600",
                     )
+                if self.path == "/api/operations/batches":
+                    if set(data) - {"trades", "max_attempts"}:
+                        raise DomainError("Unknown batch fields")
+                    return self.operation_reply(
+                        202,
+                        operations.enqueue_batch(
+                            data.get("trades"),
+                            self.headers.get("Idempotency-Key"),
+                            principal,
+                            data.get("max_attempts", 3),
+                        ),
+                    )
+                operation_parts = self.path.strip("/").split("/")
+                if len(operation_parts) == 5 and operation_parts[:2] == ["api", "operations"]:
+                    kind, identifier, action = operation_parts[2:]
+                    if kind == "jobs" and action == "requeue":
+                        return self.operation_reply(
+                            200,
+                            operations.requeue(
+                                identifier, data.get("version"), data.get("reason"), principal
+                            ),
+                        )
+                    if kind == "events" and action == "retry":
+                        return self.reply(
+                            200, operations.retry_event(identifier, data.get("reason"), principal)
+                        )
+                    if kind == "events" and action == "redeliver":
+                        return self.reply(200, operations.redeliver(identifier, principal))
                 if self.path == "/api/treasury/fund":
                     return self.reply(
                         200,

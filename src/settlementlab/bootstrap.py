@@ -6,6 +6,7 @@ from http.server import ThreadingHTTPServer
 
 from .adapters.ai import Triage
 from .adapters.http import handler
+from .application.operations import DurableOperations
 from .application.service import SettlementService
 from .configuration import Settings
 from .infrastructure.store import SQLiteStore
@@ -16,6 +17,7 @@ class Application:
     settings: Settings
     service: SettlementService
     triage: Triage
+    operations: DurableOperations
 
 
 def create_application(settings):
@@ -23,15 +25,12 @@ def create_application(settings):
     from .infrastructure.clock import SystemClock
 
     clock = FixedClock(settings.business_date) if settings.business_date else SystemClock()
-    return Application(
-        settings,
-        SettlementService(
-            SQLiteStore(settings.database),
-            clock,
-            BusinessCalendar(settings.calendar_id, settings.closed_dates),
-        ),
-        Triage(model=settings.model),
+    service = SettlementService(
+        SQLiteStore(settings.database),
+        clock,
+        BusinessCalendar(settings.calendar_id, settings.closed_dates),
     )
+    return Application(settings, service, Triage(model=settings.model), DurableOperations(service))
 
 
 def main(argv=None):
@@ -52,7 +51,9 @@ def main(argv=None):
         business_date=args.business_date,
     )
     app = create_application(settings)
-    server = ThreadingHTTPServer(("127.0.0.1", settings.port), handler(app.service, app.triage))
+    server = ThreadingHTTPServer(
+        ("127.0.0.1", settings.port), handler(app.service, app.triage, app.operations)
+    )
     print("SettlementLab running at http://127.0.0.1:%s" % server.server_port, flush=True)
     try:
         server.serve_forever()

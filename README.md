@@ -12,7 +12,7 @@ A Python financial systems assurance framework with two runnable reference appli
 
 **Synthetic local scope:** USD equity trades, simplified calendars, switchable demo personas and simulated balances. No real money, exchange connection or production identity.
 
-**V3.0 completes the local showcase release.** Standard-library runtime, reproducible scenarios, exact failure evidence and optional free local AI. Built by Erdal Kilic.
+**V4.0 adds durable settlement operations and verified crash recovery.** Standard-library runtime, reproducible scenarios, exact failure evidence and optional free local AI. Built by Erdal Kilic.
 
 [Watch the captioned walkthrough](https://github.com/kilicerdal/settlementlab/releases/download/v3.0.0/settlementlab-walkthrough.webm) · [Engineering decisions](docs/decisions/README.md) · [Narration script](docs/WALKTHROUGH.md)
 
@@ -21,7 +21,18 @@ A Python financial systems assurance framework with two runnable reference appli
 ![V3.0 portable execution showcase](docs/images/showcase-v30.png)
 *Recorded V3.0 local screenshot, not a fresh CI result; includes the passing control and expected negative report. [Release and source provenance](docs/EVIDENCE.md).*
 
-## Framework-depth upgrade — proposed V3.1
+## V4.0 — durable settlement operations
+
+A separate worker processes persisted settlement jobs with leases, stale-worker fencing and bounded retry. Financial posting, receipt and outgoing event commit together. An ordered outbox and idempotent local observer handle uncertain delivery. The operations console exposes queue state, exception review and a correlated timeline.
+
+```sh
+PYTHONPATH=src python -m scripts.durable_showcase
+# Then open artifacts/durable-showcase/index.html
+```
+
+The reproducible demo uses real child-process crashes and explicit reviewed recovery. [Start the local console and worker](docs/DURABLE_OPERATIONS.md) · [Durability decision](docs/decisions/004-durable-settlement.md). V4 includes the framework-depth upgrade and does not change the public website. It is a local multi-process lab, not distributed exactly-once processing.
+
+## Reusable assurance framework — included in V4
 
 Supply `--scenario-dir your-pack/` to test your own running HTTP API with the installed runner. The new offline AI evaluator retains reviewed historical failures; recovery checks exercise lost responses, timeouts and process restarts. Failure-first HTML links to the request, comparison and declared control. Strict typing now covers six reusable assurance modules in addition to core/configuration.
 

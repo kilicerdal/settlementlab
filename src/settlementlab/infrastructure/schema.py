@@ -2,13 +2,16 @@
 
 from ..core.validation import DomainError
 from .journal import initialize
+from .operations_schema import initialize_operations
+
+SCHEMA_VERSION = 5
 
 
 def migrate(db):
     # SQLiteStore owns the transaction. executescript must not be used here:
     # it implicitly commits and can leave a partial upgrade behind.
     version = db.execute("PRAGMA user_version").fetchone()[0]
-    if version > 4:
+    if version > SCHEMA_VERSION:
         raise DomainError("Database schema is newer than this application; refusing downgrade", 409)
     db.execute(
         "CREATE TABLE IF NOT EXISTS trades (\n              id TEXT PRIMARY KEY, request_key TEXT UNIQUE NOT NULL, fingerprint TEXT NOT NULL,\n              symbol TEXT NOT NULL, quantity INTEGER NOT NULL, price_cents INTEGER NOT NULL,\n              trade_date TEXT NOT NULL, settlement_date TEXT NOT NULL,\n              state TEXT NOT NULL, version INTEGER NOT NULL DEFAULT 1,\n              allocations TEXT NOT NULL DEFAULT '[]', instruction TEXT, reason TEXT,\n              cash_cents INTEGER NOT NULL DEFAULT 0, securities INTEGER NOT NULL DEFAULT 0)"
@@ -45,4 +48,5 @@ def migrate(db):
     db.execute(
         "CREATE UNIQUE INDEX IF NOT EXISTS one_pending_approval ON approval_requests(trade_id) WHERE status='PENDING'"
     )
-    db.execute("PRAGMA user_version=4")
+    initialize_operations(db)
+    db.execute("PRAGMA user_version=5")

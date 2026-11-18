@@ -141,139 +141,136 @@ class SettlementService:
         if action == "manager":
             return self.submit_manager(trade_id, data, principal)
         with self.store.transaction() as repository:
-            trade = self.get(repository, trade_id)
-            if trade["settlement_model"] == "shared-ledger":
-                from ..core.identity import require
+            return self.command_in_transaction(repository, trade_id, action, data, actor, principal)
 
-                if action in ("request-affirmation", "approve", "reject"):
-                    return self.approval_command(repository, trade, action, data, principal)
-                if action in ("affirm", "fund"):
-                    raise DomainError(
-                        "Shared-ledger trades require checker approval and participant treasury funding",
-                        403,
-                    )
-                require(principal, "checker" if action == "settle" else "maker")
-                actor = principal.id
-            elif action in ("request-affirmation", "approve", "reject"):
-                raise DomainError("Approval commands require a shared-ledger trade", 409)
-            version = data.get("version")
-            if (
-                isinstance(version, bool)
-                or not isinstance(version, int)
-                or version != trade["version"]
-            ):
-                raise DomainError("Stale or missing version; refresh before updating", 409)
-            state = trade["state"]
-            if action == "allocate":
-                if trade["matching_mode"] == "two-sided":
-                    raise DomainError(
-                        "Two-sided trades require an independent manager submission", 409
-                    )
-                if state not in ("RECEIVED", "EXCEPTION", "MATCHED"):
-                    raise DomainError("Allocations cannot change after affirmation", 409)
-                allocations = data.get("allocations")
-                if not isinstance(allocations, list) or not 1 <= len(allocations) <= 100:
-                    raise DomainError("Provide 1–100 allocations")
-                accounts = set()
-                for allocation in allocations:
-                    if not isinstance(allocation, dict):
-                        raise DomainError("Invalid allocation")
-                    account = allocation.get("account")
-                    if (
-                        not isinstance(account, str)
-                        or not account.strip()
-                        or len(account) > 80
-                        or (account in accounts)
-                    ):
-                        raise DomainError("Allocation accounts must be unique nonempty strings")
-                    accounts.add(account)
-                    positive_int(allocation.get("quantity"))
-                total = sum((a["quantity"] for a in allocations))
-                state = "MATCHED" if total == trade["quantity"] else "EXCEPTION"
-                reason = (
-                    None
-                    if state == "MATCHED"
-                    else "Allocation quantity %s differs from broker quantity %s"
-                    % (total, trade["quantity"])
+    def command_in_transaction(
+        self, repository, trade_id, action, data, actor="operator", principal=None
+    ):
+        """Use an already-owned transaction; queued settlement adds its receipt/outbox here."""
+        trade = self.get(repository, trade_id)
+        if trade["settlement_model"] == "shared-ledger":
+            from ..core.identity import require
+
+            if action in ("request-affirmation", "approve", "reject"):
+                return self.approval_command(repository, trade, action, data, principal)
+            if action in ("affirm", "fund"):
+                raise DomainError(
+                    "Shared-ledger trades require checker approval and participant treasury funding",
+                    403,
                 )
-                repository.set_legacy_allocation((json.dumps(allocations), state, reason, trade_id))
-            elif action == "affirm":
-                if state != "MATCHED":
-                    raise DomainError("Only matched trades can be affirmed", 409)
-                instruction = data.get("instruction", "")
+            require(principal, "checker" if action == "settle" else "maker")
+            actor = principal.id
+        elif action in ("request-affirmation", "approve", "reject"):
+            raise DomainError("Approval commands require a shared-ledger trade", 409)
+        version = data.get("version")
+        if isinstance(version, bool) or not isinstance(version, int) or version != trade["version"]:
+            raise DomainError("Stale or missing version; refresh before updating", 409)
+        state = trade["state"]
+        if action == "allocate":
+            if trade["matching_mode"] == "two-sided":
+                raise DomainError("Two-sided trades require an independent manager submission", 409)
+            if state not in ("RECEIVED", "EXCEPTION", "MATCHED"):
+                raise DomainError("Allocations cannot change after affirmation", 409)
+            allocations = data.get("allocations")
+            if not isinstance(allocations, list) or not 1 <= len(allocations) <= 100:
+                raise DomainError("Provide 1–100 allocations")
+            accounts = set()
+            for allocation in allocations:
+                if not isinstance(allocation, dict):
+                    raise DomainError("Invalid allocation")
+                account = allocation.get("account")
                 if (
-                    not isinstance(instruction, str)
-                    or not instruction.startswith("SYN-")
-                    or len(instruction) > 80
+                    not isinstance(account, str)
+                    or not account.strip()
+                    or len(account) > 80
+                    or (account in accounts)
                 ):
-                    raise DomainError("Provide a synthetic settlement instruction beginning SYN-")
-                repository.affirm_trade((instruction, trade_id))
-            elif action == "fund":
-                if state not in ("AFFIRMED", "FAILED"):
-                    raise DomainError("Funding is available for affirmed or failed trades", 409)
-                cash = data.get("cash_cents")
-                securities = data.get("securities")
-                if any(
-                    (
-                        isinstance(v, bool) or not isinstance(v, int) or v < 0 or (v > 10**18)
-                        for v in (cash, securities)
-                    )
-                ):
-                    raise DomainError("Balances must be nonnegative bounded integers")
-                repository.set_legacy_balances((cash, securities, trade_id))
-            elif action == "settle":
-                if state not in ("AFFIRMED", "FAILED"):
-                    raise DomainError("Only affirmed or failed trades can attempt settlement", 409)
-                if trade["settlement_model"] == "shared-ledger":
-                    if repository.treasury_snapshot()["controls"]["status"] != "BALANCED":
-                        raise DomainError(
-                            "Ledger integrity check failed; investigate before settlement", 409
-                        )
-                    date_blocks = [
-                        b
-                        for b in trade["settlement_readiness"]["blockers"]
-                        if b["code"] in ("NOT_DUE", "CALENDAR_CLOSED", "INVALID_SETTLEMENT_DAY")
-                    ]
-                    if date_blocks:
-                        raise DomainError(
-                            "Settlement calendar blocked: "
-                            + ", ".join(b["code"] for b in date_blocks),
-                            409,
-                        )
-                    batch = repository.settle(trade, actor)
-                    if batch:
-                        repository.insert_settlement(
-                            (trade_id, trade["quantity"], trade["quantity"] * trade["price_cents"])
-                        )
-                        repository.complete_shared_settlement((trade_id,))
-                    else:
-                        repository.fail_settlement(
-                            ("Insufficient shared buyer cash or seller securities", trade_id)
-                        )
-                else:
-                    amount = trade["quantity"] * trade["price_cents"]
-                    ready = (
-                        trade["cash_cents"] >= amount and trade["securities"] >= trade["quantity"]
-                    )
-                    if ready:
-                        repository.insert_settlement((trade_id, trade["quantity"], amount))
-                        repository.complete_legacy_settlement((amount, trade["quantity"], trade_id))
-                    else:
-                        repository.fail_settlement(
-                            ("Insufficient simulated cash or securities", trade_id)
-                        )
-            else:
-                raise DomainError("Unknown action", 404)
-            repository.advance_version((trade_id,))
-            updated = self.get(repository, trade_id)
-            detail = (
-                "Demo balances provisioned; cash cents: %s, securities: %s"
-                % (data["cash_cents"], data["securities"])
-                if action == "fund"
-                else updated["reason"] or "State: " + updated["state"]
+                    raise DomainError("Allocation accounts must be unique nonempty strings")
+                accounts.add(account)
+                positive_int(allocation.get("quantity"))
+            total = sum((a["quantity"] for a in allocations))
+            state = "MATCHED" if total == trade["quantity"] else "EXCEPTION"
+            reason = (
+                None
+                if state == "MATCHED"
+                else "Allocation quantity %s differs from broker quantity %s"
+                % (total, trade["quantity"])
             )
-            self.event(repository, trade_id, actor, action.upper(), detail)
-            return updated
+            repository.set_legacy_allocation((json.dumps(allocations), state, reason, trade_id))
+        elif action == "affirm":
+            if state != "MATCHED":
+                raise DomainError("Only matched trades can be affirmed", 409)
+            instruction = data.get("instruction", "")
+            if (
+                not isinstance(instruction, str)
+                or not instruction.startswith("SYN-")
+                or len(instruction) > 80
+            ):
+                raise DomainError("Provide a synthetic settlement instruction beginning SYN-")
+            repository.affirm_trade((instruction, trade_id))
+        elif action == "fund":
+            if state not in ("AFFIRMED", "FAILED"):
+                raise DomainError("Funding is available for affirmed or failed trades", 409)
+            cash = data.get("cash_cents")
+            securities = data.get("securities")
+            if any(
+                (
+                    isinstance(v, bool) or not isinstance(v, int) or v < 0 or (v > 10**18)
+                    for v in (cash, securities)
+                )
+            ):
+                raise DomainError("Balances must be nonnegative bounded integers")
+            repository.set_legacy_balances((cash, securities, trade_id))
+        elif action == "settle":
+            if state not in ("AFFIRMED", "FAILED"):
+                raise DomainError("Only affirmed or failed trades can attempt settlement", 409)
+            if trade["settlement_model"] == "shared-ledger":
+                if repository.treasury_snapshot()["controls"]["status"] != "BALANCED":
+                    raise DomainError(
+                        "Ledger integrity check failed; investigate before settlement", 409
+                    )
+                date_blocks = [
+                    b
+                    for b in trade["settlement_readiness"]["blockers"]
+                    if b["code"] in ("NOT_DUE", "CALENDAR_CLOSED", "INVALID_SETTLEMENT_DAY")
+                ]
+                if date_blocks:
+                    raise DomainError(
+                        "Settlement calendar blocked: " + ", ".join(b["code"] for b in date_blocks),
+                        409,
+                    )
+                batch = repository.settle(trade, actor)
+                if batch:
+                    repository.insert_settlement(
+                        (trade_id, trade["quantity"], trade["quantity"] * trade["price_cents"])
+                    )
+                    repository.complete_shared_settlement((trade_id,))
+                else:
+                    repository.fail_settlement(
+                        ("Insufficient shared buyer cash or seller securities", trade_id)
+                    )
+            else:
+                amount = trade["quantity"] * trade["price_cents"]
+                ready = trade["cash_cents"] >= amount and trade["securities"] >= trade["quantity"]
+                if ready:
+                    repository.insert_settlement((trade_id, trade["quantity"], amount))
+                    repository.complete_legacy_settlement((amount, trade["quantity"], trade_id))
+                else:
+                    repository.fail_settlement(
+                        ("Insufficient simulated cash or securities", trade_id)
+                    )
+        else:
+            raise DomainError("Unknown action", 404)
+        repository.advance_version((trade_id,))
+        updated = self.get(repository, trade_id)
+        detail = (
+            "Demo balances provisioned; cash cents: %s, securities: %s"
+            % (data["cash_cents"], data["securities"])
+            if action == "fund"
+            else updated["reason"] or "State: " + updated["state"]
+        )
+        self.event(repository, trade_id, actor, action.upper(), detail)
+        return updated
 
     def snapshot(self):
         with self.store.transaction() as repository:

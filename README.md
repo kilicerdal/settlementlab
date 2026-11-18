@@ -21,6 +21,17 @@ A Python financial systems assurance framework with two runnable reference appli
 ![V3.0 portable execution showcase](docs/images/showcase-v30.png)
 *Recorded V3.0 local screenshot, not a fresh CI result; includes the passing control and expected negative report. [Release and source provenance](docs/EVIDENCE.md).*
 
+## V4 development — durable settlement operations
+
+A separate worker processes persisted settlement jobs with leases, stale-worker fencing and bounded retry. Financial posting, receipt and outgoing event commit together. An ordered outbox and idempotent local observer handle uncertain delivery. The operations console exposes queue state, exception review and a correlated timeline.
+
+```sh
+PYTHONPATH=src python -m scripts.durable_showcase
+# Then open artifacts/durable-showcase/index.html
+```
+
+The reproducible demo uses real child-process crashes and explicit reviewed recovery. [Start the local console and worker](docs/DURABLE_OPERATIONS.md) · [Durability decision](docs/decisions/004-durable-settlement.md). This branch is a prerelease, depends on the framework-depth upgrade and does not change the public website. It is a local multi-process lab, not distributed exactly-once processing.
+
 ## Framework-depth upgrade — proposed V3.1
 
 Supply `--scenario-dir your-pack/` to test your own running HTTP API with the installed runner. The new offline AI evaluator retains reviewed historical failures; recovery checks exercise lost responses, timeouts and process restarts. Failure-first HTML links to the request, comparison and declared control. Strict typing now covers six reusable assurance modules in addition to core/configuration.

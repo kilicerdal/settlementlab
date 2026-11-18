@@ -1,5 +1,15 @@
 # Changelog
 
+## 4.0.0.dev1 — durable operations development branch
+
+- Atomic batch acceptance, persisted leases/attempts, fencing and bounded retries.
+- Financial command, execution receipt and outbox record share one transaction.
+- Ordered local observer delivery, durable inbox deduplication and reviewed exception retry.
+- Operations console, six real process crash checkpoints and portable recovery evidence.
+- Schema version 5 additive migration; backup/rollback boundaries documented.
+
+Prerelease on a separate branch stacked above the framework-depth work; no website deployment.
+
 ## Unreleased — framework depth
 
 - User-owned external HTTP scenario packs with bounded preflight validation and packaged CLI support.

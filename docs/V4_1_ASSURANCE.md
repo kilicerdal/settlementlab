@@ -1,6 +1,6 @@
 # V4.1 — independent financial assurance
 
-V4.1 is a development upgrade to the released V4.0 simulator. It adds reproducible engineering evidence rather than claims about production systems. No portfolio website or deployment configuration changes are included.
+V4.1 extends the V4.0 simulator with independent financial assurance. It adds reproducible engineering evidence rather than claims about production systems. No portfolio website or deployment configuration changes are included.
 
 ## Review in one command
 

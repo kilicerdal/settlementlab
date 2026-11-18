@@ -1,6 +1,6 @@
 # Changelog
 
-## 4.1.0.dev1 — independent financial assurance
+## 4.1.0 — independent financial assurance (2026-11-18)
 
 - Independent read-only DVP oracle with separately retained expected terms and economic mutation tests.
 - 2,000 seeded conservation cases plus mutated failures and 24 generated lifecycle sequences.
@@ -10,7 +10,7 @@
 - Adversarial AI corpus, optional loopback-only live sampling and independent-service extension tutorial.
 - One-command reviewer workflow with HTML/JSON scorecard, provenance, logs, checksums and CI artifact.
 
-Development branch; no website changes or production claims. Schema remains 5.
+No website changes or production claims. Schema remains 5.
 
 ## 4.0.0 — durable settlement operations (2026-11-18)
 

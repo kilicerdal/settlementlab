@@ -12,7 +12,7 @@ A Python financial systems assurance framework with two runnable reference appli
 
 **Synthetic local scope:** USD equity trades, simplified calendars, switchable demo personas and simulated balances. No real money, exchange connection or production identity.
 
-**V4.0 adds durable settlement operations and verified crash recovery.** Standard-library runtime, reproducible scenarios, exact failure evidence and optional free local AI. Built by Erdal Kilic.
+**V4.1 combines durable settlement operations with independent financial verification.** Standard-library runtime, reproducible scenarios, exact failure evidence and optional free local AI. Built by Erdal Kilic.
 
 [Watch the captioned walkthrough](https://github.com/kilicerdal/settlementlab/releases/download/v3.0.0/settlementlab-walkthrough.webm) · [Engineering decisions](docs/decisions/README.md) · [Narration script](docs/WALKTHROUGH.md)
 
@@ -21,7 +21,7 @@ A Python financial systems assurance framework with two runnable reference appli
 ![V3.0 portable execution showcase](docs/images/showcase-v30.png)
 *Recorded V3.0 local screenshot, not a fresh CI result; includes the passing control and expected negative report. [Release and source provenance](docs/EVIDENCE.md).*
 
-## V4.1 development — independent financial assurance
+## V4.1 — independent financial assurance
 
 Verify economic correctness separately from the settlement implementation, run seeded property/state-machine checks, and exercise a 240-trade synthetic day with price corrections, funding shortages, reviewed recovery and end-of-day reconciliation. Real worker workloads and backup restore produce measured evidence with explicit limits.
 
@@ -32,7 +32,7 @@ python -m scripts.reviewer_ready --quality
 python -m scripts.reviewer_ready --verify
 ```
 
-[Complete reviewer workflow](docs/V4_1_ASSURANCE.md) · [Independent-service tutorial](docs/SECOND_SERVICE_TUTORIAL.md) · [AI review](docs/AI_REVIEW_V4_1.md) · [Security boundaries](docs/SECURITY_REVIEW_V4_1.md). V4.1 is under review; the published release remains V4.0. The portfolio website is unchanged.
+[Complete reviewer workflow](docs/V4_1_ASSURANCE.md) · [Independent-service tutorial](docs/SECOND_SERVICE_TUTORIAL.md) · [AI review](docs/AI_REVIEW_V4_1.md) · [Security boundaries](docs/SECURITY_REVIEW_V4_1.md). V4.1 is the current showcase release. The portfolio website is unchanged.
 
 ## V4.0 — durable settlement operations
 

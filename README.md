@@ -21,6 +21,12 @@ A Python financial systems assurance framework with two runnable reference appli
 ![V3.0 portable execution showcase](docs/images/showcase-v30.png)
 *Recorded V3.0 local screenshot, not a fresh CI result; includes the passing control and expected negative report. [Release and source provenance](docs/EVIDENCE.md).*
 
+## Framework-depth upgrade — proposed V3.1
+
+Supply `--scenario-dir your-pack/` to test your own running HTTP API with the installed runner. The new offline AI evaluator retains reviewed historical failures; recovery checks exercise lost responses, timeouts and process restarts. Failure-first HTML links to the request, comparison and declared control. Strict typing now covers six reusable assurance modules in addition to core/configuration.
+
+[Upgrade scope](docs/FRAMEWORK_UPGRADE.md) · [External pack example](docs/EXTERNAL_SCENARIOS.md) · [AI rubric review](docs/AI_EVALUATION.md) · [Recovery checks](docs/RECOVERY_ASSURANCE.md).
+
 ## Start here
 
 Python 3.9+ and Git. No API key, cloud account, paid service or model runtime is required for the demonstration.
@@ -99,7 +105,7 @@ Application composition is explicit in `bootstrap.py`. The assurance engine uses
 .venv/bin/coverage report
 ```
 
-CI runs Python 3.9/3.13 controls, installed-package checks, Chromium, separate-process collateral controls and portable showcase verification. Coverage has an 85% combined statement/branch minimum. Strict typing covers the pure core and configuration; other layers are not fully typed. [Quality scope](docs/QUALITY.md) · [Contributing](CONTRIBUTING.md).
+CI runs Python 3.9/3.13 controls, installed-package checks, Chromium, separate-process collateral controls and portable showcase verification. Coverage has an 85% combined statement/branch minimum. Strict typing covers core/configuration and six assurance boundary modules; the remaining layers are not fully typed. [Quality scope](docs/QUALITY.md) · [Contributing](CONTRIBUTING.md).
 
 Run `.venv/bin/settlementlab-assure --suite scenarios` for shipped financial scenarios outside the checkout. Full suites require source/tests. Reports default to `artifacts/reports/`. Browser automation requires the optional Playwright tooling and a running showcase server; [commands and evidence scope](docs/SHOWCASE.md#browser-and-ai-verification).
 

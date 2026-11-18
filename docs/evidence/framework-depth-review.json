@@ -1,0 +1,52 @@
+{
+  "scope": "Local implementation verification on upgrade branch; not a fresh remote CI result",
+  "generated_at": "2026-11-18T07:03:00.639443+00:00",
+  "base_commit": "37257462e32aae072cda1119d7e7953d4d018432",
+  "branch": "codex/framework-depth",
+  "source_hashes": {
+    "pyproject.toml": "aad8481a26aed3b83a389dda4e79bb5ec86d2aa1dd5fe44720d7d1684915c2ea",
+    "src/settlementlab/assurance/__init__.py": "87e0ece1f1ff3c33c78edbfc3f6db6b65ea892f2d3ceb64a1d7fcf2385efc7f2",
+    "src/settlementlab/assurance/catalogs.py": "901b817375dd35498feab3282e1e19bae432a6dd7f826984ebe0a4dc78c7fd3e",
+    "src/settlementlab/assurance/client.py": "b0c70ad1b26bf625fed5b5d54a09165f0fa16160657d2868694dae966f46559b",
+    "src/settlementlab/assurance/data.py": "447466ff0a42aa86092ef5f96e7a1a28e65368944e5c65ec0d5190bedf00de5e",
+    "src/settlementlab/assurance/datasets/triage-reviewed-v1.json": "caee7d51cb882f787e6ec2e892b4920453ed6d2ffbbfa88deaa0bc6fa0a08413",
+    "src/settlementlab/assurance/evaluation.py": "5ce6e17a240e41c674df581c0db0e4d918011bfbe1080ede3dad0c70dc22342a",
+    "src/settlementlab/assurance/fixtures.py": "606e6f6ef53d818af8e4314ea9e3a40c46d1e254bca1e3a8d057edc400483149",
+    "src/settlementlab/assurance/http_steps.py": "2c3ab3f3bdc57b926296e1288903e40577a35b13b0ea8337bf387f3990136f50",
+    "src/settlementlab/assurance/reporting.py": "ad08b958af21531385d9b205fa408c8bbc3df84b6afe9d3adc124244c614042c",
+    "src/settlementlab/assurance/runner.py": "318675a8b110fbd6f8368e46f3eeacbb2b0d864a076d9e83162ee1858b0aaffd",
+    "src/settlementlab/assurance/scenarios.py": "adb5db1e436aa8fb1b4dc7993212bca8e231b6d35f25198bf1068b824c60ff0f",
+    "src/settlementlab/assurance/targets.py": "4a76a89f05ab8e4edd61a224ad02de77266ab6804b32158eb20db97af9733936",
+    "src/settlementlab/assurance/transport.py": "1b1c94623cc7e10e0769045139c299eed2a4016492bdcfec6e4e135259cd6664"
+  },
+  "checks": {
+    "deterministic_cases": 110,
+    "status": "passed",
+    "combined_coverage": 87.66056831451927,
+    "strict_mypy_files": 14,
+    "financial_browser": "passed desktop/mobile; no live AI",
+    "report_navigation": "passed desktop/mobile",
+    "installed_wheel": "passed outside checkout; healthy and exact negative pack controls",
+    "runtime_dependencies_added": 0
+  },
+  "ai_review": {
+    "mode": "offline-reviewed-corpus",
+    "model_calls": 0,
+    "total": 9,
+    "meeting_rubric": 2,
+    "not_meeting_rubric": 7,
+    "review_method": "Agent-reviewed criterion labels against supplied synthetic facts; no independent human review or statistical sampling"
+  },
+  "coverage_totals": {
+    "covered_lines": 1691,
+    "num_statements": 1859,
+    "percent_covered": 87.66056831451927,
+    "percent_covered_display": "88",
+    "missing_lines": 168,
+    "excluded_lines": 0,
+    "num_branches": 710,
+    "num_partial_branches": 141,
+    "covered_branches": 561,
+    "missing_branches": 149
+  }
+}

@@ -30,5 +30,6 @@
         "submission_history.1.terms.price_cents": 4275
       }
     }
-  ]
+  ],
+  "control": "exact-matching"
 }

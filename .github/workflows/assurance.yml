@@ -19,6 +19,7 @@ jobs:
       - run: mypy
       - run: python -c "from importlib.resources import files; assert files('settlementlab').joinpath('static/index.html').is_file()"
       - run: settlementlab --help
+      - run: settlementlab-evaluate-ai --report-dir artifacts/ai-evaluation
       - run: coverage run -m settlementlab.assurance.runner --suite all --root . --report-dir artifacts/reports
       - run: coverage report
       - run: coverage json
@@ -31,6 +32,7 @@ jobs:
           path: |
             artifacts/reports/
             artifacts/coverage/
+            artifacts/ai-evaluation/
   browser:
     runs-on: ubuntu-22.04
     steps:
@@ -84,6 +86,7 @@ jobs:
                   raise SystemExit('Independent service failed readiness')
           PY
           settlementlab-assure --suite scenarios --target-profile targets/collateral.json --report-dir artifacts/reuse-control
+          settlementlab-assure --suite scenarios --target owned-api --base-url http://127.0.0.1:8090 --scenario-dir examples/scenario_packs/inventory --report-dir artifacts/reuse-custom-pack
           if settlementlab-assure --suite scenarios --target collateral --base-url http://127.0.0.1:8091 --report-dir artifacts/reuse-fault; then
             echo "Injected defect was not rejected"
             exit 1

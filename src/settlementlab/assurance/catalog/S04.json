@@ -60,5 +60,6 @@
       }
     }
   ],
-  "business_date": "2026-11-14"
+  "business_date": "2026-11-14",
+  "control": "closed-business-date"
 }

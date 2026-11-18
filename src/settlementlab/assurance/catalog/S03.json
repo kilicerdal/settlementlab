@@ -60,5 +60,6 @@
       }
     }
   ],
-  "business_date": "2026-11-06"
+  "business_date": "2026-11-06",
+  "control": "date-eligibility"
 }

@@ -1,0 +1,11 @@
+{
+  "id": "CUSTOM-01",
+  "title": "A user-owned reservation replay contract",
+  "control": "reservation-once",
+  "steps": [
+    {"action":"http","method":"POST","path":"/inventory","data":{"asset":"PACK-${run_id}","quantity":100},"status":201},
+    {"action":"http","method":"POST","path":"/reservations","data":{"asset":"PACK-${run_id}","quantity":10},"key":"reserve-${run_id}","status":201,"save":"original"},
+    {"action":"http","method":"POST","path":"/reservations","data":{"asset":"PACK-${run_id}","quantity":10},"key":"reserve-${run_id}","status":200,"assert":{"body.id":{"$ref":"original.id"}},"control":"replay-original-id"},
+    {"action":"http","path":"/inventory/PACK-${run_id}","assert":{"body.available":90},"control":"debit-once"}
+  ]
+}

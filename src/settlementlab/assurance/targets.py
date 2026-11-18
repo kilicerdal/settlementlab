@@ -6,6 +6,7 @@ import os
 import re
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Any, Mapping, Optional, Union
 
 from .transport import validate_base_url
 
@@ -16,7 +17,7 @@ class TargetProfile:
     base_url: str = ""
     timeout: float = 10
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if not isinstance(self.target, str) or not re.fullmatch(
             "[a-z][a-z0-9_-]{0,40}", self.target
         ):
@@ -38,8 +39,13 @@ class TargetProfile:
             )
 
     @classmethod
-    def load(cls, path=None, environ=None, **overrides):
-        values = dict(target="settlement", base_url="", timeout=10)
+    def load(
+        cls,
+        path: Optional[Union[str, Path]] = None,
+        environ: Optional[Mapping[str, str]] = None,
+        **overrides: Any,
+    ) -> "TargetProfile":
+        values: dict[str, Any] = dict(target="settlement", base_url="", timeout=10)
         if path:
             supplied = json.loads(Path(path).read_text())
             if not isinstance(supplied, dict) or set(supplied) - set(values):

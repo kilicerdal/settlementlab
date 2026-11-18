@@ -142,8 +142,8 @@ def record(output):
             page.goto((output / "evidence/collateral-fault/index.html").as_uri())
             expect(page.locator("body")).to_contain_text("FAILED · 2 cases · 1 failed")
             page.locator("tr").filter(has=page.locator("td", has_text="C02")).locator(
-                "summary"
-            ).click()
+                "details"
+            ).evaluate("node => { node.open = true; }")
             expect(page.locator("body")).to_contain_text('"actual": 201')
             scene(
                 "10 / Detect the exact injected defect",

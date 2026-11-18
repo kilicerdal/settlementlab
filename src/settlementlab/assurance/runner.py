@@ -10,6 +10,7 @@ from pathlib import Path
 
 from ..configuration import Settings
 from ..core.validation import DomainError
+from .catalogs import load_external, validate_selection
 from .reporting import write_reports
 from .scenarios import catalog, run_scenario
 from .targets import TargetProfile
@@ -61,12 +62,15 @@ class EvidenceResult(unittest.TextTestResult):
         super().stopTest(test)
 
 
-def run(suite, root, report_directory, profile=None):
+def run(suite, root, report_directory, profile=None, scenario_directory=None):
     profile = profile or TargetProfile()
     cases = []
     start = time.perf_counter()
     setup_error = None
     try:
+        validate_selection(scenario_directory, suite)
+        # Validate the entire external pack before starting a fixture or sending requests.
+        external = load_external(scenario_directory, profile.target) if scenario_directory else None
         if suite != "scenarios":
             directory = Path(root) / "tests"
             if not directory.is_dir():
@@ -96,7 +100,7 @@ def run(suite, root, report_directory, profile=None):
                     )
                 )
         if suite in ("all", "scenarios"):
-            specs = catalog(profile.target)
+            specs = external if external is not None else catalog(profile.target)
             if not specs:
                 raise ValueError("No scenarios registered for target " + profile.target)
             for spec in specs:
@@ -151,6 +155,9 @@ def main(argv=None):
     parser.add_argument("--base-url")
     parser.add_argument("--timeout", type=float)
     parser.add_argument("--target-profile")
+    parser.add_argument(
+        "--scenario-dir", help="Directory containing a declarative HTTP scenario pack"
+    )
     args = parser.parse_args(argv)
     try:
         settings = Settings.load(args.config)
@@ -177,7 +184,9 @@ def main(argv=None):
         write_reports(report, args.report_dir or "artifacts/reports")
         print("FAILED: invalid configuration; see generated report")
         return 2
-    report = run(args.suite, args.root, args.report_dir or settings.reports, profile)
+    report = run(
+        args.suite, args.root, args.report_dir or settings.reports, profile, args.scenario_dir
+    )
     print(
         report["status"].upper()
         + ": "

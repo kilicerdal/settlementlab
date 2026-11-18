@@ -46,3 +46,7 @@ Review recorded: **2026-11-17**. This is a policy review date, not a claim that 
 Dependabot checks application/tool dependencies weekly and GitHub Actions monthly. Updates are reviewed in PRs and are not auto-merged. Monthly, review deferred PRs, runtime support, security advisories and the oldest open genuine defects. Record the tested version and run link before changing a compatibility boundary. Remove an ignore rule when its migration is approved; do not keep it silently forever. Security fixes may require raising a runtime floor rather than bypassing tests.
 
 A green CI badge describes that workflow's current result, not a security, accessibility or production-readiness certification. Framework and license badges identify tools/terms, not test results. Do not publish a static passing test-count badge without a dated run.
+
+### Python metadata boundary check
+
+Official PyPI release metadata also excludes Python 3.9 for mypy 1.20.2 and coverage 7.15.4. Dependabot therefore excludes mypy >=1.20 and coverage >=7.11. The latest releases whose metadata permits Python 3.9 at this review are mypy 1.19.1 and coverage 7.10.7; this is a metadata observation, not a claim those candidates passed this project’s tests. The installed, validated pins remain mypy 1.15.0 and coverage 7.8.2 until a candidate passes the complete matrix.

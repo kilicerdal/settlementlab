@@ -75,7 +75,7 @@ def timeline(trade, records):
             "job",
             r["created_at"],
             "Accepted durable work",
-            dict(r, lease_token=None),
+            r,
         )
     for r in records["operations"]:
         add("operation:" + str(r["seq"]), "worker", r["at"], r["kind"], r, "job:" + r["job_id"])
@@ -192,6 +192,12 @@ class Investigation:
         with self.service.store.transaction() as repository:
             trade = self.service.get(repository, trade_id)
             records = repository.investigation_records(trade_id)
+            # Lease capabilities are not investigation evidence. Strip them before
+            # either graph construction or portable export, without mutating storage.
+            for record in records["jobs"] + records["outbox"]:
+                record.pop("lease_token", None)
+            for record in records["attempts"]:
+                record.pop("token", None)
             nodes, edges = timeline(trade, records)
             return dict(
                 version=1,

@@ -118,8 +118,10 @@ class RecoveryFaults(unittest.TestCase):
                         return None
 
             with HTTPEnvironment(StallOnce) as env:
-                client = JsonClient(env.base_url, timeout=0.1)
-                client.request("/inventory", dict(asset="RECOVERY", quantity=100))
+                # Setup is not the injected failure. Give SQLite and the HTTP
+                # fixture their normal budget before timing out the stalled reply.
+                JsonClient(env.base_url).request("/inventory", dict(asset="RECOVERY", quantity=100))
+                client = JsonClient(env.base_url, timeout=1)
                 try:
                     with self.assertRaises(TransportError) as failed:
                         client.request(

@@ -4,12 +4,13 @@ Local development evidence, not a published release or independent review. CI ar
 
 | Check | Local outcome |
 | --- | --- |
-| Full unit/API/integration suite | 183 tests passed |
+| Full unit/API/integration suite | 184 tests passed |
 | Acceptance scenarios | Four passed |
-| Combined statement/branch coverage | 85.76%, above the 85% gate |
+| Combined statement/branch coverage | 85.78%, above the 85% gate |
 | Targeted source mutations | Nine killed; none invalid or surviving |
 | Existing browser journeys | Trade workbench, durable operations and lifecycle passed |
 | New browser journey | Correlated interruption/resolution timeline, ZIP download, maker/checker compensation and mobile viewport passed |
+| Export capability boundary | Active worker lease tokens omitted; original claim remains usable |
 | Real incident | Child worker exited 73 after claim; recovery posted one execution; unresolved and resolved exports verified |
 | Fresh-checkout command | Standard-library quick start completed without package installation |
 | Installed distributions | Both wheels co-installed outside checkout; incident, export verification, evaluator and HTTP-runner commands passed |

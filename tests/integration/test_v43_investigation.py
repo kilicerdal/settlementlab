@@ -10,7 +10,7 @@ from settlementlab.application.investigation import Investigation
 from settlementlab.application.reconciliation import Reconciliation
 from settlementlab.assurance.durable_data import CHECKER, MAKER, approved_trade, entry
 from settlementlab.assurance.incident_demo import current, seed
-from settlementlab.assurance.incident_export import package, verify
+from settlementlab.assurance.incident_export import export, package, verify
 from settlementlab.bootstrap import create_application
 from settlementlab.configuration import Settings
 from settlementlab.core.identity import Principal
@@ -302,3 +302,19 @@ class InvestigationControls(unittest.TestCase):
             self.assertEqual(
                 db.execute("SELECT COUNT(*) FROM sqlite_master WHERE type='table'").fetchone()[0], 0
             )
+
+    def test_exports_strip_live_lease_capabilities_without_invalidating_worker(self):
+        import io
+        import json
+
+        self.app.operations.enqueue_batch(
+            [dict(entry(self.trade), quantity=10)], "leased-export", CHECKER
+        )
+        claim = self.app.operations.claim("live-worker")
+        token = claim["lease_token"]
+        snapshot = Investigation(self.service).snapshot(self.trade["id"])
+        self.assertNotIn(token, json.dumps(snapshot))
+        self.assertNotIn("lease_token", json.dumps(snapshot))
+        with zipfile.ZipFile(io.BytesIO(export(self.service, self.trade["id"]))) as archive:
+            self.assertNotIn(token.encode(), archive.read("incident.json"))
+        self.assertEqual(self.app.operations.apply_claim(claim)["status"], "SUCCEEDED")

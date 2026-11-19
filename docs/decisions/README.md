@@ -11,4 +11,6 @@ These records explain decisions visible in the current implementation. They are 
 
 | [005](005-independent-assurance.md) | Retain independent economic expectations and report measured limits | Balanced-but-wrong mutation, generated sequences and full-day scorecard |
 
+| [006](006-versioned-obligations.md) | Bind approvals to economic revisions; preserve posted slices and imported discrepancies | Amendment fencing, partial atomicity, statement evidence and schema 6 upgrade |
+
 Read the tradeoff and limits alongside the evidence. A passing local test is not a throughput benchmark, identity audit or model-quality evaluation.

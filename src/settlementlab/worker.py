@@ -3,6 +3,7 @@
 import argparse
 import json
 import os
+import sqlite3
 import time
 from uuid import uuid4
 
@@ -26,6 +27,7 @@ def main(argv=None):
     parser.add_argument(
         "--business-date", help="Explicit simulated date, otherwise actual UTC date"
     )
+    parser.add_argument("--business-timestamp", help="Explicit ISO-8601 UTC simulation timestamp")
     parser.add_argument("--worker-id", default="worker-" + uuid4().hex[:12])
     parser.add_argument("--lease", type=float, default=30)
     parser.add_argument("--mode", choices=["process", "deliver", "both"], default="both")
@@ -52,7 +54,12 @@ def main(argv=None):
     bounded_seconds(args.lease, 0.1, 300)
     identifier(args.worker_id, 80)
     app = create_application(
-        Settings(database=args.db, model="", business_date=args.business_date or "")
+        Settings(
+            database=args.db,
+            model="",
+            business_date=args.business_date or "",
+            business_timestamp=args.business_timestamp or "",
+        )
     )
     operations = app.operations
     if args.redeliver:
@@ -69,16 +76,25 @@ def main(argv=None):
 
     try:
         while True:
-            processed = (
-                operations.process_one(args.worker_id, args.lease, checkpoint)
-                if args.mode in ("process", "both")
-                else None
-            )
-            delivered = (
-                operations.deliver_one(args.worker_id, args.lease, checkpoint)
-                if args.mode in ("deliver", "both")
-                else None
-            )
+            try:
+                processed = (
+                    operations.process_one(args.worker_id, args.lease, checkpoint)
+                    if args.mode in ("process", "both")
+                    else None
+                )
+                delivered = (
+                    operations.deliver_one(args.worker_id, args.lease, checkpoint)
+                    if args.mode in ("deliver", "both")
+                    else None
+                )
+            except sqlite3.OperationalError as error:
+                if "locked" not in str(error).lower() and "busy" not in str(error).lower():
+                    raise
+                print(json.dumps(dict(status="STORAGE_BUSY", retryable=True)), flush=True)
+                if args.once:
+                    return 75
+                time.sleep(0.25)
+                continue
             print(
                 json.dumps(dict(processed=processed, delivered=delivered)), flush=True
             ) if processed or delivered or args.once else None

@@ -1,10 +1,11 @@
 """SQLite repositories; SQL and cursor handling stay in this adapter."""
 
 from . import journal
+from .lifecycle_repository import LifecycleRepository
 from .operations_repository import OperationsRepository
 
 
-class SQLiteRepository(OperationsRepository):
+class SQLiteRepository(OperationsRepository, LifecycleRepository):
     def __init__(self, db):
         self.db = db
 
@@ -132,6 +133,10 @@ class SQLiteRepository(OperationsRepository):
             "INSERT INTO manager_submissions(trade_id,revision,submission_key,fingerprint,payload,timestamp,result) VALUES (?,?,?,?,?,?,?)",
             parameters,
         )
+        self.db.execute(
+            "INSERT INTO manager_trade_revisions SELECT ?,?,lifecycle_revision FROM trades WHERE id=?",
+            (parameters[0], parameters[1], parameters[0]),
+        )
 
     def store_manager_response(self, parameters=()):
         self.db.execute(
@@ -150,6 +155,10 @@ class SQLiteRepository(OperationsRepository):
     def insert_approval(self, parameters=()):
         self.db.execute(
             "INSERT INTO approval_requests VALUES (?,?,?,?,?,?,?,?,?,?,?,?)", parameters
+        )
+        self.db.execute(
+            "INSERT INTO approval_revisions SELECT ?,lifecycle_revision FROM trades WHERE id=?",
+            (parameters[0], parameters[1]),
         )
 
     def decide_approval(self, parameters=()):

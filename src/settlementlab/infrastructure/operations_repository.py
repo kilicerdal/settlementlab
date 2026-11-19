@@ -52,6 +52,10 @@ class OperationsRepository:
                 job["now"],
             ),
         )
+        self.db.execute(
+            "UPDATE ops_jobs SET requested_quantity=? WHERE id=?",
+            (job.get("requested_quantity"), job["id"]),
+        )
         result = self.ops_job(job["id"])
         self.ops_timeline(
             result,
@@ -120,7 +124,9 @@ class OperationsRepository:
         return json.loads(row["result"]) if row else None
 
     def ops_complete(self, job, result, now, actor):
-        status = "SUCCEEDED" if result["state"] == "SETTLED" else "DEAD_LETTER"
+        status = (
+            "SUCCEEDED" if result["state"] in ("SETTLED", "PARTIALLY_SETTLED") else "DEAD_LETTER"
+        )
         error = (
             None if status == "SUCCEEDED" else result.get("reason") or "Settlement did not complete"
         )
@@ -273,6 +279,7 @@ class OperationsRepository:
         payload = json.loads(event["payload"])
         if payload.get("trade_id") != event["trade_id"] or payload.get("state") not in (
             "SETTLED",
+            "PARTIALLY_SETTLED",
             "FAILED",
         ):
             raise DomainError("Invalid outbox envelope", 409)

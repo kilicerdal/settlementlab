@@ -8,10 +8,11 @@ from .ports import Store
 
 
 class SettlementService:
-    def __init__(self, store: "Store", clock, calendar):
+    def __init__(self, store: "Store", clock, calendar, cutoff="17:00"):
         self.store = store
         self.clock = clock
         self.calendar = calendar
+        self.cutoff = cutoff
 
     def event(self, repository, trade, actor, action, detail):
         repository.append_audit(
@@ -24,7 +25,7 @@ class SettlementService:
             raise DomainError("Trade not found", 404)
         trade = dict(row)
         history = [dict(r) for r in repository.list_manager_revisions((trade_id,))]
-        trade["manager_submission"] = json.loads(history[-1]["payload"]) if history else None
+        trade["manager_submission"] = repository.current_manager(trade)
         trade["submission_history"] = [
             dict(revision=r["revision"], timestamp=r["timestamp"], terms=json.loads(r["payload"]))
             for r in history
@@ -41,6 +42,17 @@ class SettlementService:
             trade["securities"] = repository.balance(trade["seller_id"], "SEC:" + trade["symbol"])
             batch = repository.find_settlement_batch((trade_id,))
             trade["settlement_journal"] = batch["id"] if batch else None
+        progress = repository.lifecycle_progress(trade_id)
+        trade["settled_quantity"] = progress["quantity"]
+        trade["settled_amount_cents"] = progress["amount_cents"]
+        trade["remaining_quantity"] = trade["quantity"] - progress["quantity"]
+        trade["execution_slices"] = repository.lifecycle_slices(trade_id)
+        trade["revision_history"] = repository.lifecycle_revisions(trade_id)
+        if not trade["settlement_journal"] and trade["execution_slices"]:
+            trade["settlement_journal"] = trade["execution_slices"][-1]["batch_id"]
+        from ..core.deadlines import aging
+
+        trade["aging"] = aging(trade, self.clock)
         from ..core.calendar import readiness
 
         trade["settlement_readiness"] = readiness(trade, self.clock)
@@ -134,6 +146,11 @@ class SettlementService:
             repository.set_trade_terms((terms["side"], terms["currency"], mode, trade_id))
             repository.set_settlement_parties((settlement_model, buyer, seller, trade_id))
             repository.pin_calendar((json.dumps(self.calendar.to_dict()), trade_id))
+            if settlement_model == "shared-ledger":
+                repository.pin_cutoff(trade_id, self.cutoff)
+            repository.lifecycle_revision(
+                repository.find_trade((trade_id,)), actor, "Original broker terms"
+            )
             self.event(repository, trade_id, actor, "TRADE_RECEIVED", "Broker submission accepted")
             return self.get(repository, trade_id)
 
@@ -147,7 +164,37 @@ class SettlementService:
         self, repository, trade_id, action, data, actor="operator", principal=None
     ):
         """Use an already-owned transaction; queued settlement adds its receipt/outbox here."""
+        if action in ("amend", "cancel", "settle-partial"):
+            from .lifecycle import Lifecycle
+
+            return Lifecycle(self).command(repository, trade_id, action, data, principal)
         trade = self.get(repository, trade_id)
+        if (
+            action == "settle"
+            and trade["settlement_model"] == "shared-ledger"
+            and trade["settled_quantity"]
+        ):
+            from ..core.identity import require
+            from .lifecycle import Lifecycle
+
+            require(principal, "checker")
+            if type(data.get("version")) is not int or data["version"] != trade["version"]:
+                raise DomainError("Stale expected trade version", 409)
+            result = Lifecycle(self).post_slice(
+                repository,
+                trade,
+                trade["remaining_quantity"],
+                "remaining-version-" + str(trade["version"]),
+                principal.id,
+            )
+            self.event(
+                repository,
+                trade_id,
+                principal.id,
+                "SETTLE_REMAINDER",
+                "Remaining obligation attempted",
+            )
+            return result
         if trade["settlement_model"] == "shared-ledger":
             from ..core.identity import require
 
@@ -232,7 +279,8 @@ class SettlementService:
                 date_blocks = [
                     b
                     for b in trade["settlement_readiness"]["blockers"]
-                    if b["code"] in ("NOT_DUE", "CALENDAR_CLOSED", "INVALID_SETTLEMENT_DAY")
+                    if b["code"]
+                    in ("NOT_DUE", "CALENDAR_CLOSED", "INVALID_SETTLEMENT_DAY", "CUTOFF_PASSED")
                 ]
                 if date_blocks:
                     raise DomainError(

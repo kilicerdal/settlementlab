@@ -1,5 +1,16 @@
 # Changelog
 
+## 4.2.0.dev1 — controlled obligation lifecycle (unreleased)
+
+- Revision-bound maker amendments and checker cancellation; immutable posted value and old approval evidence.
+- Explicit partial settlement with cumulative receipts, independent slice oracle and durable atomic receipt/outbox.
+- Pinned UTC cutoff, explicit timestamp simulation and business-day aging.
+- Independent CSV statement imports, classified discrepancy cases and evidence-verified resolution.
+- Local lifecycle workbench, desktop/mobile browser controls and recovery runbooks.
+- Standalone zero-dependency HTTP assurance wheel and isolated second-service contract verification.
+- Real targeted source mutation campaign, populated V4.1 upgrade/downgrade refusal and concurrent journal-growth measurements.
+- Additive schema 6; independent human review remains pending. Website unchanged.
+
 ## 4.1.0 — independent financial assurance (2026-11-18)
 
 - Independent read-only DVP oracle with separately retained expected terms and economic mutation tests.

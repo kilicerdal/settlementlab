@@ -21,6 +21,24 @@ A Python financial systems assurance framework with two runnable reference appli
 ![V3.0 portable execution showcase](docs/images/showcase-v30.png)
 *Recorded V3.0 local screenshot, not a fresh CI result; includes the passing control and expected negative report. [Release and source provenance](docs/EVIDENCE.md).*
 
+## V4.2 candidate — obligation lifecycle and operational evidence
+
+Version `4.2.0.dev1` adds revision-bound amendments and approvals, cancellation of remaining obligations, explicit partial settlement, pinned UTC cutoffs and business-day aging. A new local `/lifecycle` workbench retains execution and revision evidence and investigates independently imported CSV statement discrepancies. Posted value is never rewritten.
+
+The reusable HTTP engine now builds as its own zero-dependency wheel, independently installable without the financial application. Actual source mutation tests, a genuine V4.1 upgrade/rollback rehearsal, an independent partial-execution oracle and larger concurrent workloads produce reproducible evidence. Independent human review is explicitly pending.
+
+```sh
+python -m scripts.mutation_campaign
+python -m scripts.v42_compatibility
+python -m scripts.v42_workload --trades 1000
+python -m scripts.build_assurance
+python -m scripts.verify_assurance_package
+```
+
+[V4.2 workflows and API](docs/V4_2.md) · [Recovery runbooks](docs/runbooks/LIFECYCLE_RECOVERY.md) · [Compatibility](docs/runbooks/RELEASE_COMPATIBILITY.md) · [Standalone framework](docs/STANDALONE_ASSURANCE.md). This is an implementation candidate; V4.1 remains the published release. Portfolio website unchanged.
+
+![V4.2 local lifecycle workbench with partial execution and statement investigation](docs/images/lifecycle-v42.png)
+
 ## V4.1 — independent financial assurance
 
 Verify economic correctness separately from the settlement implementation, run seeded property/state-machine checks, and exercise a 240-trade synthetic day with price corrections, funding shortages, reviewed recovery and end-of-day reconciliation. Real worker workloads and backup restore produce measured evidence with explicit limits.

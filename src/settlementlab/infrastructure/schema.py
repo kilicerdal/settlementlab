@@ -2,9 +2,10 @@
 
 from ..core.validation import DomainError
 from .journal import initialize
+from .lifecycle_schema import initialize_lifecycle
 from .operations_schema import initialize_operations
 
-SCHEMA_VERSION = 5
+SCHEMA_VERSION = 6
 
 
 def migrate(db):
@@ -49,4 +50,5 @@ def migrate(db):
         "CREATE UNIQUE INDEX IF NOT EXISTS one_pending_approval ON approval_requests(trade_id) WHERE status='PENDING'"
     )
     initialize_operations(db)
-    db.execute("PRAGMA user_version=5")
+    initialize_lifecycle(db)
+    db.execute("PRAGMA user_version=6")

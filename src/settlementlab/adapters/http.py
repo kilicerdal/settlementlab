@@ -92,6 +92,14 @@ def handler(ledger, triage=None, operations=None):
                     return self.reply(200, ledger.settlement_readiness(parts[2]))
                 except DomainError as error:
                     return self.reply(error.status, {"error": str(error)})
+            if len(parts) == 4 and parts[:3] == ["api", "reconciliation", "statements"]:
+                from ..application.reconciliation import Reconciliation
+
+                return self.reply(200, Reconciliation(ledger).statement(parts[3]))
+            if self.path == "/api/reconciliation":
+                from ..application.reconciliation import Reconciliation
+
+                return self.reply(200, Reconciliation(ledger).snapshot())
             if self.path == "/api/operations":
                 return self.reply(200, operations.snapshot())
             if self.path == "/api/session":
@@ -120,6 +128,9 @@ def handler(ledger, triage=None, operations=None):
                 "/": ("index.html", "text/html; charset=utf-8"),
                 "/app.js": ("app.js", "text/javascript"),
                 "/style.css": ("style.css", "text/css"),
+                "/lifecycle": ("lifecycle.html", "text/html; charset=utf-8"),
+                "/lifecycle.css": ("lifecycle.css", "text/css"),
+                "/lifecycle.js": ("lifecycle.js", "text/javascript"),
                 "/operations": ("operations.html", "text/html; charset=utf-8"),
                 "/operations.js": ("operations.js", "text/javascript"),
                 "/operations.css": ("operations.css", "text/css"),
@@ -219,6 +230,29 @@ def handler(ledger, triage=None, operations=None):
                             data, self.headers.get("Idempotency-Key"), principal=principal
                         ),
                     )
+                if self.path == "/api/reconciliation/statements":
+                    from ..application.reconciliation import Reconciliation
+
+                    return self.reply(
+                        201,
+                        Reconciliation(ledger).import_statement(
+                            data.get("statement"), self.headers.get("Idempotency-Key"), principal
+                        ),
+                    )
+                resolution = self.path.strip("/").split("/")
+                if (
+                    len(resolution) == 5
+                    and resolution[:3] == ["api", "reconciliation", "cases"]
+                    and resolution[4] == "resolve"
+                ):
+                    from ..application.reconciliation import Reconciliation
+
+                    return self.reply(
+                        200,
+                        Reconciliation(ledger).resolve(
+                            resolution[3], data.get("statement_id"), data.get("reason"), principal
+                        ),
+                    )
                 if self.path == "/api/reconcile":
                     return self.reply(200, ledger.reconcile(data.get("statement")))
                 parts = self.path.strip("/").split("/")
@@ -233,7 +267,7 @@ def handler(ledger, triage=None, operations=None):
                             return self.reply(200, triage.analyze(evidence))
                         finally:
                             ai_slots.release()
-                    if parts[3] == "request-affirmation":
+                    if parts[3] in ("request-affirmation", "amend", "cancel", "settle-partial"):
                         data["request_key"] = self.headers.get("Idempotency-Key")
                     if parts[3] == "manager":
                         data["submission_key"] = self.headers.get("Idempotency-Key")

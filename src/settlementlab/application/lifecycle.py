@@ -55,6 +55,8 @@ class Lifecycle:
             raise DomainError("Lifecycle controls require a shared-ledger trade", 409)
         if type(data.get("version")) is not int or data["version"] != trade["version"]:
             raise DomainError("Stale expected trade version", 409)
+        if trade["state"] in ("CORRECTION_PENDING", "CORRECTION_REVIEW", "REVERSED"):
+            raise DomainError("Correction workflow closes ordinary lifecycle commands", 409)
         if action == "amend":
             if trade["settled_quantity"] or trade["state"] in ("SETTLED", "CANCELLED"):
                 raise DomainError(

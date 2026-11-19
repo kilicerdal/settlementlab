@@ -2,6 +2,8 @@
 
 Status: **pending external reviewer**. Automated tests, mutation results and AI assistance are not an independent human review. No reviewer identity or approval has been fabricated.
 
+For V4.3, begin with the [isolated incident exercise](V4_3.md#independent-reviewer-exercise), compare original and compensating financial legs, and retain a real review before marking this requirement complete.
+
 A reviewer should use a fresh checkout and the evidence commands in `V4_2.md`, then record their name, reviewed commit, environment, findings and disposition in a pull-request review. Review at least:
 
 - Partial posting conserves each asset and follows independently retained terms; balanced wrong-value tampering is detected.

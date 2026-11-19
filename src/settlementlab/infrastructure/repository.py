@@ -1,11 +1,12 @@
 """SQLite repositories; SQL and cursor handling stay in this adapter."""
 
 from . import journal
+from .investigation_repository import InvestigationRepository
 from .lifecycle_repository import LifecycleRepository
 from .operations_repository import OperationsRepository
 
 
-class SQLiteRepository(OperationsRepository, LifecycleRepository):
+class SQLiteRepository(OperationsRepository, LifecycleRepository, InvestigationRepository):
     def __init__(self, db):
         self.db = db
 

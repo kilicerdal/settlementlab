@@ -25,7 +25,7 @@ class MigrationSafety(unittest.TestCase):
                 self.assertEqual(db.execute("PRAGMA user_version").fetchone()[0], 0)
             SQLiteStore(path)
             with sqlite3.connect(path) as db:
-                self.assertEqual(db.execute("PRAGMA user_version").fetchone()[0], 6)
+                self.assertEqual(db.execute("PRAGMA user_version").fetchone()[0], 7)
 
     def test_future_schema_is_not_downgraded_or_modified(self):
         with tempfile.TemporaryDirectory() as temporary:

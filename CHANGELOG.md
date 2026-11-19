@@ -1,5 +1,14 @@
 # Changelog
 
+## 4.3.0.dev1 — incident investigation and compensation (unreleased)
+
+- One-command fresh-checkout incident with actual worker interruption, single execution recovery, discrepant statements and retained unresolved/resolved exports.
+- Correlated investigation timeline and portable escaped HTML/JSON evidence with source provenance and checksums.
+- Maker/checker full-batch reversals, exact compensating entries, preserved gross receipts and explicit net execution.
+- Independent compensation oracle and isolated deliberately defective reviewer exercise; external human review remains pending.
+- Minimized read-only local AI investigator, declared adversarial evaluation and separately retained actual local-model samples.
+- Schema 7 with genuine V4.2 upgrade/rollback checks, browser/mobile verification and recovery runbooks. Website unchanged.
+
 ## 4.2.0 — controlled obligation lifecycle (2026-11-18)
 
 - Revision-bound maker amendments and checker cancellation; immutable posted value and old approval evidence.

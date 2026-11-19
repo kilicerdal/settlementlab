@@ -92,6 +92,17 @@ def handler(ledger, triage=None, operations=None):
                     return self.reply(200, ledger.settlement_readiness(parts[2]))
                 except DomainError as error:
                     return self.reply(error.status, {"error": str(error)})
+            if (
+                len(parts) == 4
+                and parts[:2] == ["api", "trades"]
+                and parts[3] in ("investigation", "incident-export")
+            ):
+                from ..application.investigation import Investigation
+                from ..assurance.incident_export import export
+
+                if parts[3] == "incident-export":
+                    return self.reply(200, export(ledger, parts[2]), "application/zip")
+                return self.reply(200, Investigation(ledger).snapshot(parts[2]))
             if len(parts) == 4 and parts[:3] == ["api", "reconciliation", "statements"]:
                 from ..application.reconciliation import Reconciliation
 
@@ -128,6 +139,9 @@ def handler(ledger, triage=None, operations=None):
                 "/": ("index.html", "text/html; charset=utf-8"),
                 "/app.js": ("app.js", "text/javascript"),
                 "/style.css": ("style.css", "text/css"),
+                "/investigation": ("investigation.html", "text/html; charset=utf-8"),
+                "/investigation.js": ("investigation.js", "text/javascript"),
+                "/investigation.css": ("investigation.css", "text/css"),
                 "/lifecycle": ("lifecycle.html", "text/html; charset=utf-8"),
                 "/lifecycle.css": ("lifecycle.css", "text/css"),
                 "/lifecycle.js": ("lifecycle.js", "text/javascript"),
@@ -257,6 +271,28 @@ def handler(ledger, triage=None, operations=None):
                     return self.reply(200, ledger.reconcile(data.get("statement")))
                 parts = self.path.strip("/").split("/")
                 if len(parts) == 4 and parts[:2] == ["api", "trades"]:
+                    if parts[3] == "investigate-ai":
+                        from ..application.investigation import Investigation
+                        from ..core.identity import require
+                        from .investigator import Investigator
+
+                        require(principal, "checker")
+                        if set(data) != {"version"}:
+                            raise DomainError("Investigator requires the expected trade version")
+                        snapshot = Investigation(ledger).snapshot(parts[2])
+                        if (
+                            type(data["version"]) is not int
+                            or data["version"] != snapshot["trade"]["version"]
+                        ):
+                            raise DomainError("Stale investigator context", 409)
+                        if not ai_slots.acquire(blocking=False):
+                            raise DomainError("An AI analysis is already running", 429)
+                        try:
+                            return self.reply(
+                                200, Investigator(triage.model, triage.transport).analyze(snapshot)
+                            )
+                        finally:
+                            ai_slots.release()
                     if parts[3] == "analyze":
                         evidence = ledger.evidence(parts[2], data.get("version"))
                         if not ai_slots.acquire(blocking=False):
@@ -267,7 +303,13 @@ def handler(ledger, triage=None, operations=None):
                             return self.reply(200, triage.analyze(evidence))
                         finally:
                             ai_slots.release()
-                    if parts[3] in ("request-affirmation", "amend", "cancel", "settle-partial"):
+                    if parts[3] in (
+                        "request-affirmation",
+                        "amend",
+                        "cancel",
+                        "settle-partial",
+                        "request-reversal",
+                    ):
                         data["request_key"] = self.headers.get("Idempotency-Key")
                     if parts[3] == "manager":
                         data["submission_key"] = self.headers.get("Idempotency-Key")

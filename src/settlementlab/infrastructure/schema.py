@@ -1,11 +1,12 @@
 """Additive, repeatable SQLite schema migration."""
 
 from ..core.validation import DomainError
+from .investigation_schema import initialize_investigation
 from .journal import initialize
 from .lifecycle_schema import initialize_lifecycle
 from .operations_schema import initialize_operations
 
-SCHEMA_VERSION = 6
+SCHEMA_VERSION = 7
 
 
 def migrate(db):
@@ -51,4 +52,5 @@ def migrate(db):
     )
     initialize_operations(db)
     initialize_lifecycle(db)
-    db.execute("PRAGMA user_version=6")
+    initialize_investigation(db)
+    db.execute("PRAGMA user_version=7")

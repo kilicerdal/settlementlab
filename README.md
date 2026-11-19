@@ -13,6 +13,20 @@ SettlementLab is a Python financial systems assurance framework with two runnabl
 ![V4.2 lifecycle workbench showing partial execution, retained history and statement investigation](docs/images/lifecycle-v42.png)
 *Recorded synthetic V4.2 browser journey. The screenshot illustrates the local interface; it is not a live CI result.*
 
+## V4.3 candidate — incident investigation and controlled compensation
+
+The next implementation connects a real worker interruption, partial execution, delayed statement, investigation and maker/checker compensation in one replayable incident. A new local investigation screen links the complete evidence; portable exports retain original comparisons, financial entries and checksums. An isolated reviewer exercise includes a balanced but economically incorrect compensation. Optional local AI is evaluated against declared adversarial fixtures and separately recorded live samples.
+
+```sh
+python3 scripts/incident_quickstart.py
+# Local investigation: http://127.0.0.1:8086/investigation
+```
+
+Standard-library runtime; no package install or model is required for the checkout demonstration. The command creates fresh evidence, runs the recovery and starts the local server. [V4.3 candidate guide](docs/V4_3.md) · [AI evaluation and retained samples](docs/V4_3_AI.md) · [Recovery runbook](docs/runbooks/INCIDENT_RECOVERY.md). V4.2 remains the published release; independent human review is pending. The portfolio website is unchanged.
+
+![V4.3 candidate incident investigation with linked correction evidence](docs/images/investigation-v43.png)
+*Recorded synthetic candidate UI; V4.3 has not been released.*
+
 ## What V4.2 demonstrates
 
 | Capability | Implemented behavior |
@@ -123,7 +137,7 @@ This is a local simulation and engineering portfolio framework. Demo role checks
 
 Financial calculations use exact cents and bounded integer balances. Calendars use weekdays and explicit project closures; timed clocks apply the pinned project-defined UTC cutoff. These are not official market calendars or jurisdictional settlement rules. Date-only simulations do not infer an intraday time, and migrated V4.1 trades do not acquire a retroactive cutoff.
 
-One SQLite database serializes writers. Workload results are bounded local measurements, not scaling guarantees. Journal, revision and statement evidence is retained transactionally, not made tamper-proof. Imported statements are user supplied, not authenticated counterparty feeds. Posted terms cannot be amended; reversal accounting is outside V4.2.
+One SQLite database serializes writers. Workload results are bounded local measurements, not scaling guarantees. Journal, revision and statement evidence is retained transactionally, not made tamper-proof. Imported statements are user supplied, not authenticated counterparty feeds. Posted terms cannot be amended. V4.2 has no reversal accounting; the V4.3 candidate adds separately authorized full-batch compensation as documented above.
 
 Schema 6 upgrades are additive and transactional. Back up and verify restoration before upgrading. V4.1 refuses the newer schema; rollback requires the pre-upgrade backup. Legacy allocation-only and trade-scoped contracts remain supported. [Upgrade and recovery guidance](docs/runbooks/RELEASE_COMPATIBILITY.md).
 

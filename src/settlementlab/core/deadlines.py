@@ -78,7 +78,13 @@ def aging(trade: Mapping[str, Any], clock: Any) -> dict[str, Any]:
             )
         )
     )
-    if trade["state"] in ("SETTLED", "CANCELLED"):
+    if trade["state"] in (
+        "SETTLED",
+        "CANCELLED",
+        "REVERSED",
+        "CORRECTION_REVIEW",
+        "CORRECTION_PENDING",
+    ):
         bucket = "CLOSED"
     elif today < due:
         bucket = "NOT_DUE"

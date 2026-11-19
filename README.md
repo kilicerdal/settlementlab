@@ -1,178 +1,144 @@
 # SettlementLab
 
-![Python 3.9+](https://img.shields.io/badge/Python-3.9%2B-3776AB?logo=python) ![Tests: Python assurance](https://img.shields.io/badge/Tests-Python%20assurance-3776AB) [![MIT license](https://img.shields.io/github/license/kilicerdal/settlementlab)](LICENSE)
+[![Settlement assurance](https://github.com/kilicerdal/settlementlab/actions/workflows/assurance.yml/badge.svg)](https://github.com/kilicerdal/settlementlab/actions/workflows/assurance.yml) [![Release V4.2.0](https://img.shields.io/badge/release-v4.2.0-287d68)](https://github.com/kilicerdal/settlementlab/releases/tag/v4.2.0) ![Python 3.9+](https://img.shields.io/badge/Python-3.9%2B-3776AB?logo=python) [![MIT license](https://img.shields.io/github/license/kilicerdal/settlementlab)](LICENSE)
 
-**Review in five minutes:** [What to run, which failure to inspect, and what it proves](docs/REVIEWER_GUIDE.md) · [Evidence provenance](docs/EVIDENCE.md).
+**Financial workflows. Reusable assurance. Inspectable evidence.**
 
-**Confidence starts with the match.**
+SettlementLab is a Python financial systems assurance framework with two runnable reference applications: a post-trade operations workbench and an independent collateral reservation API. Follow a synthetic obligation through matching, independent approval, partial settlement, recovery and reconciliation. Then install the assurance engine separately and use it to detect a deliberately broken reservation replay.
 
-[![Settlement assurance](https://github.com/kilicerdal/settlementlab/actions/workflows/assurance.yml/badge.svg)](https://github.com/kilicerdal/settlementlab/actions/workflows/assurance.yml)
+**V4.2 is the current release.** Standard-library runtime, no required API key or paid service, and optional local AI. Built by Erdal Kilic.
 
-A Python financial systems assurance framework with two runnable reference applications: a post-trade operations workbench and an independent collateral reservation API. Follow a synthetic trade from mismatched submissions through correction, approval, settlement recovery and reconciliation. Then use the same assurance engine to catch a deliberately broken reservation replay.
+[Download V4.2](https://github.com/kilicerdal/settlementlab/releases/tag/v4.2.0) · [Reviewer guide](docs/REVIEWER_GUIDE.md) · [V4.2 workflows and API](docs/V4_2.md) · [Architecture](docs/ARCHITECTURE.md)
 
-**Synthetic local scope:** USD equity trades, simplified calendars, switchable demo personas and simulated balances. No real money, exchange connection or production identity.
+![V4.2 lifecycle workbench showing partial execution, retained history and statement investigation](docs/images/lifecycle-v42.png)
+*Recorded synthetic V4.2 browser journey. The screenshot illustrates the local interface; it is not a live CI result.*
 
-**V4.1 combines durable settlement operations with independent financial verification.** Standard-library runtime, reproducible scenarios, exact failure evidence and optional free local AI. Built by Erdal Kilic.
+## What V4.2 demonstrates
 
-[Watch the captioned walkthrough](https://github.com/kilicerdal/settlementlab/releases/download/v3.0.0/settlementlab-walkthrough.webm) · [Engineering decisions](docs/decisions/README.md) · [Narration script](docs/WALKTHROUGH.md)
+| Capability | Implemented behavior |
+| --- | --- |
+| Versioned obligations | Maker amendments preserve accepted terms, invalidate stale approvals and matching authority, and fence active workers. Replacement terms require fresh matching and approval. |
+| Partial settlement | Explicit execution quantities produce balanced cash/securities postings, retained slices and cumulative receipts. Cancellation closes only the remaining obligation. |
+| Deadlines and aging | New obligations pin a project-defined UTC cutoff; explicit timestamp simulations enforce it. Business-day aging identifies overdue work. |
+| Reconciliation investigations | Independently imported CSV statements produce classified discrepancy cases. Resolution requires corrected numeric evidence and retains the original comparison. |
+| Durable recovery | Financial posting, processing receipt and outbox commit together. Leases, fencing, retries and observer deduplication handle interrupted work and uncertain delivery. |
+| Framework reuse | A separate HTTP assurance wheel runs declarative scenarios against another service without installing the financial application. |
 
-[Website case study](https://www.eai.engineering/engineering/settlementlab) · [Five-minute walkthrough](docs/SHOWCASE.md) · [Architecture](docs/ARCHITECTURE.md) · [Extension guide](docs/FRAMEWORK.md) · [Release history](CHANGELOG.md)
+**Scope:** synthetic USD equity obligations, simulated balances and freely switchable demo personas. No real funds, market connection or production identity. [Detailed boundaries](#scope-and-limitations).
 
-![V3.0 portable execution showcase](docs/images/showcase-v30.png)
-*Recorded V3.0 local screenshot, not a fresh CI result; includes the passing control and expected negative report. [Release and source provenance](docs/EVIDENCE.md).*
+## Run the workbench
 
-## V4.2 — obligation lifecycle and operational evidence
-
-Version `4.2.0` adds revision-bound amendments and approvals, cancellation of remaining obligations, explicit partial settlement, pinned UTC cutoffs and business-day aging. A new local `/lifecycle` workbench retains execution and revision evidence and investigates independently imported CSV statement discrepancies. Posted value is never rewritten.
-
-The reusable HTTP engine now builds as its own zero-dependency wheel, independently installable without the financial application. Actual source mutation tests, a genuine V4.1 upgrade/rollback rehearsal, an independent partial-execution oracle and larger concurrent workloads produce reproducible evidence. Independent human review is explicitly pending.
-
-```sh
-python -m scripts.mutation_campaign
-python -m scripts.v42_compatibility
-python -m scripts.v42_workload --trades 1000
-python -m scripts.build_assurance
-python -m scripts.verify_assurance_package
-```
-
-[V4.2 workflows and API](docs/V4_2.md) · [Recovery runbooks](docs/runbooks/LIFECYCLE_RECOVERY.md) · [Compatibility](docs/runbooks/RELEASE_COMPATIBILITY.md) · [Standalone framework](docs/STANDALONE_ASSURANCE.md). V4.2 is the current release. Portfolio website unchanged.
-
-![V4.2 local lifecycle workbench with partial execution and statement investigation](docs/images/lifecycle-v42.png)
-
-## V4.1 — independent financial assurance
-
-Verify economic correctness separately from the settlement implementation, run seeded property/state-machine checks, and exercise a 240-trade synthetic day with price corrections, funding shortages, reviewed recovery and end-of-day reconciliation. Real worker workloads and backup restore produce measured evidence with explicit limits.
+Python 3.9+ and Git are required. These commands use a virtual environment on macOS/Linux:
 
 ```sh
-python -m pip install . -r requirements-quality.txt
-python -m scripts.reviewer_ready --quality
-# Open artifacts/reviewer-ready/index.html
-python -m scripts.reviewer_ready --verify
-```
-
-[Complete reviewer workflow](docs/V4_1_ASSURANCE.md) · [Independent-service tutorial](docs/SECOND_SERVICE_TUTORIAL.md) · [AI review](docs/AI_REVIEW_V4_1.md) · [Security boundaries](docs/SECURITY_REVIEW_V4_1.md). V4.1 evidence remains available for comparison. The portfolio website is unchanged.
-
-## V4.0 — durable settlement operations
-
-A separate worker processes persisted settlement jobs with leases, stale-worker fencing and bounded retry. Financial posting, receipt and outgoing event commit together. An ordered outbox and idempotent local observer handle uncertain delivery. The operations console exposes queue state, exception review and a correlated timeline.
-
-```sh
-PYTHONPATH=src python -m scripts.durable_showcase
-# Then open artifacts/durable-showcase/index.html
-```
-
-The reproducible demo uses real child-process crashes and explicit reviewed recovery. [Start the local console and worker](docs/DURABLE_OPERATIONS.md) · [Durability decision](docs/decisions/004-durable-settlement.md). V4 includes the framework-depth upgrade and does not change the public website. It is a local multi-process lab, not distributed exactly-once processing.
-
-## Reusable assurance framework — included in V4
-
-Supply `--scenario-dir your-pack/` to test your own running HTTP API with the installed runner. The new offline AI evaluator retains reviewed historical failures; recovery checks exercise lost responses, timeouts and process restarts. Failure-first HTML links to the request, comparison and declared control. Strict typing now covers six reusable assurance modules in addition to core/configuration.
-
-[Upgrade scope](docs/FRAMEWORK_UPGRADE.md) · [External pack example](docs/EXTERNAL_SCENARIOS.md) · [AI rubric review](docs/AI_EVALUATION.md) · [Recovery checks](docs/RECOVERY_ASSURANCE.md).
-
-## Start here
-
-Python 3.9+ and Git. No API key, cloud account, paid service or model runtime is required for the demonstration.
-
-```sh
+git clone https://github.com/kilicerdal/settlementlab.git
+cd settlementlab
 python3 -m venv .venv
 .venv/bin/python -m pip install .
+.venv/bin/settlementlab --config environments/showcase.json --model ''
+```
+
+Open the [trade workbench](http://127.0.0.1:8085), [V4.2 lifecycle controls](http://127.0.0.1:8085/lifecycle) or [durable operations](http://127.0.0.1:8085/operations). The profile uses business date **2026-11-09** and persists its synthetic database at `artifacts/showcase.db`. Audit and queue timestamps remain real. This date-only profile does not enforce an intraday cutoff; see [timestamp simulation](docs/V4_2.md#try-locally).
+
+Start with **Run showcase scenario** in the trade workbench. Correct the manager terms, request approval as the maker, switch to the checker and approve. Fund shared shortfalls, then inspect partial execution, remaining obligations and imported statement evidence in the lifecycle screen. [Guided demonstration](docs/SHOWCASE.md) · [V4.2 command reference](docs/V4_2.md).
+
+For installation without a checkout, download either wheel from the [V4.2 release](https://github.com/kilicerdal/settlementlab/releases/tag/v4.2.0). The release includes CI evidence, provenance and SHA-256 checksums. The financial workbench wheel is `settlementlab-4.2.0-py3-none-any.whl`; the independent engine is `settlementlab_assurance-4.2.0-py3-none-any.whl`.
+
+## Review the evidence
+
+The V4.2 release passed **160 unit/API/integration tests and four assurance scenarios**, with Python 3.9/3.13 controls and all eight CI jobs passing. Evidence also includes:
+
+- Existing trade, durable operations and V4.2 browser journeys, including a mobile viewport.
+- Six targeted source mutants detected by real tests; invalid mutants are not counted as detections.
+- An independent slice oracle that rejects balanced but economically incorrect postings.
+- A genuine populated V4.1 database upgrade, expired-claim recovery, downgrade refusal and backup restoration checks.
+- A 1,000-trade/four-worker local campaign with 1,000 execution slices, receipts and outbox records, plus 8,000 journal lines.
+- A clean standalone-wheel installation that passes the healthy second service and detects its injected replay defect.
+
+These are release-specific results, not a promise of production capacity. The status badge links to current CI. **Independent human review remains pending.** [Validation details](docs/V4_2_EVIDENCE.md) · [Review checklist](docs/INDEPENDENT_REVIEW.md) · [Evidence provenance](docs/EVIDENCE.md).
+
+From the repository root, generate a portable demonstration of both applications:
+
+```sh
 .venv/bin/python -m scripts.showcase
 .venv/bin/python -m scripts.showcase --verify
 ```
 
-Run from the repository root. Open `artifacts/showcase/index.html` in a browser. The command starts temporary loopback services with temporary databases, runs the scenarios, closes them and writes portable evidence:
+Open `artifacts/showcase/index.html`. Success includes an intentionally failed negative report: the collateral replay must return observed `201` where the contract expects `200`. An arbitrary service failure does not count as defect detection. The manifest records source/version information and report checksums; it is not an independent attestation.
 
-| Report | Required result | What it demonstrates |
-|---|---|---|
-| Settlement | Four passing scenarios | Matching, approval, capacity recovery and calendar rejection |
-| Collateral control | Two passing scenarios | Independent service, capacity, reservation replay and release |
-| Collateral injected fault | C01 passes; C02 fails with expected 200 / observed 201 | The engine detects the specific replay defect |
-
-A successful showcase includes an explicitly **failed negative report**. An arbitrary service failure does not count as defect detection. The manifest records framework/Python version, source commit and dirty state, plus checksums for all generated reports. Verification checks files and exact report outcomes; checksums are not a signature or independent attestation. This command does not run the full control suite, browser or live AI.
-
-## Explore the operations console
+Run the full controls and V4.2 evidence checks with:
 
 ```sh
-.venv/bin/settlementlab --config environments/showcase.json
+.venv/bin/python -m pip install -r requirements-quality.txt 'setuptools>=68' wheel
+.venv/bin/coverage run -m settlementlab.assurance.runner --suite all --root .
+.venv/bin/coverage report
+.venv/bin/python -m scripts.mutation_campaign
+.venv/bin/python -m scripts.v42_compatibility
+.venv/bin/python -m scripts.v42_workload --trades 1000
+.venv/bin/python -m scripts.build_assurance
+.venv/bin/python -m scripts.verify_assurance_package
 ```
 
-Open http://127.0.0.1:8085. The profile visibly fixes the simulated business date to **2026-11-09**. Audit timestamps remain real. Default startup without this profile uses the actual UTC date.
+The compatibility rehearsal requires the `v4.1.0` Git tag. Full suites require the source/tests; browser checks additionally require Playwright. CI enforces an 85% combined statement/branch coverage minimum, lint, formatting and typing within the documented scope. [Quality commands and coverage](docs/QUALITY.md) · [Recovery runbooks](docs/runbooks/LIFECYCLE_RECOVERY.md) · [Upgrade compatibility](docs/runbooks/RELEASE_COMPATIBILITY.md).
 
-1. Select **Run showcase scenario** and inspect the independent price and allocation-total breaks.
-2. Revise manager price to `42.75`, allocations to `SYN-FUND-ALPHA,6000` and `SYN-FUND-BETA,4000`.
-3. As Alex · Maker, request instruction approval; switch to Sam · Checker and approve.
-4. Attempt settlement, inspect insufficient capacity, fund shared shortfalls and retry.
-5. Inspect the four balanced journal lines and reconcile the statement.
+## Use the assurance engine with your own API
 
-The database persists at `artifacts/showcase.db`. For a fresh isolated demonstration, pass `--db /tmp/settlementlab-new-demo.db` with an unused filename. [Detailed walkthrough and presentation script](docs/SHOWCASE.md).
+Install the standalone wheel from the release in your service's virtual environment. It has no runtime dependencies and does not require the financial application. Point it at an API you own and supply a declarative JSON scenario pack:
 
-## What the framework proves
+```sh
+settlementlab-http-assure --target owned-api --base-url http://127.0.0.1:8091 \
+  --scenario-dir your-pack/ --report-dir artifacts/my-service
+```
 
-| Area | Implemented control | Evidence |
-|---|---|---|
-| Matching | Separate broker/manager terms, seven exact fields, allocation totals, preserved revisions | Catalog S01; matching unit/API tests |
-| Approval | Maker request, separate checker identity, stale-version rejection | S02; role, revision and approval tests |
-| Settlement | Shared participant cash/securities, exact cents, atomic four-line postings, idempotency | Lifecycle, rollback and concurrent-spending tests |
-| Calendar | Pinned policy/fingerprint, next-business-day rule, early/closed-day rejection | S03/S04; calendar tests |
-| Reconciliation | Missing/external records and amount/status discrepancies | Reconciliation tests |
-| Reuse | Generic JSON HTTP transport, target profiles, response references, unique run keys | C01/C02 against independent SQLite service |
-| Reporting | JSON, HTML, JUnit, structured expected/actual failures, nonzero exit | Negative runner/report tests; controlled fault CI |
-| Local AI | Bounded facts, structured output, cited evidence, advisory authority | Injected contract tests; separately recorded Ollama examples |
+The engine supports bounded HTTP steps, exact JSON assertions, response references, unique run keys and portable HTML/JSON/JUnit reports. Scenario packs execute no arbitrary Python. [Standalone framework](docs/STANDALONE_ASSURANCE.md) · [Second-service tutorial](docs/SECOND_SERVICE_TUTORIAL.md) · [External scenario contract](docs/EXTERNAL_SCENARIOS.md).
 
-## Architecture
+## Architecture and engineering decisions
 
 ```text
 src/settlementlab/
-  core/             Pure financial policies and invariants
+  core/             Financial policies, validation and invariants
   application/      Workflow orchestration and persistence ports
-  infrastructure/   SQLite transactions, migrations, journal and demo sessions
-  adapters/         HTTP console/API and loopback Ollama transport
-  assurance/        Shared client, fixtures, profiles, scenarios and reports
+  infrastructure/   SQLite transactions, migrations, journal and evidence
+  adapters/         Local HTTP workbench/API and Ollama transport
+  assurance/        Generic HTTP engine, financial fixtures and reporting
 examples/
-  collateral_service/  Independent API; no framework imports
-scripts/showcase.py     Orchestrates both applications and verifies evidence
- tests/                Unit / integration / API / browser
+  collateral_service/  Independent reference API
+scripts/               Reproducible demonstrations and evidence campaigns
+tests/                 Unit, integration, API and browser controls
 ```
 
-Application composition is explicit in `bootstrap.py`. The assurance engine uses the same HTTP/reporting primitives for both services; financial helpers extend the generic client. The second reference app is source-only, while its scenarios ship in the wheel. [Reuse contract and target setup](docs/REUSE.md).
+Composition is explicit in `bootstrap.py`. Financial workflows use application ports; SQL stays in infrastructure. The standalone build packages an allowlist of canonical generic assurance modules into the distinct `settlementlab_assurance` namespace. Both wheels can coexist without file ownership collisions.
 
-## Verify and extend
+[Architecture](docs/ARCHITECTURE.md) · [Engineering decisions](docs/decisions/README.md) · [Versioned obligation design](docs/decisions/006-versioned-obligations.md) · [Extension guide](docs/FRAMEWORK.md).
 
-```sh
-.venv/bin/python -m pip install -r requirements-quality.txt
-.venv/bin/ruff check src tests scripts examples
-.venv/bin/ruff format --check src tests scripts examples
-.venv/bin/mypy
-.venv/bin/coverage run -m settlementlab.assurance.runner --suite all --root .
-.venv/bin/coverage report
-```
+## Optional local AI
 
-CI runs Python 3.9/3.13 controls, installed-package checks, Chromium, separate-process collateral controls and portable showcase verification. Coverage has an 85% combined statement/branch minimum. Strict typing covers core/configuration and six assurance boundary modules; the remaining layers are not fully typed. [Quality scope](docs/QUALITY.md) · [Contributing](CONTRIBUTING.md).
+With Ollama and `qwen2.5:3b` installed locally, start the workbench without `--model ''` and select **Analyze exception with AI**. No API key or paid inference service is required. The model receives bounded synthetic facts and must cite supplied evidence; it cannot approve, fund, settle or resolve numeric discrepancies.
 
-Run `.venv/bin/settlementlab-assure --suite scenarios` for shipped financial scenarios outside the checkout. Full suites require source/tests. Reports default to `artifacts/reports/`. Browser automation requires the optional Playwright tooling and a running showcase server; [commands and evidence scope](docs/SHOWCASE.md#browser-and-ai-verification).
-
-## Free local AI
-
-With Ollama and `qwen2.5:3b` already installed locally, select **Analyze exception with AI**. No API key or paid inference service is used. The model receives bounded synthetic facts and must cite supplied evidence. It cannot approve, fund or settle. Unavailable models return an error; there is no fake response fallback.
-
-Local inference consumes your machine's resources. Contract tests use injected responses; recorded/live model examples are separate and are not an accuracy benchmark. [Setup, data boundaries and evaluation](docs/AI.md).
+Unavailable models return an error rather than a fabricated response. Contract tests use injected responses; recorded/live model examples are separate and are not an accuracy benchmark. Local inference consumes your machine's resources. [AI setup and boundaries](docs/AI.md) · [Evaluation and review](docs/AI_REVIEW_V4_1.md).
 
 ## Scope and limitations
 
-This is a synthetic local simulation and assurance showcase. Demo personas are openly switchable; role checks do not authenticate distinct humans or isolate participant data. APIs bind to loopback and are not intended for public hosting. No real money, securities or external market connection is involved.
+This is a local simulation and engineering portfolio framework. Demo role checks do not authenticate distinct humans or isolate participant data. APIs bind to loopback and are not intended for public hosting. Independent human review, production identity, distributed processing, load certification and broad model evaluation remain outside the demonstrated scope.
 
-Financial scope is USD equity trades with exact cent prices and bounded integer balances. Calendars use weekdays plus explicit project closures, not an official exchange dataset or intraday cutoffs. Trades pin their calendar; policy changes do not rewrite them. Journal and revision history are transactional, not tamper-proof. Production identity, distributed processing, load certification and broad model evaluation remain outside V3.0.
+Financial calculations use exact cents and bounded integer balances. Calendars use weekdays and explicit project closures; timed clocks apply the pinned project-defined UTC cutoff. These are not official market calendars or jurisdictional settlement rules. Date-only simulations do not infer an intraday time, and migrated V4.1 trades do not acquire a retroactive cutoff.
 
-Existing databases migrate additively: back up first. Legacy allocation-only and trade-scoped contracts remain supported; new console trades use two-sided matching and shared-ledger controls. [API contract](docs/API.md) · [Matching policy](docs/MATCHING.md).
+One SQLite database serializes writers. Workload results are bounded local measurements, not scaling guarantees. Journal, revision and statement evidence is retained transactionally, not made tamper-proof. Imported statements are user supplied, not authenticated counterparty feeds. Posted terms cannot be amended; reversal accounting is outside V4.2.
 
-## Maintenance
+Schema 6 upgrades are additive and transactional. Back up and verify restoration before upgrading. V4.1 refuses the newer schema; rollback requires the pre-upgrade backup. Legacy allocation-only and trade-scoped contracts remain supported. [Upgrade and recovery guidance](docs/runbooks/RELEASE_COMPATIBILITY.md).
 
-[Dependency update and review policy](docs/DEPENDENCY_MAINTENANCE.md) · [Contributing](CONTRIBUTING.md) · [Security reporting](SECURITY.md).
+## Earlier releases and walkthroughs
 
-## License
+| Release | Supporting material |
+| --- | --- |
+| V4.1 | [Independent financial assurance, generated invariants and reviewer scorecard](docs/V4_1_ASSURANCE.md) |
+| V4.0 | [Durable operations, process crashes and outbox recovery](docs/DURABLE_OPERATIONS.md) |
+| V3.0 | [Captioned video](https://github.com/kilicerdal/settlementlab/releases/download/v3.0.0/settlementlab-walkthrough.webm), [presentation guide](docs/SHOWCASE.md) and [recorded screenshot](docs/images/showcase-v30.png) |
 
-[MIT](LICENSE) — copyright 2026 Erdal Kilic.
+Historical recordings illustrate their named versions; they are not V4.2 walkthroughs or current CI evidence. [Release history](CHANGELOG.md) · [Website case study](https://www.eai.engineering/engineering/settlementlab).
 
-## Compatibility and maintenance
+## Contributing and maintenance
 
-[Supported versions, quick/full checks, dependency decisions and upgrade policy](docs/MAINTENANCE.md). Historical evidence stays dated; current CI status is linked above.
+[Contributing](CONTRIBUTING.md) · [Security reporting](SECURITY.md) · [Dependency policy](docs/DEPENDENCY_MAINTENANCE.md) · [Compatibility and maintenance](docs/MAINTENANCE.md).
+
+[MIT license](LICENSE) — copyright 2026 Erdal Kilic.

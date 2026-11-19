@@ -1,6 +1,6 @@
 # Changelog
 
-## 4.2.0.dev1 — controlled obligation lifecycle (unreleased)
+## 4.2.0 — controlled obligation lifecycle (2026-11-18)
 
 - Revision-bound maker amendments and checker cancellation; immutable posted value and old approval evidence.
 - Explicit partial settlement with cumulative receipts, independent slice oracle and durable atomic receipt/outbox.

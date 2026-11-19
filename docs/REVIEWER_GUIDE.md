@@ -1,6 +1,6 @@
 # Reviewer journey
 
-For the V4.2 candidate, begin with [workflows and evidence commands](V4_2.md). V4.1 remains the published release; independent human review of V4.2 is pending.
+For V4.2, begin with [workflows and evidence commands](V4_2.md). Independent human review of V4.2 remains pending; automated release checks are recorded separately.
 
 ## What this demonstrates
 A reusable Python assurance engine checks two independent synthetic local applications. Financial scope is USD equity trades with simplified calendar rules and no exchange connection or real money. Demo personas are not production authentication.

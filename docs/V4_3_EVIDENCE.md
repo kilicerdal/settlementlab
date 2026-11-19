@@ -1,6 +1,6 @@
-# V4.3 candidate validation
+# V4.3 validation
 
-Local development evidence, not a published release or independent review. CI artifacts provide fresh results tied to their source commit.
+Recorded local development evidence; this is not independent human review. CI artifacts provide fresh results tied to their source commit.
 
 | Check | Local outcome |
 | --- | --- |
@@ -24,4 +24,4 @@ The local model was already installed. No cloud calls, model downloads or paid s
 
 Reproduce full controls with the standard assurance runner. Generate a new incident with `python3 scripts/incident_quickstart.py --no-serve`, the mutation campaign with `python -m scripts.mutation_campaign`, and the genuine upgrade with `python -m scripts.v42_compatibility --source-release v4.2.0`. Use an installed current package or `PYTHONPATH=src` in a checkout. Browser tooling is development-only.
 
-The committed image is a recorded synthetic candidate interface. Generated databases, bundles and logs remain artifacts. The deliberately defective exercise is labeled and isolated; it does not modify the original incident.
+The committed image is a recorded synthetic V4.3 interface. Generated databases, bundles and logs remain artifacts. The deliberately defective exercise is labeled and isolated; it does not modify the original incident.

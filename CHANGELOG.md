@@ -1,6 +1,6 @@
 # Changelog
 
-## 4.3.0.dev1 — incident investigation and compensation (unreleased)
+## 4.3.0 — incident investigation and compensation (2026-11-19)
 
 - One-command fresh-checkout incident with actual worker interruption, single execution recovery, discrepant statements and retained unresolved/resolved exports.
 - Correlated investigation timeline and portable escaped HTML/JSON evidence with source provenance and checksums.

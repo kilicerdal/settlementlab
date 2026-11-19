@@ -1,33 +1,30 @@
 # SettlementLab
 
-[![Settlement assurance](https://github.com/kilicerdal/settlementlab/actions/workflows/assurance.yml/badge.svg)](https://github.com/kilicerdal/settlementlab/actions/workflows/assurance.yml) [![Release V4.2.0](https://img.shields.io/badge/release-v4.2.0-287d68)](https://github.com/kilicerdal/settlementlab/releases/tag/v4.2.0) ![Python 3.9+](https://img.shields.io/badge/Python-3.9%2B-3776AB?logo=python) [![MIT license](https://img.shields.io/github/license/kilicerdal/settlementlab)](LICENSE)
+[![Settlement assurance](https://github.com/kilicerdal/settlementlab/actions/workflows/assurance.yml/badge.svg)](https://github.com/kilicerdal/settlementlab/actions/workflows/assurance.yml) [![Release V4.3.0](https://img.shields.io/badge/release-v4.3.0-287d68)](https://github.com/kilicerdal/settlementlab/releases/tag/v4.3.0) ![Python 3.9+](https://img.shields.io/badge/Python-3.9%2B-3776AB?logo=python) [![MIT license](https://img.shields.io/github/license/kilicerdal/settlementlab)](LICENSE)
 
 **Financial workflows. Reusable assurance. Inspectable evidence.**
 
 SettlementLab is a Python financial systems assurance framework with two runnable reference applications: a post-trade operations workbench and an independent collateral reservation API. Follow a synthetic obligation through matching, independent approval, partial settlement, recovery and reconciliation. Then install the assurance engine separately and use it to detect a deliberately broken reservation replay.
 
-**V4.2 is the current release.** Standard-library runtime, no required API key or paid service, and optional local AI. Built by Erdal Kilic.
+**V4.3 is the current release.** Standard-library runtime, no required API key or paid service, and optional local AI. Built by Erdal Kilic.
 
-[Download V4.2](https://github.com/kilicerdal/settlementlab/releases/tag/v4.2.0) · [Reviewer guide](docs/REVIEWER_GUIDE.md) · [V4.2 workflows and API](docs/V4_2.md) · [Architecture](docs/ARCHITECTURE.md)
+[Download V4.3](https://github.com/kilicerdal/settlementlab/releases/tag/v4.3.0) · [Reviewer guide](docs/REVIEWER_GUIDE.md) · [V4.3 incident and API guide](docs/V4_3.md) · [Architecture](docs/ARCHITECTURE.md)
 
-![V4.2 lifecycle workbench showing partial execution, retained history and statement investigation](docs/images/lifecycle-v42.png)
-*Recorded synthetic V4.2 browser journey. The screenshot illustrates the local interface; it is not a live CI result.*
+![V4.3 incident investigation with linked financial and correction evidence](docs/images/investigation-v43.png)
+*Recorded synthetic V4.3 browser journey. The screenshot illustrates the local interface; it is not a live CI result.*
 
-## V4.3 candidate — incident investigation and controlled compensation
+## V4.3 — incident investigation and controlled compensation
 
-The next implementation connects a real worker interruption, partial execution, delayed statement, investigation and maker/checker compensation in one replayable incident. A new local investigation screen links the complete evidence; portable exports retain original comparisons, financial entries and checksums. An isolated reviewer exercise includes a balanced but economically incorrect compensation. Optional local AI is evaluated against declared adversarial fixtures and separately recorded live samples.
+V4.3 connects a real worker interruption, partial execution, delayed statement, investigation and maker/checker compensation in one replayable incident. A new local investigation screen links the complete evidence; portable exports retain original comparisons, financial entries and checksums. An isolated reviewer exercise includes a balanced but economically incorrect compensation. Optional local AI is evaluated against declared adversarial fixtures and separately recorded live samples.
 
 ```sh
 python3 scripts/incident_quickstart.py
 # Local investigation: http://127.0.0.1:8086/investigation
 ```
 
-Standard-library runtime; no package install or model is required for the checkout demonstration. The command creates fresh evidence, runs the recovery and starts the local server. [V4.3 candidate guide](docs/V4_3.md) · [AI evaluation and retained samples](docs/V4_3_AI.md) · [Recovery runbook](docs/runbooks/INCIDENT_RECOVERY.md). V4.2 remains the published release; independent human review is pending. The portfolio website is unchanged.
+Standard-library runtime; no package install or model is required for the checkout demonstration. The command creates fresh evidence, runs the recovery and starts the local server. [V4.3 incident guide](docs/V4_3.md) · [AI evaluation and retained samples](docs/V4_3_AI.md) · [Recovery runbook](docs/runbooks/INCIDENT_RECOVERY.md). V4.3 is the current release; independent human review remains pending. The portfolio website is unchanged.
 
-![V4.3 candidate incident investigation with linked correction evidence](docs/images/investigation-v43.png)
-*Recorded synthetic candidate UI; V4.3 has not been released.*
-
-## What V4.2 demonstrates
+## Core framework capabilities
 
 | Capability | Implemented behavior |
 | --- | --- |
@@ -56,14 +53,14 @@ Open the [trade workbench](http://127.0.0.1:8085), [V4.2 lifecycle controls](htt
 
 Start with **Run showcase scenario** in the trade workbench. Correct the manager terms, request approval as the maker, switch to the checker and approve. Fund shared shortfalls, then inspect partial execution, remaining obligations and imported statement evidence in the lifecycle screen. [Guided demonstration](docs/SHOWCASE.md) · [V4.2 command reference](docs/V4_2.md).
 
-For installation without a checkout, download either wheel from the [V4.2 release](https://github.com/kilicerdal/settlementlab/releases/tag/v4.2.0). The release includes CI evidence, provenance and SHA-256 checksums. The financial workbench wheel is `settlementlab-4.2.0-py3-none-any.whl`; the independent engine is `settlementlab_assurance-4.2.0-py3-none-any.whl`.
+For installation without a checkout, download either wheel from the [V4.3 release](https://github.com/kilicerdal/settlementlab/releases/tag/v4.3.0). The release includes CI evidence, provenance and SHA-256 checksums. The financial workbench wheel is `settlementlab-4.3.0-py3-none-any.whl`; the independent engine is `settlementlab_assurance-4.3.0-py3-none-any.whl`.
 
 ## Review the evidence
 
-The V4.2 release passed **160 unit/API/integration tests and four assurance scenarios**, with Python 3.9/3.13 controls and all eight CI jobs passing. Evidence also includes:
+The V4.3 release passed **184 unit/API/integration tests and four assurance scenarios**, with Python 3.9/3.13 controls and all nine CI jobs passing. Evidence also includes:
 
 - Existing trade, durable operations and V4.2 browser journeys, including a mobile viewport.
-- Six targeted source mutants detected by real tests; invalid mutants are not counted as detections.
+- Nine targeted source mutants detected by real tests; invalid mutants are not counted as detections.
 - An independent slice oracle that rejects balanced but economically incorrect postings.
 - A genuine populated V4.1 database upgrade, expired-claim recovery, downgrade refusal and backup restoration checks.
 - A 1,000-trade/four-worker local campaign with 1,000 execution slices, receipts and outbox records, plus 8,000 journal lines.
@@ -137,14 +134,15 @@ This is a local simulation and engineering portfolio framework. Demo role checks
 
 Financial calculations use exact cents and bounded integer balances. Calendars use weekdays and explicit project closures; timed clocks apply the pinned project-defined UTC cutoff. These are not official market calendars or jurisdictional settlement rules. Date-only simulations do not infer an intraday time, and migrated V4.1 trades do not acquire a retroactive cutoff.
 
-One SQLite database serializes writers. Workload results are bounded local measurements, not scaling guarantees. Journal, revision and statement evidence is retained transactionally, not made tamper-proof. Imported statements are user supplied, not authenticated counterparty feeds. Posted terms cannot be amended. V4.2 has no reversal accounting; the V4.3 candidate adds separately authorized full-batch compensation as documented above.
+One SQLite database serializes writers. Workload results are bounded local measurements, not scaling guarantees. Journal, revision and statement evidence is retained transactionally, not made tamper-proof. Imported statements are user supplied, not authenticated counterparty feeds. Posted terms cannot be amended. V4.3 provides separately authorized full-batch compensation as documented above.
 
-Schema 6 upgrades are additive and transactional. Back up and verify restoration before upgrading. V4.1 refuses the newer schema; rollback requires the pre-upgrade backup. Legacy allocation-only and trade-scoped contracts remain supported. [Upgrade and recovery guidance](docs/runbooks/RELEASE_COMPATIBILITY.md).
+Schema 7 upgrades are additive and transactional. Back up and verify restoration before upgrading. V4.2 refuses the newer schema; rollback requires the pre-upgrade backup. Legacy allocation-only and trade-scoped contracts remain supported. [Upgrade and recovery guidance](docs/runbooks/RELEASE_COMPATIBILITY.md).
 
 ## Earlier releases and walkthroughs
 
 | Release | Supporting material |
 | --- | --- |
+| V4.2 | [Versioned obligations, partial settlement and statement investigation](docs/V4_2.md) |
 | V4.1 | [Independent financial assurance, generated invariants and reviewer scorecard](docs/V4_1_ASSURANCE.md) |
 | V4.0 | [Durable operations, process crashes and outbox recovery](docs/DURABLE_OPERATIONS.md) |
 | V3.0 | [Captioned video](https://github.com/kilicerdal/settlementlab/releases/download/v3.0.0/settlementlab-walkthrough.webm), [presentation guide](docs/SHOWCASE.md) and [recorded screenshot](docs/images/showcase-v30.png) |

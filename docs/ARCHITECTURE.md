@@ -1,4 +1,6 @@
-# Architecture and decisions — V3.0
+# Architecture and decisions
+
+V4.2 adds [versioned obligation controls](decisions/006-versioned-obligations.md), [standalone HTTP packaging](STANDALONE_ASSURANCE.md) and [operational recovery](runbooks/LIFECYCLE_RECOVERY.md). The structure below describes the base framework.
 
 For implementation links, alternatives, tradeoffs and focused regression commands, read the [three engineering decision records](decisions/README.md).
 

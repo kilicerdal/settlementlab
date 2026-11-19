@@ -18,11 +18,22 @@ class Settings:
     model: str = "qwen2.5:3b"
     reports: str = "artifacts/reports"
     business_date: str = ""
+    business_timestamp: str = ""
+    settlement_cutoff: str = "17:00"
     calendar_id: str = "weekday-v1"
     closed_dates: tuple[str, ...] = ()
 
     def __post_init__(self) -> None:
         from .core.calendar import BusinessCalendar, FixedClock
+        from .core.deadlines import FixedTimestampClock, cutoff_time
+
+        if not isinstance(self.business_timestamp, str):
+            raise DomainError("Business timestamp must be a string")
+        cutoff_time(self.settlement_cutoff)
+        if self.business_timestamp:
+            clock = FixedTimestampClock(self.business_timestamp)
+            if self.business_date and self.business_date != clock.today().isoformat():
+                raise DomainError("Business date and timestamp disagree")
 
         if not isinstance(self.business_date, str):
             raise DomainError("Business date must be a string")
@@ -69,6 +80,8 @@ class Settings:
             ("model", "SETTLEMENTLAB_MODEL"),
             ("reports", "SETTLEMENTLAB_REPORTS"),
             ("business_date", "SETTLEMENTLAB_BUSINESS_DATE"),
+            ("business_timestamp", "SETTLEMENTLAB_BUSINESS_TIMESTAMP"),
+            ("settlement_cutoff", "SETTLEMENTLAB_CUTOFF_UTC"),
         ]:
             if name in env:
                 try:

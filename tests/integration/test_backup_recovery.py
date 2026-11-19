@@ -36,7 +36,7 @@ class BackupRecovery(unittest.TestCase):
                     restored_db.execute("SELECT reason FROM trades").fetchone()[0],
                     "uncommitted-change",
                 )
-            self.assertEqual(result["schema_version"], 5)
+            self.assertEqual(result["schema_version"], 6)
             restored = application(target)
             recovered = DurableOperations(restored.service, now=lambda: 1002)
             self.assertEqual(recovered.apply_claim(abandoned)["status"], "FENCED")

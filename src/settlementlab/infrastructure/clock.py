@@ -8,4 +8,8 @@ class SystemClock:
         return datetime.now(timezone.utc).date()
 
     def describe(self):
-        return dict(mode="system", date=self.today().isoformat(), timezone="UTC")
+        return dict(
+            mode="system",
+            date=self.today().isoformat(),
+            timezone="UTC",
+        )

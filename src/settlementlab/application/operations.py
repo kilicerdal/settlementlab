@@ -25,6 +25,7 @@ class DurableOperations:
         if trade["settlement_model"] != "shared-ledger" or trade["state"] not in (
             "AFFIRMED",
             "FAILED",
+            "PARTIALLY_SETTLED",
         ):
             raise DomainError("Durable settlement requires an approved shared-ledger trade", 409)
         if trade["version"] != version:
@@ -40,7 +41,10 @@ class DurableOperations:
         normalized = []
         seen = set()
         for entry in entries:
-            if not isinstance(entry, dict) or set(entry) != {"trade_id", "version"}:
+            if not isinstance(entry, dict) or set(entry) not in (
+                {"trade_id", "version"},
+                {"trade_id", "version", "quantity"},
+            ):
                 raise DomainError("Invalid batch entry")
             trade_id = identifier(entry["trade_id"])
             bounded_integer(entry["version"], 1, 10**9, "Expected trade version")
@@ -48,6 +52,9 @@ class DurableOperations:
                 raise DomainError("Duplicate trade in batch")
             seen.add(trade_id)
             normalized.append(dict(trade_id=trade_id, version=entry["version"]))
+            if "quantity" in entry:
+                bounded_integer(entry["quantity"], 1, 10**9, "Execution quantity")
+                normalized[-1]["quantity"] = entry["quantity"]
         digest = fingerprint(
             dict(entries=normalized, actor=principal.id, max_attempts=max_attempts)
         )
@@ -62,7 +69,11 @@ class DurableOperations:
                     jobs=[repository.ops_job(i) for i in json.loads(old["jobs"])],
                 )
             for entry in normalized:
-                self.eligible(repository, entry["trade_id"], entry["version"])
+                trade = self.eligible(repository, entry["trade_id"], entry["version"])
+                if "quantity" in entry:
+                    bounded_integer(
+                        entry["quantity"], 1, trade["remaining_quantity"], "Execution quantity"
+                    )
             batch_id = "B-" + uuid4().hex
             job_ids = ["J-" + uuid4().hex for _ in normalized]
             now = self.now()
@@ -85,6 +96,7 @@ class DurableOperations:
                             batch_id=batch_id,
                             trade_id=entry["trade_id"],
                             expected_version=entry["version"],
+                            requested_quantity=entry.get("quantity"),
                             max_attempts=max_attempts,
                             now=now,
                             actor=principal.id,
@@ -119,11 +131,23 @@ class DurableOperations:
                         "Inconsistent running job already has a receipt; operator review required",
                         409,
                     )
+                if accepted_clock.get("mode") == "simulated" and accepted_clock.get(
+                    "timestamp"
+                ) != worker_clock.get("timestamp"):
+                    raise DomainError("Worker timestamp differs from accepted job", 409)
+                command = dict(version=current["expected_version"])
+                action = "settle"
+                if current.get("requested_quantity") is not None:
+                    action = "settle-partial"
+                    command.update(
+                        quantity=current["requested_quantity"],
+                        request_key=current["id"] + "-" + str(current["generation"]),
+                    )
                 result = self.settlement.command_in_transaction(
                     repository,
                     current["trade_id"],
-                    "settle",
-                    dict(version=current["expected_version"]),
+                    action,
+                    command,
                     principal=Principal(current["requested_by"], "checker"),
                 )
                 repository.ops_owned_job(current["id"], current["lease_token"], self.now())

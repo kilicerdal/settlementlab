@@ -57,6 +57,7 @@ jobs:
           PY
           python tests/browser_smoke.py
           PYTHONPATH=src python tests/browser/durable_smoke.py
+      - run: PYTHONPATH=src python tests/browser/lifecycle_smoke.py
       - uses: actions/upload-artifact@v7
         if: always()
         with:
@@ -153,3 +154,27 @@ jobs:
         with:
           name: v41-engineering-scorecard
           path: artifacts/reviewer-ready/
+
+  lifecycle-v42:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.13'
+      - run: pip install . 'setuptools>=68' wheel
+      - run: python -m scripts.mutation_campaign
+      - run: python -m scripts.v42_compatibility
+      - run: python -m scripts.v42_workload --trades 1000
+      - run: python -m scripts.build_assurance
+      - run: python -m scripts.verify_assurance_package
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: v42-lifecycle-and-framework-evidence
+          path: |
+            artifacts/v42/
+            dist/settlementlab_assurance-*.whl

@@ -22,13 +22,21 @@ class Application:
 
 def create_application(settings):
     from .core.calendar import BusinessCalendar, FixedClock
+    from .core.deadlines import FixedTimestampClock
     from .infrastructure.clock import SystemClock
 
-    clock = FixedClock(settings.business_date) if settings.business_date else SystemClock()
+    clock = (
+        FixedTimestampClock(settings.business_timestamp)
+        if settings.business_timestamp
+        else FixedClock(settings.business_date)
+        if settings.business_date
+        else SystemClock()
+    )
     service = SettlementService(
         SQLiteStore(settings.database),
         clock,
         BusinessCalendar(settings.calendar_id, settings.closed_dates),
+        cutoff=settings.settlement_cutoff,
     )
     return Application(settings, service, Triage(model=settings.model), DurableOperations(service))
 
@@ -42,6 +50,8 @@ def main(argv=None):
     parser.add_argument(
         "--business-date", help="Explicit simulated business date; default uses the real UTC date"
     )
+    parser.add_argument("--business-timestamp", help="Explicit simulated UTC ISO timestamp")
+    parser.add_argument("--settlement-cutoff", help="Pinned UTC cutoff HH:MM")
     args = parser.parse_args(argv)
     settings = Settings.load(
         args.config,
@@ -49,6 +59,8 @@ def main(argv=None):
         port=args.port,
         model=args.model,
         business_date=args.business_date,
+        business_timestamp=args.business_timestamp,
+        settlement_cutoff=args.settlement_cutoff,
     )
     app = create_application(settings)
     server = ThreadingHTTPServer(

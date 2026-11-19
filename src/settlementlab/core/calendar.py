@@ -122,7 +122,7 @@ def readiness(trade: Mapping[str, Any], clock: Clock) -> dict[str, Any]:
 
     if trade["state"] == "SETTLED":
         block("ALREADY_SETTLED", "Settlement is already recorded")
-    elif trade["state"] not in ("AFFIRMED", "FAILED"):
+    elif trade["state"] not in ("AFFIRMED", "FAILED", "PARTIALLY_SETTLED"):
         block("INSTRUCTIONS_NOT_APPROVED", "Current matched instructions require checker approval")
     if today < due:
         block("NOT_DUE", "Business date precedes the agreed settlement date")
@@ -132,9 +132,12 @@ def readiness(trade: Mapping[str, Any], clock: Clock) -> dict[str, Any]:
         block(
             "INVALID_SETTLEMENT_DAY", "Agreed settlement date is closed under the pinned calendar"
         )
-    if trade["cash_cents"] < trade["quantity"] * trade["price_cents"]:
+    if trade.get("aging", {}).get("cutoff_passed"):
+        block("CUTOFF_PASSED", "Pinned UTC settlement cutoff has passed")
+    remaining = trade.get("remaining_quantity", trade["quantity"])
+    if trade["cash_cents"] < remaining * trade["price_cents"]:
         block("INSUFFICIENT_CASH", "Buyer shared cash is insufficient")
-    if trade["securities"] < trade["quantity"]:
+    if trade["securities"] < remaining:
         block("INSUFFICIENT_SECURITIES", "Seller shared securities are insufficient")
     return dict(
         governed=True,

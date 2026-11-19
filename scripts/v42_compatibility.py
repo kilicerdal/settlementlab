@@ -13,6 +13,7 @@ from pathlib import Path
 
 from settlementlab.bootstrap import create_application
 from settlementlab.configuration import Settings
+from settlementlab.infrastructure.schema import SCHEMA_VERSION
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -20,6 +21,7 @@ ROOT = Path(__file__).resolve().parents[1]
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", default="artifacts/v42/compatibility")
+    parser.add_argument("--source-release", choices=("v4.1.0", "v4.2.0"), default="v4.1.0")
     args = parser.parse_args(argv)
     output = Path(args.output)
     output.mkdir(parents=True, exist_ok=True)
@@ -27,7 +29,7 @@ def main(argv=None):
         root = Path(directory)
         archive = root / "v41.zip"
         subprocess.run(
-            ["git", "archive", "--format=zip", "-o", str(archive), "v4.1.0", "src"],
+            ["git", "archive", "--format=zip", "-o", str(archive), args.source_release, "src"],
             cwd=ROOT,
             check=True,
         )
@@ -38,6 +40,7 @@ def main(argv=None):
         setup = """import sys
 from settlementlab.bootstrap import create_application
 from settlementlab.configuration import Settings
+from settlementlab.infrastructure.schema import SCHEMA_VERSION
 from settlementlab.assurance.durable_data import approved_trade, CHECKER, entry
 app=create_application(Settings(database=sys.argv[1],model='',business_date='2026-11-09'))
 trade=approved_trade(app.service)
@@ -69,7 +72,10 @@ app.operations.claim('old-worker',0.1)
                 for r in repo.db.execute("SELECT * FROM journal_lines ORDER BY batch_id,line")
             ]
             version = repo.db.execute("PRAGMA user_version").fetchone()[0]
-        assert before["version"] == 5 and version == 6
+        assert (
+            before["version"] == (5 if args.source_release == "v4.1.0" else 6)
+            and version == SCHEMA_VERSION
+        )
         assert before["balances"] == after_balances and before["journal"] == after_journal
         # Expired legacy lease is reclaimed and settled once under the upgraded application.
         import time
@@ -96,17 +102,19 @@ app.operations.claim('old-worker',0.1)
         assert restored.returncode == 0, restored.stderr
         report = dict(
             status="passed",
-            source_release="v4.1.0",
-            schema_before=5,
-            schema_after=6,
+            source_release=args.source_release,
+            schema_before=before["version"],
+            schema_after=version,
             financial_rows_unchanged=True,
             legacy_claim_recovered_once=True,
             downgrade_refused=True,
             pre_upgrade_backup_opens_in_old_release=True,
-            scope="Populated V4.1 database and claimed job; restore backup for rollback, never overwrite newer data",
+            scope="Populated "
+            + args.source_release
+            + " database and claimed job; restore backup for rollback, never overwrite newer data",
         )
         (output / "results.json").write_text(json.dumps(report, indent=2) + "\n")
-        shutil.copyfile(backup, output / "synthetic-v41-backup.db")
+        shutil.copyfile(backup, output / ("synthetic-" + args.source_release + "-backup.db"))
     print(json.dumps(report, indent=2))
     return 0
 

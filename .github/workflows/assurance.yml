@@ -58,6 +58,7 @@ jobs:
           python tests/browser_smoke.py
           PYTHONPATH=src python tests/browser/durable_smoke.py
       - run: PYTHONPATH=src python tests/browser/lifecycle_smoke.py
+      - run: PYTHONPATH=src python tests/browser/investigation_smoke.py
       - uses: actions/upload-artifact@v7
         if: always()
         with:
@@ -178,3 +179,29 @@ jobs:
           path: |
             artifacts/v42/
             dist/settlementlab_assurance-*.whl
+
+  investigation-v43:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.13'
+      - run: pip install .
+      - run: settlementlab-incident --exercise --output artifacts/v43-incident
+      - run: settlementlab-incident --verify artifacts/v43-incident/resolved.zip
+      - run: settlementlab-evaluate-investigator --output artifacts/v43-ai
+      - run: python -m scripts.v42_compatibility --source-release v4.2.0 --output artifacts/v43-compatibility
+      - run: python scripts/incident_quickstart.py --no-serve --output artifacts/v43-fresh-checkout
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: v43-incident-and-investigator-evidence
+          path: |
+            artifacts/v43-incident/
+            artifacts/v43-ai/
+            artifacts/v43-compatibility/
+            artifacts/v43-fresh-checkout/

@@ -30,7 +30,7 @@ class Reconciliation:
                 return dict(
                     id=existing["id"], replayed=True, cases=repository.recon_cases(existing["id"])
                 )
-            internal = [dict(r) for r in repository.list_settlements()]
+            internal = [dict(r) for r in repository.recon_executions()]
             cases = classify(internal, rows)
             statement = dict(
                 id="R-" + uuid4().hex,
@@ -75,7 +75,7 @@ class Reconciliation:
                 ):
                     raise DomainError("Resolution conflicts with retained decision", 409)
                 return case
-            internal = [dict(r) for r in repository.list_settlements()]
+            internal = [dict(r) for r in repository.recon_executions()]
             rows = json.loads(evidence["rows"])
             current = classify(internal, rows)
             if any(c["trade_id"] == case["trade_id"] for c in current):
@@ -111,5 +111,5 @@ class Reconciliation:
         with self.service.store.transaction() as repository:
             return dict(
                 cases=repository.recon_cases(),
-                scope="Full imported statement versus cumulative executed obligations; original discrepancies are immutable",
+                scope="Full imported statement versus net executed obligations after approved compensations; original discrepancies and gross receipts are immutable",
             )

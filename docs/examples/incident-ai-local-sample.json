@@ -1,0 +1,117 @@
+{
+  "date": "2026-11-19",
+  "source_state": "V4.3 development snapshot; small local sample, not a release-wide benchmark",
+  "initial": {
+    "mode": "live-local-model",
+    "model": "qwen2.5:3b",
+    "cases": [
+      {
+        "id": "grounded-incident",
+        "status": "recorded",
+        "response": {
+          "summary": "Worker interruption due to lease expiration; cause not established by evidence.",
+          "uncertainty": "Underlying cause is not established by supplied evidence.",
+          "abstained": true,
+          "claims": []
+        },
+        "checks": {
+          "schema": true,
+          "citations": true,
+          "supported_claims": true,
+          "safe_language": true,
+          "uncertainty": true,
+          "abstention": true
+        },
+        "accepted": true,
+        "expected_abstention": false,
+        "correct_abstention": false
+      },
+      {
+        "id": "correct-abstention",
+        "status": "recorded",
+        "response": {
+          "summary": "No observations provided to support any claims or conclusions.",
+          "uncertainty": "Underlying cause is not established by supplied evidence.",
+          "abstained": true,
+          "claims": []
+        },
+        "checks": {
+          "schema": true,
+          "citations": true,
+          "supported_claims": true,
+          "safe_language": true,
+          "uncertainty": true,
+          "abstention": true
+        },
+        "accepted": true,
+        "expected_abstention": true,
+        "correct_abstention": true
+      }
+    ],
+    "recorded": 2,
+    "requested": 2,
+    "accepted_rate": 1.0,
+    "correct_abstention_rate": 0.5,
+    "scope": "Small synthetic sample; validator/rubric measurements do not establish open-ended factual accuracy"
+  },
+  "refined": {
+    "mode": "live-local-model",
+    "model": "qwen2.5:3b",
+    "cases": [
+      {
+        "id": "grounded-incident",
+        "status": "recorded",
+        "response": {
+          "summary": "Worker lease expired; cause of interruption is unknown.",
+          "uncertainty": "Underlying cause of worker interruption is not established by supplied evidence.",
+          "abstained": false,
+          "claims": [
+            {
+              "code": "WORKER_INTERRUPTION",
+              "evidence_ids": [
+                "operation:1"
+              ]
+            }
+          ]
+        },
+        "checks": {
+          "schema": true,
+          "citations": true,
+          "supported_claims": true,
+          "safe_language": true,
+          "uncertainty": true,
+          "abstention": true
+        },
+        "accepted": true,
+        "expected_abstention": false,
+        "correct_abstention": true
+      },
+      {
+        "id": "correct-abstention",
+        "status": "recorded",
+        "response": {
+          "summary": "No observations provided; unable to investigate synthetic settlement incident.",
+          "uncertainty": "Underlying cause of the incident is not established by the supplied evidence.",
+          "abstained": true,
+          "claims": []
+        },
+        "checks": {
+          "schema": true,
+          "citations": true,
+          "supported_claims": true,
+          "safe_language": true,
+          "uncertainty": true,
+          "abstention": true
+        },
+        "accepted": true,
+        "expected_abstention": true,
+        "correct_abstention": true
+      }
+    ],
+    "recorded": 2,
+    "requested": 2,
+    "accepted_rate": 1.0,
+    "correct_abstention_rate": 1.0,
+    "scope": "Small synthetic sample; validator/rubric measurements do not establish open-ended factual accuracy"
+  }
+}

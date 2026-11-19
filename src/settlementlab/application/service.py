@@ -46,6 +46,17 @@ class SettlementService:
         trade["settled_quantity"] = progress["quantity"]
         trade["settled_amount_cents"] = progress["amount_cents"]
         trade["remaining_quantity"] = trade["quantity"] - progress["quantity"]
+        trade["corrections"] = repository.reversal_requests(trade_id)
+        trade["reversed_quantity"] = sum(
+            r["quantity"] for r in trade["corrections"] if r["status"] == "APPROVED"
+        )
+        trade["reversed_amount_cents"] = sum(
+            r["amount_cents"] for r in trade["corrections"] if r["status"] == "APPROVED"
+        )
+        trade["net_settled_quantity"] = trade["settled_quantity"] - trade["reversed_quantity"]
+        trade["net_settled_amount_cents"] = (
+            trade["settled_amount_cents"] - trade["reversed_amount_cents"]
+        )
         trade["execution_slices"] = repository.lifecycle_slices(trade_id)
         trade["revision_history"] = repository.lifecycle_revisions(trade_id)
         if not trade["settlement_journal"] and trade["execution_slices"]:
@@ -164,6 +175,10 @@ class SettlementService:
         self, repository, trade_id, action, data, actor="operator", principal=None
     ):
         """Use an already-owned transaction; queued settlement adds its receipt/outbox here."""
+        if action in ("request-reversal", "approve-reversal", "reject-reversal"):
+            from .corrections import Corrections
+
+            return Corrections(self).command(repository, trade_id, action, data, principal)
         if action in ("amend", "cancel", "settle-partial"):
             from .lifecycle import Lifecycle
 

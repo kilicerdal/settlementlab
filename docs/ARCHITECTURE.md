@@ -1,5 +1,7 @@
 # Architecture and decisions
 
+V4.3 adds [correlated investigations and compensating accounting](decisions/007-incident-and-compensation.md), with [complete incident replay and portable evidence](V4_3.md).
+
 V4.2 adds [versioned obligation controls](decisions/006-versioned-obligations.md), [standalone HTTP packaging](STANDALONE_ASSURANCE.md) and [operational recovery](runbooks/LIFECYCLE_RECOVERY.md). The structure below describes the base framework.
 
 For implementation links, alternatives, tradeoffs and focused regression commands, read the [three engineering decision records](decisions/README.md).

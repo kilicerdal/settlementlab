@@ -1,5 +1,7 @@
 # Release and database compatibility
 
+For V4.3 schema 7 and compensation recovery, use the [current incident guide](../V4_3.md) and [incident recovery runbook](INCIDENT_RECOVERY.md). The V4.2 table below retains its original upgrade boundary.
+
 | Surface | V4.2 behavior | Executable evidence |
 | --- | --- | --- |
 | Populated V4.1 schema 5 | Additive transactional migration to schema 6 | `python -m scripts.v42_compatibility` |
@@ -15,4 +17,4 @@ Before upgrading, stop writers, create an online backup with the shipped backup 
 
 Do not point V4.1 at an upgraded database or manually lower `PRAGMA user_version`. New execution and reconciliation records have no backward representation. If new work was accepted after upgrade, restoring an older backup loses that work: preserve the newer database for investigation and reconcile the recovery point before resuming. The test backup contains only synthetic records and is an artifact, not a committed fixture.
 
-The standalone engine version is `4.2.0`. Both wheels have standard-library-only runtime requirements and distinct namespaces. The standalone build copies a fixed allowlist from canonical generic modules; it imports no reference application. This is build-time separation, not a separately maintained source fork. No package-registry publication is implied by a successful local build.
+The current standalone engine version is `4.3.0`. Both wheels have standard-library-only runtime requirements and distinct namespaces. The standalone build copies a fixed allowlist from canonical generic modules; it imports no reference application. This is build-time separation, not a separately maintained source fork. No package-registry publication is implied by a successful local build.

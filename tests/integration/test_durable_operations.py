@@ -314,4 +314,4 @@ class DurableControls(unittest.TestCase):
             )
         SQLiteStore(database)
         with sqlite3.connect(database) as db:
-            self.assertEqual(db.execute("PRAGMA user_version").fetchone()[0], 6)
+            self.assertEqual(db.execute("PRAGMA user_version").fetchone()[0], 7)

@@ -13,4 +13,6 @@ These records explain decisions visible in the current implementation. They are 
 
 | [006](006-versioned-obligations.md) | Bind approvals to economic revisions; preserve posted slices and imported discrepancies | Amendment fencing, partial atomicity, statement evidence and schema 6 upgrade |
 
+| [007](007-incident-and-compensation.md) | Link incident evidence and authorize immutable compensating batches | Real worker interruption, inverse-leg oracle, reviewer fixture and local AI abstention samples |
+
 Read the tradeoff and limits alongside the evidence. A passing local test is not a throughput benchmark, identity audit or model-quality evaluation.

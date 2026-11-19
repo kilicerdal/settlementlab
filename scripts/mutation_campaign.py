@@ -55,6 +55,27 @@ MUTANTS = [
         "if False:",
         "test_statement_break_requires_distinct_corrected_evidence",
     ),
+    (
+        "reversal-identity",
+        "application/corrections.py",
+        'if request["maker_id"] == principal.id:',
+        "if False:",
+        "tests.integration.test_v43_investigation.InvestigationControls.test_same_person_cannot_approve_even_with_checker_role",
+    ),
+    (
+        "compensation-sign",
+        "infrastructure/investigation_repository.py",
+        '[(party, asset, -delta) for party, asset, delta in original["lines"]]',
+        '[(party, asset, delta) for party, asset, delta in original["lines"]]',
+        "tests.integration.test_v43_investigation.InvestigationControls.test_compensation_preserves_gross_receipts_and_exact_inverse_lines",
+    ),
+    (
+        "correction-fencing",
+        "application/corrections.py",
+        "repository.lifecycle_fence(",
+        "(lambda *args: None)(",
+        "tests.integration.test_v43_investigation.InvestigationControls.test_request_fences_claim_and_pauses_remaining_execution",
+    ),
 ]
 
 
@@ -78,7 +99,8 @@ def main(argv=None):
     output.mkdir(parents=True, exist_ok=True)
     results = []
     for name, relative, old, new, test in MUTANTS:
-        baseline = execute(ROOT / "src", TEST + test)
+        test_id = test if test.startswith("tests.") else TEST + test
+        baseline = execute(ROOT / "src", test_id)
         if baseline.returncode:
             raise RuntimeError(
                 "Baseline must pass before mutation: " + test + "\n" + baseline.stderr
@@ -93,7 +115,7 @@ def main(argv=None):
             if original.count(old) != 1:
                 raise RuntimeError("Mutation anchor drift: " + name)
             target.write_text(original.replace(old, new))
-            result = execute(source, TEST + test)
+            result = execute(source, test_id)
             log = result.stdout + result.stderr
             # Import/setup errors are invalid; only an assertion failure detects a mutant.
             status = (
@@ -110,7 +132,7 @@ def main(argv=None):
                     status=status,
                     source=relative,
                     original_sha256=hashlib.sha256(original.encode()).hexdigest(),
-                    test=TEST + test,
+                    test=test_id,
                 )
             )
     valid = [r for r in results if r["status"] != "invalid"]
@@ -120,7 +142,7 @@ def main(argv=None):
         killed=sum(r["status"] == "killed" for r in results),
         valid=len(valid),
         score=sum(r["status"] == "killed" for r in valid) / len(valid) if valid else None,
-        scope="Six targeted financial workflow mutants; not exhaustive mutation coverage",
+        scope="Targeted V4.2/V4.3 financial workflow mutants; not exhaustive mutation coverage",
     )
     (output / "results.json").write_text(json.dumps(report, indent=2) + "\n")
     print(json.dumps(report, indent=2))

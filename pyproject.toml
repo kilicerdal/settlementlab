@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "settlementlab"
-version = "4.2.0"
+version = "4.3.0"
 readme = "README.md"
 description = "A deterministic post-trade lifecycle simulator and assurance workbench"
 requires-python = ">=3.9"
@@ -12,6 +12,8 @@ dependencies = []
 license = {file = "LICENSE"}
 
 [project.scripts]
+settlementlab-incident = "settlementlab.assurance.incident_demo:main"
+settlementlab-evaluate-investigator = "settlementlab.assurance.investigator_evaluation:main"
 settlementlab = "settlementlab.server:main"
 settlementlab-worker = "settlementlab.worker:main"
 settlementlab-backup = "settlementlab.infrastructure.backup:main"

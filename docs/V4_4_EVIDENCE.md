@@ -1,6 +1,6 @@
-# V4.4 candidate validation
+# V4.4 validation
 
-These are recorded local development checks. Fresh CI artifacts are tied to their source commit. V4.4 is an implementation candidate; V4.3 remains published. No independent human review or review packet is requested.
+These are recorded local development checks. Fresh CI artifacts are tied to their source commit. V4.4 release evidence retains these development results and commit-specific CI reports. No independent human review or review packet is requested.
 
 | Check | Local result |
 | --- | --- |
@@ -23,4 +23,4 @@ The statement-history benchmark returned one matched statement among 0/100/1,000
 
 The live sample recorded all 12 responses. Declared structured-grounding/citation checks passed, expected abstention behavior matched, unnecessary abstention was zero in that sample and each pair had a consistent claim/abstention signature. This is not general factual accuracy or proof that unrestricted prose is supported. [Retained outputs](examples/incident-ai-v44-local-sample.json).
 
-The committed screenshot is a recorded synthetic candidate UI. Databases, ZIPs and logs remain generated artifacts. Content checksums do not establish economic correctness, independent expectation provenance or operator authenticity. No outside reviewer was contacted and no human review is claimed. Website unchanged.
+The committed screenshot is a recorded synthetic V4.4 UI. Databases, ZIPs and logs remain generated artifacts. Content checksums do not establish economic correctness, independent expectation provenance or operator authenticity. No outside reviewer was contacted and no human review is claimed. Website unchanged.

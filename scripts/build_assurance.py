@@ -47,7 +47,7 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 [project]
 name = "settlementlab-assurance"
-version = "4.4.0.dev1"
+version = "4.4.0"
 description = "Independent declarative HTTP assurance engine"
 requires-python = ">=3.9"
 dependencies = []

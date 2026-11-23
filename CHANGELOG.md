@@ -1,6 +1,6 @@
 # Changelog
 
-## 4.4.0.dev1 — financial consistency and bounded investigation (unreleased)
+## 4.4.0 — financial consistency and bounded investigation (2026-11-22)
 
 - Atomic execution/compensation position events, fenced at-least-once observation and monotonic net-position projection, separate from historical settlement delivery.
 - Read-only WAL snapshots with concurrent-writer consistency tests; indexed statement membership, early row/payload bounds and measured history workloads.

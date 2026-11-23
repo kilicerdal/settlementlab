@@ -8,7 +8,7 @@ python -m scripts.build_assurance
 python -m scripts.verify_assurance_package
 ```
 
-The resulting `settlementlab_assurance-4.3.0-py3-none-any.whl` contains only catalog validation, HTTP transport, declarative steps, target profiles, portable reporting and the external runner. There are no runtime dependencies or imports of the financial application. A separate namespace allows both wheels to coexist. Build-time copying avoids committing divergent copies of the generic engine.
+The resulting `settlementlab_assurance-4.4.0-py3-none-any.whl` contains only catalog validation, HTTP transport, declarative steps, target profiles, portable reporting and the external runner. There are no runtime dependencies or imports of the financial application. A separate namespace allows both wheels to coexist. Build-time copying avoids committing divergent copies of the generic engine.
 
 Install just this wheel in your own service's virtual environment, then run:
 

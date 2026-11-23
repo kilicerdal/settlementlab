@@ -72,6 +72,8 @@ def seed(app, output, crash=True):
     if recovered["status"] != "SUCCEEDED":
         raise AssertionError(recovered)
     assert ops.deliver_one("observer")["status"] == "DELIVERED"
+    while app.positions.deliver_one("incident-position-observer"):
+        pass
     trade = current(service, trade["id"])
     assert trade["settled_quantity"] == 40 and len(trade["execution_slices"]) == 1
     recon = Reconciliation(service)
@@ -131,9 +133,27 @@ def seed(app, output, crash=True):
         [dict(trade_id=trade["id"], quantity=0, amount_cents=0)], "net-after-correction", CHECKER
     )
     assert not net["cases"]
+    while app.positions.deliver_one("incident-position-observer"):
+        pass
     bundle = output / "resolved.zip"
     bundle.write_bytes(export(service, trade["id"]))
-    verified = verify(bundle)
+    plan = dict(
+        format_version=1,
+        trade_id=trade["id"],
+        terms=dict(
+            buyer_id=trade["buyer_id"],
+            seller_id=trade["seller_id"],
+            symbol="NOVA",
+            quantity=100,
+            price_cents=4275,
+        ),
+        executions=[dict(batch_id=trade["execution_slices"][0]["batch_id"], quantity=40)],
+        compensations=[trade["execution_slices"][0]["batch_id"]],
+    )
+    expected_path = output / "accepted-plan.json"
+    expected_path.write_text(json.dumps(plan, indent=2) + "\n")
+    verified = verify(bundle, expected_path)
+    assert verified["status"] == "passed"
     graph = Investigation(service).snapshot(trade["id"])
     assert any(n["title"] == "LEASE_EXPIRED" for n in graph["timeline"])
     report = dict(
@@ -184,10 +204,21 @@ def main(argv=None):
         action="store_true",
         help="Also generate an isolated deliberately defective reviewer fixture",
     )
+    parser.add_argument(
+        "--expectations",
+        type=Path,
+        help="External accepted-plan JSON for scoped economic verification of --verify bundle",
+    )
     args = parser.parse_args(argv)
+    if args.expectations and not args.verify:
+        parser.error("--expectations requires --verify")
     if args.verify:
-        print(json.dumps(verify(args.verify), indent=2))
-        return 0
+        try:
+            result = verify(args.verify, args.expectations)
+        except (ValueError, OSError, RecursionError) as error:
+            parser.error(str(error))
+        print(json.dumps(result, indent=2))
+        return int(result["status"] != "passed")
     output = Path(args.output).resolve()
     output.mkdir(parents=True, exist_ok=True)
     database = output / "incident.db"

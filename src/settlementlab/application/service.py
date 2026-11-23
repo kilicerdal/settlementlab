@@ -326,6 +326,12 @@ class SettlementService:
             raise DomainError("Unknown action", 404)
         repository.advance_version((trade_id,))
         updated = self.get(repository, trade_id)
+        if (
+            action == "settle"
+            and updated["settlement_model"] == "shared-ledger"
+            and updated["state"] == "SETTLED"
+        ):
+            repository.position_emit(trade_id, "ExecutionPosted", updated["settlement_journal"])
         detail = (
             "Demo balances provisioned; cash cents: %s, securities: %s"
             % (data["cash_cents"], data["securities"])
@@ -336,7 +342,7 @@ class SettlementService:
         return updated
 
     def snapshot(self):
-        with self.store.transaction() as repository:
+        with self.store.read_transaction() as repository:
             trades = [self.get(repository, r["id"]) for r in repository.list_trade_ids()]
             audit = [dict(r) for r in repository.list_audit()]
 
@@ -367,7 +373,7 @@ class SettlementService:
                         "Statement quantities and amounts must be nonnegative integers"
                     )
             external[row["trade_id"]] = row
-        with self.store.transaction() as repository:
+        with self.store.read_transaction() as repository:
             internal = {r["trade_id"]: dict(r) for r in repository.list_settlements()}
         breaks = []
         for key in sorted(internal.keys() | external.keys()):
@@ -380,6 +386,9 @@ class SettlementService:
         return {
             "status": "BREAKS" if breaks else "BALANCED",
             "breaks": breaks,
+            "accounting_basis": "GROSS_EXECUTED_RECEIPTS",
+            "contract_version": "legacy-gross-v1",
+            "migration_target": "/api/reconciliation/statements",
             "internal_count": len(internal),
             "external_count": len(external),
         }
@@ -387,7 +396,7 @@ class SettlementService:
     def evidence(self, trade_id, version):
         from ..core.evidence import build_evidence
 
-        with self.store.transaction() as repository:
+        with self.store.read_transaction() as repository:
             trade = self.get(repository, trade_id)
             if (
                 isinstance(version, bool)
@@ -581,5 +590,5 @@ class SettlementService:
             return result
 
     def settlement_readiness(self, trade_id):
-        with self.store.transaction() as repository:
+        with self.store.read_transaction() as repository:
             return self.get(repository, trade_id)["settlement_readiness"]

@@ -50,7 +50,10 @@ class Reconciliation:
                 statement["id"] + ": " + str(len(cases)) + " break(s)",
             )
             return dict(
-                id=statement["id"], replayed=False, cases=repository.recon_cases(statement["id"])
+                id=statement["id"],
+                replayed=False,
+                accounting_basis="NET_AFTER_APPROVED_COMPENSATIONS",
+                cases=repository.recon_cases(statement["id"]),
             )
 
     def resolve(self, case_id, statement_id, reason, principal):
@@ -74,7 +77,11 @@ class Reconciliation:
                     or case["resolved_by"] != principal.id
                 ):
                     raise DomainError("Resolution conflicts with retained decision", 409)
-                return case
+                return dict(
+                    case,
+                    accounting_basis="NET_AFTER_APPROVED_COMPENSATIONS",
+                    contract_version="net-statement-v1",
+                )
             internal = [dict(r) for r in repository.recon_executions()]
             rows = json.loads(evidence["rows"])
             current = classify(internal, rows)
@@ -95,21 +102,29 @@ class Reconciliation:
                 "BREAK_RESOLVED",
                 case_id + ": " + reason,
             )
-            return repository.recon_case(case_id)
+            return dict(
+                repository.recon_case(case_id),
+                accounting_basis="NET_AFTER_APPROVED_COMPENSATIONS",
+                contract_version="net-statement-v1",
+            )
 
     def statement(self, statement_id):
         identifier(statement_id)
-        with self.service.store.transaction() as repository:
+        with self.service.store.read_transaction() as repository:
             result = repository.recon_statement(statement_id, True)
             if not result:
                 raise DomainError("Imported statement not found", 404)
+            result["accounting_basis"] = "NET_AFTER_APPROVED_COMPENSATIONS"
+            result["contract_version"] = "net-statement-v1"
             result["rows"] = json.loads(result["rows"])
             result["internal_snapshot"] = json.loads(result["internal_snapshot"])
             return result
 
     def snapshot(self):
-        with self.service.store.transaction() as repository:
+        with self.service.store.read_transaction() as repository:
             return dict(
                 cases=repository.recon_cases(),
+                accounting_basis="NET_AFTER_APPROVED_COMPENSATIONS",
+                contract_version="net-statement-v1",
                 scope="Full imported statement versus net executed obligations after approved compensations; original discrepancies and gross receipts are immutable",
             )

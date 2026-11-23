@@ -5,8 +5,9 @@ from .investigation_schema import initialize_investigation
 from .journal import initialize
 from .lifecycle_schema import initialize_lifecycle
 from .operations_schema import initialize_operations
+from .position_schema import initialize_positions
 
-SCHEMA_VERSION = 7
+SCHEMA_VERSION = 8
 
 
 def migrate(db):
@@ -53,4 +54,5 @@ def migrate(db):
     initialize_operations(db)
     initialize_lifecycle(db)
     initialize_investigation(db)
-    db.execute("PRAGMA user_version=7")
+    initialize_positions(db)
+    db.execute("PRAGMA user_version=8")

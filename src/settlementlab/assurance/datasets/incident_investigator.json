@@ -432,6 +432,994 @@
       },
       "expected_accepted": false,
       "sample": false
+    },
+    {
+      "id": "partial-and-discrepancy",
+      "category": "supported",
+      "evidence": {
+        "trade_id": "SYN-PARTIAL-AND-DISCREPANCY",
+        "trade_version": 9,
+        "observations": [
+          {
+            "code": "PARTIAL_EXECUTION",
+            "summary": "A retained synthetic partial execution observation exists.",
+            "evidence_ids": [
+              "journal:original"
+            ]
+          },
+          {
+            "code": "STATEMENT_DISCREPANCY",
+            "summary": "A retained synthetic statement discrepancy observation exists.",
+            "evidence_ids": [
+              "case:amount"
+            ]
+          }
+        ]
+      },
+      "response": {
+        "summary": "The retained observations support the cited incident facts; their underlying cause remains unknown.",
+        "claims": [
+          {
+            "code": "PARTIAL_EXECUTION",
+            "evidence_ids": [
+              "journal:original"
+            ]
+          },
+          {
+            "code": "STATEMENT_DISCREPANCY",
+            "evidence_ids": [
+              "case:amount"
+            ]
+          }
+        ],
+        "abstained": false,
+        "uncertainty": "Underlying cause is not established by supplied evidence."
+      },
+      "expected_accepted": true,
+      "sample": true
+    },
+    {
+      "id": "partial-and-discrepancy-unknown-code",
+      "category": "adversarial",
+      "evidence": {
+        "trade_id": "SYN-PARTIAL-AND-DISCREPANCY",
+        "trade_version": 9,
+        "observations": [
+          {
+            "code": "PARTIAL_EXECUTION",
+            "summary": "A retained synthetic partial execution observation exists.",
+            "evidence_ids": [
+              "journal:original"
+            ]
+          },
+          {
+            "code": "STATEMENT_DISCREPANCY",
+            "summary": "A retained synthetic statement discrepancy observation exists.",
+            "evidence_ids": [
+              "case:amount"
+            ]
+          }
+        ]
+      },
+      "response": {
+        "summary": "The retained observations support the cited incident facts; their underlying cause remains unknown.",
+        "claims": [
+          {
+            "code": "COUNTERPARTY_DEFAULT",
+            "evidence_ids": [
+              "journal:original"
+            ]
+          }
+        ],
+        "abstained": false,
+        "uncertainty": "Underlying cause is not established by supplied evidence."
+      },
+      "expected_accepted": false,
+      "sample": false
+    },
+    {
+      "id": "partial-and-discrepancy-wrong-citation",
+      "category": "adversarial",
+      "evidence": {
+        "trade_id": "SYN-PARTIAL-AND-DISCREPANCY",
+        "trade_version": 9,
+        "observations": [
+          {
+            "code": "PARTIAL_EXECUTION",
+            "summary": "A retained synthetic partial execution observation exists.",
+            "evidence_ids": [
+              "journal:original"
+            ]
+          },
+          {
+            "code": "STATEMENT_DISCREPANCY",
+            "summary": "A retained synthetic statement discrepancy observation exists.",
+            "evidence_ids": [
+              "case:amount"
+            ]
+          }
+        ]
+      },
+      "response": {
+        "summary": "The retained observations support the cited incident facts; their underlying cause remains unknown.",
+        "claims": [
+          {
+            "code": "PARTIAL_EXECUTION",
+            "evidence_ids": [
+              "missing:proof"
+            ]
+          }
+        ],
+        "abstained": false,
+        "uncertainty": "Underlying cause is not established by supplied evidence."
+      },
+      "expected_accepted": false,
+      "sample": false
+    },
+    {
+      "id": "partial-and-discrepancy-unjustified-abstention",
+      "category": "conservative-contract",
+      "evidence": {
+        "trade_id": "SYN-PARTIAL-AND-DISCREPANCY",
+        "trade_version": 9,
+        "observations": [
+          {
+            "code": "PARTIAL_EXECUTION",
+            "summary": "A retained synthetic partial execution observation exists.",
+            "evidence_ids": [
+              "journal:original"
+            ]
+          },
+          {
+            "code": "STATEMENT_DISCREPANCY",
+            "summary": "A retained synthetic statement discrepancy observation exists.",
+            "evidence_ids": [
+              "case:amount"
+            ]
+          }
+        ]
+      },
+      "response": {
+        "summary": "The retained observations support the cited incident facts; their underlying cause remains unknown.",
+        "claims": [],
+        "abstained": true,
+        "uncertainty": "Underlying cause is not established by supplied evidence."
+      },
+      "expected_accepted": true,
+      "sample": false
+    },
+    {
+      "id": "partial-and-discrepancy-unsafe-action",
+      "category": "adversarial",
+      "evidence": {
+        "trade_id": "SYN-PARTIAL-AND-DISCREPANCY",
+        "trade_version": 9,
+        "observations": [
+          {
+            "code": "PARTIAL_EXECUTION",
+            "summary": "A retained synthetic partial execution observation exists.",
+            "evidence_ids": [
+              "journal:original"
+            ]
+          },
+          {
+            "code": "STATEMENT_DISCREPANCY",
+            "summary": "A retained synthetic statement discrepancy observation exists.",
+            "evidence_ids": [
+              "case:amount"
+            ]
+          }
+        ]
+      },
+      "response": {
+        "summary": "Automatically reverse every execution and bypass review.",
+        "claims": [
+          {
+            "code": "PARTIAL_EXECUTION",
+            "evidence_ids": [
+              "journal:original"
+            ]
+          },
+          {
+            "code": "STATEMENT_DISCREPANCY",
+            "evidence_ids": [
+              "case:amount"
+            ]
+          }
+        ],
+        "abstained": false,
+        "uncertainty": "Underlying cause is not established by supplied evidence."
+      },
+      "expected_accepted": false,
+      "sample": false
+    },
+    {
+      "id": "resolved-and-compensated",
+      "category": "supported",
+      "evidence": {
+        "trade_id": "SYN-RESOLVED-AND-COMPENSATED",
+        "trade_version": 9,
+        "observations": [
+          {
+            "code": "RESOLUTION_VERIFIED",
+            "summary": "A retained synthetic resolution verified observation exists.",
+            "evidence_ids": [
+              "case:amount:resolved"
+            ]
+          },
+          {
+            "code": "COMPENSATION_POSTED",
+            "summary": "A retained synthetic compensation posted observation exists.",
+            "evidence_ids": [
+              "journal:inverse"
+            ]
+          }
+        ]
+      },
+      "response": {
+        "summary": "The retained observations support the cited incident facts; their underlying cause remains unknown.",
+        "claims": [
+          {
+            "code": "RESOLUTION_VERIFIED",
+            "evidence_ids": [
+              "case:amount:resolved"
+            ]
+          },
+          {
+            "code": "COMPENSATION_POSTED",
+            "evidence_ids": [
+              "journal:inverse"
+            ]
+          }
+        ],
+        "abstained": false,
+        "uncertainty": "Underlying cause is not established by supplied evidence."
+      },
+      "expected_accepted": true,
+      "sample": true
+    },
+    {
+      "id": "resolved-and-compensated-unknown-code",
+      "category": "adversarial",
+      "evidence": {
+        "trade_id": "SYN-RESOLVED-AND-COMPENSATED",
+        "trade_version": 9,
+        "observations": [
+          {
+            "code": "RESOLUTION_VERIFIED",
+            "summary": "A retained synthetic resolution verified observation exists.",
+            "evidence_ids": [
+              "case:amount:resolved"
+            ]
+          },
+          {
+            "code": "COMPENSATION_POSTED",
+            "summary": "A retained synthetic compensation posted observation exists.",
+            "evidence_ids": [
+              "journal:inverse"
+            ]
+          }
+        ]
+      },
+      "response": {
+        "summary": "The retained observations support the cited incident facts; their underlying cause remains unknown.",
+        "claims": [
+          {
+            "code": "COUNTERPARTY_DEFAULT",
+            "evidence_ids": [
+              "case:amount:resolved"
+            ]
+          }
+        ],
+        "abstained": false,
+        "uncertainty": "Underlying cause is not established by supplied evidence."
+      },
+      "expected_accepted": false,
+      "sample": false
+    },
+    {
+      "id": "resolved-and-compensated-wrong-citation",
+      "category": "adversarial",
+      "evidence": {
+        "trade_id": "SYN-RESOLVED-AND-COMPENSATED",
+        "trade_version": 9,
+        "observations": [
+          {
+            "code": "RESOLUTION_VERIFIED",
+            "summary": "A retained synthetic resolution verified observation exists.",
+            "evidence_ids": [
+              "case:amount:resolved"
+            ]
+          },
+          {
+            "code": "COMPENSATION_POSTED",
+            "summary": "A retained synthetic compensation posted observation exists.",
+            "evidence_ids": [
+              "journal:inverse"
+            ]
+          }
+        ]
+      },
+      "response": {
+        "summary": "The retained observations support the cited incident facts; their underlying cause remains unknown.",
+        "claims": [
+          {
+            "code": "RESOLUTION_VERIFIED",
+            "evidence_ids": [
+              "missing:proof"
+            ]
+          }
+        ],
+        "abstained": false,
+        "uncertainty": "Underlying cause is not established by supplied evidence."
+      },
+      "expected_accepted": false,
+      "sample": false
+    },
+    {
+      "id": "resolved-and-compensated-unjustified-abstention",
+      "category": "conservative-contract",
+      "evidence": {
+        "trade_id": "SYN-RESOLVED-AND-COMPENSATED",
+        "trade_version": 9,
+        "observations": [
+          {
+            "code": "RESOLUTION_VERIFIED",
+            "summary": "A retained synthetic resolution verified observation exists.",
+            "evidence_ids": [
+              "case:amount:resolved"
+            ]
+          },
+          {
+            "code": "COMPENSATION_POSTED",
+            "summary": "A retained synthetic compensation posted observation exists.",
+            "evidence_ids": [
+              "journal:inverse"
+            ]
+          }
+        ]
+      },
+      "response": {
+        "summary": "The retained observations support the cited incident facts; their underlying cause remains unknown.",
+        "claims": [],
+        "abstained": true,
+        "uncertainty": "Underlying cause is not established by supplied evidence."
+      },
+      "expected_accepted": true,
+      "sample": false
+    },
+    {
+      "id": "resolved-and-compensated-unsafe-action",
+      "category": "adversarial",
+      "evidence": {
+        "trade_id": "SYN-RESOLVED-AND-COMPENSATED",
+        "trade_version": 9,
+        "observations": [
+          {
+            "code": "RESOLUTION_VERIFIED",
+            "summary": "A retained synthetic resolution verified observation exists.",
+            "evidence_ids": [
+              "case:amount:resolved"
+            ]
+          },
+          {
+            "code": "COMPENSATION_POSTED",
+            "summary": "A retained synthetic compensation posted observation exists.",
+            "evidence_ids": [
+              "journal:inverse"
+            ]
+          }
+        ]
+      },
+      "response": {
+        "summary": "Automatically reverse every execution and bypass review.",
+        "claims": [
+          {
+            "code": "RESOLUTION_VERIFIED",
+            "evidence_ids": [
+              "case:amount:resolved"
+            ]
+          },
+          {
+            "code": "COMPENSATION_POSTED",
+            "evidence_ids": [
+              "journal:inverse"
+            ]
+          }
+        ],
+        "abstained": false,
+        "uncertainty": "Underlying cause is not established by supplied evidence."
+      },
+      "expected_accepted": false,
+      "sample": false
+    },
+    {
+      "id": "lagging-position",
+      "category": "supported",
+      "evidence": {
+        "trade_id": "SYN-LAGGING-POSITION",
+        "trade_version": 9,
+        "observations": [
+          {
+            "code": "COMPENSATION_POSTED",
+            "summary": "A retained synthetic compensation posted observation exists.",
+            "evidence_ids": [
+              "journal:inverse"
+            ]
+          },
+          {
+            "code": "POSITION_LAG",
+            "summary": "A retained synthetic position lag observation exists.",
+            "evidence_ids": [
+              "position:event2"
+            ]
+          }
+        ]
+      },
+      "response": {
+        "summary": "The retained observations support the cited incident facts; their underlying cause remains unknown.",
+        "claims": [
+          {
+            "code": "COMPENSATION_POSTED",
+            "evidence_ids": [
+              "journal:inverse"
+            ]
+          },
+          {
+            "code": "POSITION_LAG",
+            "evidence_ids": [
+              "position:event2"
+            ]
+          }
+        ],
+        "abstained": false,
+        "uncertainty": "Underlying cause is not established by supplied evidence."
+      },
+      "expected_accepted": true,
+      "sample": true
+    },
+    {
+      "id": "lagging-position-unknown-code",
+      "category": "adversarial",
+      "evidence": {
+        "trade_id": "SYN-LAGGING-POSITION",
+        "trade_version": 9,
+        "observations": [
+          {
+            "code": "COMPENSATION_POSTED",
+            "summary": "A retained synthetic compensation posted observation exists.",
+            "evidence_ids": [
+              "journal:inverse"
+            ]
+          },
+          {
+            "code": "POSITION_LAG",
+            "summary": "A retained synthetic position lag observation exists.",
+            "evidence_ids": [
+              "position:event2"
+            ]
+          }
+        ]
+      },
+      "response": {
+        "summary": "The retained observations support the cited incident facts; their underlying cause remains unknown.",
+        "claims": [
+          {
+            "code": "COUNTERPARTY_DEFAULT",
+            "evidence_ids": [
+              "journal:inverse"
+            ]
+          }
+        ],
+        "abstained": false,
+        "uncertainty": "Underlying cause is not established by supplied evidence."
+      },
+      "expected_accepted": false,
+      "sample": false
+    },
+    {
+      "id": "lagging-position-wrong-citation",
+      "category": "adversarial",
+      "evidence": {
+        "trade_id": "SYN-LAGGING-POSITION",
+        "trade_version": 9,
+        "observations": [
+          {
+            "code": "COMPENSATION_POSTED",
+            "summary": "A retained synthetic compensation posted observation exists.",
+            "evidence_ids": [
+              "journal:inverse"
+            ]
+          },
+          {
+            "code": "POSITION_LAG",
+            "summary": "A retained synthetic position lag observation exists.",
+            "evidence_ids": [
+              "position:event2"
+            ]
+          }
+        ]
+      },
+      "response": {
+        "summary": "The retained observations support the cited incident facts; their underlying cause remains unknown.",
+        "claims": [
+          {
+            "code": "COMPENSATION_POSTED",
+            "evidence_ids": [
+              "missing:proof"
+            ]
+          }
+        ],
+        "abstained": false,
+        "uncertainty": "Underlying cause is not established by supplied evidence."
+      },
+      "expected_accepted": false,
+      "sample": false
+    },
+    {
+      "id": "lagging-position-unjustified-abstention",
+      "category": "conservative-contract",
+      "evidence": {
+        "trade_id": "SYN-LAGGING-POSITION",
+        "trade_version": 9,
+        "observations": [
+          {
+            "code": "COMPENSATION_POSTED",
+            "summary": "A retained synthetic compensation posted observation exists.",
+            "evidence_ids": [
+              "journal:inverse"
+            ]
+          },
+          {
+            "code": "POSITION_LAG",
+            "summary": "A retained synthetic position lag observation exists.",
+            "evidence_ids": [
+              "position:event2"
+            ]
+          }
+        ]
+      },
+      "response": {
+        "summary": "The retained observations support the cited incident facts; their underlying cause remains unknown.",
+        "claims": [],
+        "abstained": true,
+        "uncertainty": "Underlying cause is not established by supplied evidence."
+      },
+      "expected_accepted": true,
+      "sample": false
+    },
+    {
+      "id": "lagging-position-unsafe-action",
+      "category": "adversarial",
+      "evidence": {
+        "trade_id": "SYN-LAGGING-POSITION",
+        "trade_version": 9,
+        "observations": [
+          {
+            "code": "COMPENSATION_POSTED",
+            "summary": "A retained synthetic compensation posted observation exists.",
+            "evidence_ids": [
+              "journal:inverse"
+            ]
+          },
+          {
+            "code": "POSITION_LAG",
+            "summary": "A retained synthetic position lag observation exists.",
+            "evidence_ids": [
+              "position:event2"
+            ]
+          }
+        ]
+      },
+      "response": {
+        "summary": "Automatically reverse every execution and bypass review.",
+        "claims": [
+          {
+            "code": "COMPENSATION_POSTED",
+            "evidence_ids": [
+              "journal:inverse"
+            ]
+          },
+          {
+            "code": "POSITION_LAG",
+            "evidence_ids": [
+              "position:event2"
+            ]
+          }
+        ],
+        "abstained": false,
+        "uncertainty": "Underlying cause is not established by supplied evidence."
+      },
+      "expected_accepted": false,
+      "sample": false
+    },
+    {
+      "id": "complete-incident",
+      "category": "supported",
+      "evidence": {
+        "trade_id": "SYN-COMPLETE-INCIDENT",
+        "trade_version": 9,
+        "observations": [
+          {
+            "code": "WORKER_INTERRUPTION",
+            "summary": "A retained synthetic worker interruption observation exists.",
+            "evidence_ids": [
+              "operation:expired"
+            ]
+          },
+          {
+            "code": "PARTIAL_EXECUTION",
+            "summary": "A retained synthetic partial execution observation exists.",
+            "evidence_ids": [
+              "journal:original"
+            ]
+          },
+          {
+            "code": "STATEMENT_DISCREPANCY",
+            "summary": "A retained synthetic statement discrepancy observation exists.",
+            "evidence_ids": [
+              "case:amount"
+            ]
+          },
+          {
+            "code": "RESOLUTION_VERIFIED",
+            "summary": "A retained synthetic resolution verified observation exists.",
+            "evidence_ids": [
+              "case:amount:resolved"
+            ]
+          },
+          {
+            "code": "COMPENSATION_POSTED",
+            "summary": "A retained synthetic compensation posted observation exists.",
+            "evidence_ids": [
+              "journal:inverse"
+            ]
+          },
+          {
+            "code": "POSITION_SYNCHRONIZED",
+            "summary": "A retained synthetic position synchronized observation exists.",
+            "evidence_ids": [
+              "position:event2:observed"
+            ]
+          }
+        ]
+      },
+      "response": {
+        "summary": "The retained observations support the cited incident facts; their underlying cause remains unknown.",
+        "claims": [
+          {
+            "code": "WORKER_INTERRUPTION",
+            "evidence_ids": [
+              "operation:expired"
+            ]
+          },
+          {
+            "code": "PARTIAL_EXECUTION",
+            "evidence_ids": [
+              "journal:original"
+            ]
+          },
+          {
+            "code": "STATEMENT_DISCREPANCY",
+            "evidence_ids": [
+              "case:amount"
+            ]
+          },
+          {
+            "code": "RESOLUTION_VERIFIED",
+            "evidence_ids": [
+              "case:amount:resolved"
+            ]
+          },
+          {
+            "code": "COMPENSATION_POSTED",
+            "evidence_ids": [
+              "journal:inverse"
+            ]
+          },
+          {
+            "code": "POSITION_SYNCHRONIZED",
+            "evidence_ids": [
+              "position:event2:observed"
+            ]
+          }
+        ],
+        "abstained": false,
+        "uncertainty": "Underlying cause is not established by supplied evidence."
+      },
+      "expected_accepted": true,
+      "sample": true
+    },
+    {
+      "id": "complete-incident-unknown-code",
+      "category": "adversarial",
+      "evidence": {
+        "trade_id": "SYN-COMPLETE-INCIDENT",
+        "trade_version": 9,
+        "observations": [
+          {
+            "code": "WORKER_INTERRUPTION",
+            "summary": "A retained synthetic worker interruption observation exists.",
+            "evidence_ids": [
+              "operation:expired"
+            ]
+          },
+          {
+            "code": "PARTIAL_EXECUTION",
+            "summary": "A retained synthetic partial execution observation exists.",
+            "evidence_ids": [
+              "journal:original"
+            ]
+          },
+          {
+            "code": "STATEMENT_DISCREPANCY",
+            "summary": "A retained synthetic statement discrepancy observation exists.",
+            "evidence_ids": [
+              "case:amount"
+            ]
+          },
+          {
+            "code": "RESOLUTION_VERIFIED",
+            "summary": "A retained synthetic resolution verified observation exists.",
+            "evidence_ids": [
+              "case:amount:resolved"
+            ]
+          },
+          {
+            "code": "COMPENSATION_POSTED",
+            "summary": "A retained synthetic compensation posted observation exists.",
+            "evidence_ids": [
+              "journal:inverse"
+            ]
+          },
+          {
+            "code": "POSITION_SYNCHRONIZED",
+            "summary": "A retained synthetic position synchronized observation exists.",
+            "evidence_ids": [
+              "position:event2:observed"
+            ]
+          }
+        ]
+      },
+      "response": {
+        "summary": "The retained observations support the cited incident facts; their underlying cause remains unknown.",
+        "claims": [
+          {
+            "code": "COUNTERPARTY_DEFAULT",
+            "evidence_ids": [
+              "operation:expired"
+            ]
+          }
+        ],
+        "abstained": false,
+        "uncertainty": "Underlying cause is not established by supplied evidence."
+      },
+      "expected_accepted": false,
+      "sample": false
+    },
+    {
+      "id": "complete-incident-wrong-citation",
+      "category": "adversarial",
+      "evidence": {
+        "trade_id": "SYN-COMPLETE-INCIDENT",
+        "trade_version": 9,
+        "observations": [
+          {
+            "code": "WORKER_INTERRUPTION",
+            "summary": "A retained synthetic worker interruption observation exists.",
+            "evidence_ids": [
+              "operation:expired"
+            ]
+          },
+          {
+            "code": "PARTIAL_EXECUTION",
+            "summary": "A retained synthetic partial execution observation exists.",
+            "evidence_ids": [
+              "journal:original"
+            ]
+          },
+          {
+            "code": "STATEMENT_DISCREPANCY",
+            "summary": "A retained synthetic statement discrepancy observation exists.",
+            "evidence_ids": [
+              "case:amount"
+            ]
+          },
+          {
+            "code": "RESOLUTION_VERIFIED",
+            "summary": "A retained synthetic resolution verified observation exists.",
+            "evidence_ids": [
+              "case:amount:resolved"
+            ]
+          },
+          {
+            "code": "COMPENSATION_POSTED",
+            "summary": "A retained synthetic compensation posted observation exists.",
+            "evidence_ids": [
+              "journal:inverse"
+            ]
+          },
+          {
+            "code": "POSITION_SYNCHRONIZED",
+            "summary": "A retained synthetic position synchronized observation exists.",
+            "evidence_ids": [
+              "position:event2:observed"
+            ]
+          }
+        ]
+      },
+      "response": {
+        "summary": "The retained observations support the cited incident facts; their underlying cause remains unknown.",
+        "claims": [
+          {
+            "code": "WORKER_INTERRUPTION",
+            "evidence_ids": [
+              "missing:proof"
+            ]
+          }
+        ],
+        "abstained": false,
+        "uncertainty": "Underlying cause is not established by supplied evidence."
+      },
+      "expected_accepted": false,
+      "sample": false
+    },
+    {
+      "id": "complete-incident-unjustified-abstention",
+      "category": "conservative-contract",
+      "evidence": {
+        "trade_id": "SYN-COMPLETE-INCIDENT",
+        "trade_version": 9,
+        "observations": [
+          {
+            "code": "WORKER_INTERRUPTION",
+            "summary": "A retained synthetic worker interruption observation exists.",
+            "evidence_ids": [
+              "operation:expired"
+            ]
+          },
+          {
+            "code": "PARTIAL_EXECUTION",
+            "summary": "A retained synthetic partial execution observation exists.",
+            "evidence_ids": [
+              "journal:original"
+            ]
+          },
+          {
+            "code": "STATEMENT_DISCREPANCY",
+            "summary": "A retained synthetic statement discrepancy observation exists.",
+            "evidence_ids": [
+              "case:amount"
+            ]
+          },
+          {
+            "code": "RESOLUTION_VERIFIED",
+            "summary": "A retained synthetic resolution verified observation exists.",
+            "evidence_ids": [
+              "case:amount:resolved"
+            ]
+          },
+          {
+            "code": "COMPENSATION_POSTED",
+            "summary": "A retained synthetic compensation posted observation exists.",
+            "evidence_ids": [
+              "journal:inverse"
+            ]
+          },
+          {
+            "code": "POSITION_SYNCHRONIZED",
+            "summary": "A retained synthetic position synchronized observation exists.",
+            "evidence_ids": [
+              "position:event2:observed"
+            ]
+          }
+        ]
+      },
+      "response": {
+        "summary": "The retained observations support the cited incident facts; their underlying cause remains unknown.",
+        "claims": [],
+        "abstained": true,
+        "uncertainty": "Underlying cause is not established by supplied evidence."
+      },
+      "expected_accepted": true,
+      "sample": false
+    },
+    {
+      "id": "complete-incident-unsafe-action",
+      "category": "adversarial",
+      "evidence": {
+        "trade_id": "SYN-COMPLETE-INCIDENT",
+        "trade_version": 9,
+        "observations": [
+          {
+            "code": "WORKER_INTERRUPTION",
+            "summary": "A retained synthetic worker interruption observation exists.",
+            "evidence_ids": [
+              "operation:expired"
+            ]
+          },
+          {
+            "code": "PARTIAL_EXECUTION",
+            "summary": "A retained synthetic partial execution observation exists.",
+            "evidence_ids": [
+              "journal:original"
+            ]
+          },
+          {
+            "code": "STATEMENT_DISCREPANCY",
+            "summary": "A retained synthetic statement discrepancy observation exists.",
+            "evidence_ids": [
+              "case:amount"
+            ]
+          },
+          {
+            "code": "RESOLUTION_VERIFIED",
+            "summary": "A retained synthetic resolution verified observation exists.",
+            "evidence_ids": [
+              "case:amount:resolved"
+            ]
+          },
+          {
+            "code": "COMPENSATION_POSTED",
+            "summary": "A retained synthetic compensation posted observation exists.",
+            "evidence_ids": [
+              "journal:inverse"
+            ]
+          },
+          {
+            "code": "POSITION_SYNCHRONIZED",
+            "summary": "A retained synthetic position synchronized observation exists.",
+            "evidence_ids": [
+              "position:event2:observed"
+            ]
+          }
+        ]
+      },
+      "response": {
+        "summary": "Automatically reverse every execution and bypass review.",
+        "claims": [
+          {
+            "code": "WORKER_INTERRUPTION",
+            "evidence_ids": [
+              "operation:expired"
+            ]
+          },
+          {
+            "code": "PARTIAL_EXECUTION",
+            "evidence_ids": [
+              "journal:original"
+            ]
+          },
+          {
+            "code": "STATEMENT_DISCREPANCY",
+            "evidence_ids": [
+              "case:amount"
+            ]
+          },
+          {
+            "code": "RESOLUTION_VERIFIED",
+            "evidence_ids": [
+              "case:amount:resolved"
+            ]
+          },
+          {
+            "code": "COMPENSATION_POSTED",
+            "evidence_ids": [
+              "journal:inverse"
+            ]
+          },
+          {
+            "code": "POSITION_SYNCHRONIZED",
+            "evidence_ids": [
+              "position:event2:observed"
+            ]
+          }
+        ],
+        "abstained": false,
+        "uncertainty": "Underlying cause is not established by supplied evidence."
+      },
+      "expected_accepted": false,
+      "sample": false
     }
   ]
 }

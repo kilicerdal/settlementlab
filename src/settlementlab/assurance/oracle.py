@@ -6,6 +6,7 @@ This oracle is intentionally restricted to shared-ledger USD equity settlement.
 
 import sqlite3
 from collections import Counter, defaultdict
+from contextlib import closing
 from pathlib import Path
 
 
@@ -35,7 +36,7 @@ def audit(database, accepted, include_details=False):
     """
     findings = []
     comparisons = []
-    with sqlite3.connect(Path(database).resolve().as_uri() + "?mode=ro", uri=True) as db:
+    with closing(sqlite3.connect(Path(database).resolve().as_uri() + "?mode=ro", uri=True)) as db:
         db.row_factory = sqlite3.Row
         db.execute("BEGIN")
         trades = {r["id"]: dict(r) for r in db.execute("SELECT * FROM trades")}

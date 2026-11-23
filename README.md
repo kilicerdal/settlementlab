@@ -13,6 +13,12 @@ SettlementLab is a Python financial systems assurance framework with two runnabl
 ![V4.3 incident investigation with linked financial and correction evidence](docs/images/investigation-v43.png)
 *Recorded synthetic V4.3 browser journey. The screenshot illustrates the local interface; it is not a live CI result.*
 
+## V4.4 candidate — financial consistency and independent verification
+
+The next candidate adds a correction-aware financial-position stream, read-only WAL snapshots, indexed/bounded statement retrieval, explicit gross/net reconciliation contracts, and one-command bundle verification against a separate accepted plan. AI evaluation now spans six contexts with repeated local runs and reports unnecessary abstention and variability separately from grounding.
+
+[V4.4 guide and measured limits](docs/V4_4.md) · [Position and verification recovery](docs/runbooks/POSITION_AND_VERIFICATION.md). V4.3 remains the published release. No outside reviewer request or review packet is being prepared; no independent human review is claimed. The website is unchanged.
+
 ## V4.3 — incident investigation and controlled compensation
 
 V4.3 connects a real worker interruption, partial execution, delayed statement, investigation and maker/checker compensation in one replayable incident. A new local investigation screen links the complete evidence; portable exports retain original comparisons, financial entries and checksums. An isolated reviewer exercise includes a balanced but economically incorrect compensation. Optional local AI is evaluated against declared adversarial fixtures and separately recorded live samples.
@@ -22,7 +28,7 @@ python3 scripts/incident_quickstart.py
 # Local investigation: http://127.0.0.1:8086/investigation
 ```
 
-Standard-library runtime; no package install or model is required for the checkout demonstration. The command creates fresh evidence, runs the recovery and starts the local server. [V4.3 incident guide](docs/V4_3.md) · [AI evaluation and retained samples](docs/V4_3_AI.md) · [Recovery runbook](docs/runbooks/INCIDENT_RECOVERY.md). V4.3 is the current release; independent human review remains pending. The portfolio website is unchanged.
+Standard-library runtime; no package install or model is required for the checkout demonstration. The command creates fresh evidence, runs the recovery and starts the local server. [V4.3 incident guide](docs/V4_3.md) · [AI evaluation and retained samples](docs/V4_3_AI.md) · [Recovery runbook](docs/runbooks/INCIDENT_RECOVERY.md). V4.3 is the current release; no independent human review is claimed. The portfolio website is unchanged.
 
 ## Core framework capabilities
 
@@ -66,7 +72,7 @@ The V4.3 release passed **184 unit/API/integration tests and four assurance scen
 - A 1,000-trade/four-worker local campaign with 1,000 execution slices, receipts and outbox records, plus 8,000 journal lines.
 - A clean standalone-wheel installation that passes the healthy second service and detects its injected replay defect.
 
-These are release-specific results, not a promise of production capacity. The status badge links to current CI. **Independent human review remains pending.** [Validation details](docs/V4_2_EVIDENCE.md) · [Review checklist](docs/INDEPENDENT_REVIEW.md) · [Evidence provenance](docs/EVIDENCE.md).
+These are release-specific results, not a promise of production capacity. The status badge links to current CI. **No independent human review is claimed.** [Validation details](docs/V4_2_EVIDENCE.md) · [Review checklist](docs/INDEPENDENT_REVIEW.md) · [Evidence provenance](docs/EVIDENCE.md).
 
 From the repository root, generate a portable demonstration of both applications:
 

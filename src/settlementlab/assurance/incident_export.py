@@ -111,7 +111,9 @@ def export(service, trade_id):
     return package(Investigation(service).snapshot(trade_id))
 
 
-def verify(path):
+def verify(path, expectations=None):
+    from .bundle_audit import unique
+
     with zipfile.ZipFile(path) as archive:
         if len(archive.namelist()) != 3 or set(archive.namelist()) != {
             "incident.json",
@@ -121,13 +123,13 @@ def verify(path):
             raise ValueError("Unexpected export members")
         if any(i.file_size > 32 * 1024 * 1024 for i in archive.infolist()):
             raise ValueError("Export member too large")
-        manifest = json.loads(archive.read("manifest.json"))
+        manifest = json.loads(archive.read("manifest.json"), object_pairs_hook=unique)
         if set(manifest["files"]) != {"incident.json", "index.html"}:
             raise ValueError("Incomplete checksum manifest")
         for name, digest in manifest["files"].items():
             if hashlib.sha256(archive.read(name)).hexdigest() != digest:
                 raise ValueError("Evidence checksum differs: " + name)
-        data = json.loads(archive.read("incident.json"))
+        data = json.loads(archive.read("incident.json"), object_pairs_hook=unique)
         if (
             manifest["trade_id"] != data["trade"]["id"]
             or manifest["trade_version"] != data["trade"]["version"]
@@ -138,8 +140,27 @@ def verify(path):
             e["source"] not in ids or e["target"] not in ids for e in data["correlations"]
         ):
             raise ValueError("Broken investigation correlations")
+        if expectations is not None:
+            from .bundle_audit import audit, load_plan
+
+            plan, digest = load_plan(expectations)
+            try:
+                economics = audit(data, plan)
+            except (KeyError, TypeError, ValueError) as error:
+                raise ValueError("Invalid scoped economic evidence structure") from error
+            return dict(
+                status=economics["status"],
+                integrity="passed",
+                verification_level="INTEGRITY_AND_SCOPED_ECONOMICS",
+                expectations_sha256=digest,
+                economics=economics,
+                trade_id=manifest["trade_id"],
+                source=manifest["source"],
+            )
         return dict(
             status="passed",
+            verification_level="CONTENT_INTEGRITY_ONLY",
+            economic_verification="NOT_RUN",
             files=len(manifest["files"]),
             trade_id=manifest["trade_id"],
             source=manifest["source"],

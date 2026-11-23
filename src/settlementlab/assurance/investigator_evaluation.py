@@ -66,10 +66,13 @@ def evaluate(cases):
     )
 
 
-def sample(model, transport=send_request):
+def sample(model, transport=send_request, repeats=2):
     cases = [c for c in corpus()["cases"] if c.get("sample")]
+    if type(repeats) is not int or not 1 <= repeats <= 5 or len(cases) * repeats > 30:
+        raise ValueError("Local evaluation allows 1–5 repeats and at most 30 model calls")
     output = []
-    for case in cases:
+    trials = [(case, repeat) for case in cases for repeat in range(1, repeats + 1)]
+    for case, repeat in trials:
         started = time.perf_counter()
         evidence = case["evidence"]
         # Use the same production validator and transport. Fixture evidence is already minimized.
@@ -111,6 +114,10 @@ def sample(model, transport=send_request):
             output.append(
                 dict(
                     id=case["id"],
+                    repeat=repeat,
+                    context_sha256=hashlib.sha256(
+                        json.dumps(evidence, sort_keys=True).encode()
+                    ).hexdigest(),
                     elapsed_seconds=time.perf_counter() - started,
                     status="recorded",
                     response=parsed,
@@ -121,17 +128,54 @@ def sample(model, transport=send_request):
                 )
             )
         except (DomainError, ValueError, TypeError, KeyError, AttributeError) as error:
-            output.append(dict(id=case["id"], status="unavailable-or-invalid", detail=str(error)))
+            output.append(
+                dict(
+                    id=case["id"], repeat=repeat, status="unavailable-or-invalid", detail=str(error)
+                )
+            )
     recorded = [r for r in output if r["status"] == "recorded"]
+    schema_valid = [r for r in recorded if r["checks"]["schema"]]
+    nonempty = [r for r in schema_valid if not r["expected_abstention"]]
+    consistency = []
+    for case in cases:
+        runs = [r for r in schema_valid if r["id"] == case["id"]]
+        if len(runs) == repeats:
+            signatures = {
+                (
+                    r["response"]["abstained"],
+                    tuple(sorted(c["code"] for c in r["response"]["claims"])),
+                )
+                for r in runs
+            }
+            consistency.append(dict(id=case["id"], consistent=len(signatures) == 1))
     return dict(
         mode="live-local-model",
         generated_at=datetime.now(timezone.utc).isoformat(),
-        prompt_version="incident-v43.1",
+        prompt_version="incident-v44.1",
         corpus_sha256=hashlib.sha256(json.dumps(corpus(), sort_keys=True).encode()).hexdigest(),
         model=model,
         cases=output,
         recorded=len(recorded),
-        requested=len(cases),
+        requested=len(trials),
+        contexts=len(cases),
+        repeats=repeats,
+        schema_valid_outputs=len(schema_valid),
+        unsupported_claim_rate=sum(not r["checks"]["supported_claims"] for r in schema_valid)
+        / len(schema_valid)
+        if schema_valid
+        else None,
+        invalid_citation_rate=sum(not r["checks"]["citations"] for r in schema_valid)
+        / len(schema_valid)
+        if schema_valid
+        else None,
+        unnecessary_abstention_rate=sum(r["response"]["abstained"] for r in nonempty)
+        / len(nonempty)
+        if nonempty
+        else None,
+        repeat_consistency=consistency,
+        consistent_context_rate=sum(r["consistent"] for r in consistency) / len(consistency)
+        if consistency
+        else None,
         accepted_rate=sum(r["accepted"] for r in recorded) / len(recorded) if recorded else None,
         correct_abstention_rate=sum(r["correct_abstention"] for r in recorded) / len(recorded)
         if recorded
@@ -147,12 +191,15 @@ def main(argv=None):
         "--live-model",
         help="Optional already installed local Ollama model; no downloads or paid calls",
     )
+    parser.add_argument(
+        "--repeats", type=int, default=2, help="1–5 repeats; at most 30 total local calls"
+    )
     args = parser.parse_args(argv)
     output = Path(args.output)
     output.mkdir(parents=True, exist_ok=True)
     report = evaluate(corpus()["cases"])
     report["live"] = (
-        sample(args.live_model)
+        sample(args.live_model, repeats=args.repeats)
         if args.live_model
         else dict(
             mode="not-run",

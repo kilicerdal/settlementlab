@@ -244,7 +244,7 @@ class DurableOperations:
             return dict(event_id=event_id, applied=repository.ops_consume(event, self.now()))
 
     def snapshot(self):
-        with self.store.transaction() as repository:
+        with self.store.read_transaction() as repository:
             now = self.now()
             snapshot = repository.ops_snapshot(now)
             snapshot.update(

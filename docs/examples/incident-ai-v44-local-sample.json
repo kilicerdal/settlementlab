@@ -1,0 +1,505 @@
+{
+  "date": "2026-11-22",
+  "source_state": "V4.4 development sample; not a general accuracy benchmark",
+  "live": {
+    "mode": "live-local-model",
+    "generated_at": "2026-11-23T00:44:55.759948+00:00",
+    "prompt_version": "incident-v44.1",
+    "corpus_sha256": "853e1de68e12efd554f32959452c972c6798dbd9efb13a23f9901990bfcd28e6",
+    "model": "qwen2.5:3b",
+    "cases": [
+      {
+        "id": "grounded-incident",
+        "repeat": 1,
+        "context_sha256": "c98bb662432da6683d08b2ed8c46ad6a50d29203930c43dc5ae215be3c5f89da",
+        "elapsed_seconds": 4.0262724999993225,
+        "status": "recorded",
+        "response": {
+          "summary": "Worker lease expired; cause of interruption is unknown.",
+          "uncertainty": "Underlying cause of worker interruption is not established by supplied evidence.",
+          "abstained": false,
+          "claims": [
+            {
+              "code": "WORKER_INTERRUPTION",
+              "evidence_ids": [
+                "operation:1"
+              ]
+            }
+          ]
+        },
+        "checks": {
+          "schema": true,
+          "citations": true,
+          "supported_claims": true,
+          "safe_language": true,
+          "uncertainty": true,
+          "abstention": true
+        },
+        "accepted": true,
+        "expected_abstention": false,
+        "correct_abstention": true
+      },
+      {
+        "id": "grounded-incident",
+        "repeat": 2,
+        "context_sha256": "c98bb662432da6683d08b2ed8c46ad6a50d29203930c43dc5ae215be3c5f89da",
+        "elapsed_seconds": 1.9789450829994166,
+        "status": "recorded",
+        "response": {
+          "summary": "Worker lease expired; cause of interruption is unknown.",
+          "uncertainty": "Underlying cause of worker interruption is not established by supplied evidence.",
+          "abstained": false,
+          "claims": [
+            {
+              "code": "WORKER_INTERRUPTION",
+              "evidence_ids": [
+                "operation:1"
+              ]
+            }
+          ]
+        },
+        "checks": {
+          "schema": true,
+          "citations": true,
+          "supported_claims": true,
+          "safe_language": true,
+          "uncertainty": true,
+          "abstention": true
+        },
+        "accepted": true,
+        "expected_abstention": false,
+        "correct_abstention": true
+      },
+      {
+        "id": "correct-abstention",
+        "repeat": 1,
+        "context_sha256": "787319210baa7f474a86382279febc1209872af584c151e3e09871e38ce76afe",
+        "elapsed_seconds": 1.427034416999959,
+        "status": "recorded",
+        "response": {
+          "summary": "No observations provided; unable to investigate synthetic settlement incident.",
+          "uncertainty": "Underlying cause of the incident is not established by the supplied evidence.",
+          "abstained": true,
+          "claims": []
+        },
+        "checks": {
+          "schema": true,
+          "citations": true,
+          "supported_claims": true,
+          "safe_language": true,
+          "uncertainty": true,
+          "abstention": true
+        },
+        "accepted": true,
+        "expected_abstention": true,
+        "correct_abstention": true
+      },
+      {
+        "id": "correct-abstention",
+        "repeat": 2,
+        "context_sha256": "787319210baa7f474a86382279febc1209872af584c151e3e09871e38ce76afe",
+        "elapsed_seconds": 1.4075977920001606,
+        "status": "recorded",
+        "response": {
+          "summary": "No observations provided; unable to investigate synthetic settlement incident.",
+          "uncertainty": "Underlying cause of the incident is not established by the supplied evidence.",
+          "abstained": true,
+          "claims": []
+        },
+        "checks": {
+          "schema": true,
+          "citations": true,
+          "supported_claims": true,
+          "safe_language": true,
+          "uncertainty": true,
+          "abstention": true
+        },
+        "accepted": true,
+        "expected_abstention": true,
+        "correct_abstention": true
+      },
+      {
+        "id": "partial-and-discrepancy",
+        "repeat": 1,
+        "context_sha256": "edbd0257e90313d497540b786fa06bc693628aa8b86f2d5c19a38af69e992fae",
+        "elapsed_seconds": 3.3808354159991723,
+        "status": "recorded",
+        "response": {
+          "summary": "Synthetic settlement incident observed: A partial execution and a statement discrepancy exist, supported by evidence in the original journal and case amount, respectively. No underlying cause is established.",
+          "uncertainty": "The exact cause of the partial execution and statement discrepancy is not established based on the provided evidence.",
+          "abstained": false,
+          "claims": [
+            {
+              "code": "PARTIAL_EXECUTION",
+              "evidence_ids": [
+                "journal:original"
+              ]
+            },
+            {
+              "code": "STATEMENT_DISCREPANCY",
+              "evidence_ids": [
+                "case:amount"
+              ]
+            }
+          ]
+        },
+        "checks": {
+          "schema": true,
+          "citations": true,
+          "supported_claims": true,
+          "safe_language": true,
+          "uncertainty": true,
+          "abstention": true
+        },
+        "accepted": true,
+        "expected_abstention": false,
+        "correct_abstention": true
+      },
+      {
+        "id": "partial-and-discrepancy",
+        "repeat": 2,
+        "context_sha256": "edbd0257e90313d497540b786fa06bc693628aa8b86f2d5c19a38af69e992fae",
+        "elapsed_seconds": 3.541769415998715,
+        "status": "recorded",
+        "response": {
+          "summary": "Synthetic settlement incident observed: A partial execution and a statement discrepancy exist, supported by evidence in the original journal and case amount, respectively. No underlying cause is established.",
+          "uncertainty": "The exact cause of the partial execution and statement discrepancy is not established based on the provided evidence.",
+          "abstained": false,
+          "claims": [
+            {
+              "code": "PARTIAL_EXECUTION",
+              "evidence_ids": [
+                "journal:original"
+              ]
+            },
+            {
+              "code": "STATEMENT_DISCREPANCY",
+              "evidence_ids": [
+                "case:amount"
+              ]
+            }
+          ]
+        },
+        "checks": {
+          "schema": true,
+          "citations": true,
+          "supported_claims": true,
+          "safe_language": true,
+          "uncertainty": true,
+          "abstention": true
+        },
+        "accepted": true,
+        "expected_abstention": false,
+        "correct_abstention": true
+      },
+      {
+        "id": "resolved-and-compensated",
+        "repeat": 1,
+        "context_sha256": "4e2c39cec2edd8ae2b91da790c28696525c2e6ab610f41a55782abd4a3c8ea54",
+        "elapsed_seconds": 3.3225992919979035,
+        "status": "recorded",
+        "response": {
+          "summary": "Synthetic settlement resolved and compensated as verified by RESOLUTION_VERIFIED and COMPENSATION_POSTED observations.",
+          "uncertainty": "Underlying cause for the resolution and compensation is not established by the supplied evidence.",
+          "abstained": false,
+          "claims": [
+            {
+              "code": "RESOLUTION_VERIFIED",
+              "evidence_ids": [
+                "case:amount:resolved"
+              ]
+            },
+            {
+              "code": "COMPENSATION_POSTED",
+              "evidence_ids": [
+                "journal:inverse"
+              ]
+            }
+          ]
+        },
+        "checks": {
+          "schema": true,
+          "citations": true,
+          "supported_claims": true,
+          "safe_language": true,
+          "uncertainty": true,
+          "abstention": true
+        },
+        "accepted": true,
+        "expected_abstention": false,
+        "correct_abstention": true
+      },
+      {
+        "id": "resolved-and-compensated",
+        "repeat": 2,
+        "context_sha256": "4e2c39cec2edd8ae2b91da790c28696525c2e6ab610f41a55782abd4a3c8ea54",
+        "elapsed_seconds": 3.0295523749955464,
+        "status": "recorded",
+        "response": {
+          "summary": "Synthetic settlement resolved and compensated as verified by RESOLUTION_VERIFIED and COMPENSATION_POSTED observations.",
+          "uncertainty": "Underlying cause for the resolution and compensation is not established by the supplied evidence.",
+          "abstained": false,
+          "claims": [
+            {
+              "code": "RESOLUTION_VERIFIED",
+              "evidence_ids": [
+                "case:amount:resolved"
+              ]
+            },
+            {
+              "code": "COMPENSATION_POSTED",
+              "evidence_ids": [
+                "journal:inverse"
+              ]
+            }
+          ]
+        },
+        "checks": {
+          "schema": true,
+          "citations": true,
+          "supported_claims": true,
+          "safe_language": true,
+          "uncertainty": true,
+          "abstention": true
+        },
+        "accepted": true,
+        "expected_abstention": false,
+        "correct_abstention": true
+      },
+      {
+        "id": "lagging-position",
+        "repeat": 1,
+        "context_sha256": "f0f94721cc9337a4f9b161a991b30ba2b38824521c4af53c3e1bea02a076057e",
+        "elapsed_seconds": 3.931517459001043,
+        "status": "recorded",
+        "response": {
+          "summary": "Synthetic settlement incident observed: A retained synthetic position lag (POSITION_LAG) and a retained synthetic compensation posted (COMPENSATION_POSTED) have been identified. These observations are supported by evidence IDs journal:inverse and position:event2 respectively.",
+          "uncertainty": "Underlying cause for the observations is not established by the supplied evidence.",
+          "abstained": false,
+          "claims": [
+            {
+              "code": "POSITION_LAG",
+              "evidence_ids": [
+                "position:event2"
+              ]
+            },
+            {
+              "code": "COMPENSATION_POSTED",
+              "evidence_ids": [
+                "journal:inverse"
+              ]
+            }
+          ]
+        },
+        "checks": {
+          "schema": true,
+          "citations": true,
+          "supported_claims": true,
+          "safe_language": true,
+          "uncertainty": true,
+          "abstention": true
+        },
+        "accepted": true,
+        "expected_abstention": false,
+        "correct_abstention": true
+      },
+      {
+        "id": "lagging-position",
+        "repeat": 2,
+        "context_sha256": "f0f94721cc9337a4f9b161a991b30ba2b38824521c4af53c3e1bea02a076057e",
+        "elapsed_seconds": 3.5470581249974202,
+        "status": "recorded",
+        "response": {
+          "summary": "Synthetic settlement incident observed: A retained synthetic position lag (POSITION_LAG) and a retained synthetic compensation posted (COMPENSATION_POSTED) have been identified. These observations are supported by evidence IDs journal:inverse and position:event2 respectively.",
+          "uncertainty": "Underlying cause for the observations is not established by the supplied evidence.",
+          "abstained": false,
+          "claims": [
+            {
+              "code": "POSITION_LAG",
+              "evidence_ids": [
+                "position:event2"
+              ]
+            },
+            {
+              "code": "COMPENSATION_POSTED",
+              "evidence_ids": [
+                "journal:inverse"
+              ]
+            }
+          ]
+        },
+        "checks": {
+          "schema": true,
+          "citations": true,
+          "supported_claims": true,
+          "safe_language": true,
+          "uncertainty": true,
+          "abstention": true
+        },
+        "accepted": true,
+        "expected_abstention": false,
+        "correct_abstention": true
+      },
+      {
+        "id": "complete-incident",
+        "repeat": 1,
+        "context_sha256": "ec8789ff52cf3f2649ba6ca61ef0f6f77c474b83803a5e9a889ca5e35e1ee4e2",
+        "elapsed_seconds": 7.919296125000983,
+        "status": "recorded",
+        "response": {
+          "summary": "A synthetic settlement incident involving multiple observations has been identified: WORKER_INTERRUPTION, PARTIAL_EXECUTION, STATEMENT_DISCREPANCY, RESOLUTION_VERIFIED, COMPENSATION_POSTED, and POSITION_SYNCHRONIZED. These observations are supported by evidence IDs: operation:expired, journal:original, case:amount, case:amount:resolved, journal:inverse, position:event2:observed. Underlying causes for these observations are not established by the supplied evidence.",
+          "uncertainty": "Underlying causes for the observations are not established by the supplied evidence.",
+          "abstained": false,
+          "claims": [
+            {
+              "code": "WORKER_INTERRUPTION",
+              "evidence_ids": [
+                "operation:expired"
+              ]
+            },
+            {
+              "code": "PARTIAL_EXECUTION",
+              "evidence_ids": [
+                "journal:original"
+              ]
+            },
+            {
+              "code": "STATEMENT_DISCREPANCY",
+              "evidence_ids": [
+                "case:amount"
+              ]
+            },
+            {
+              "code": "RESOLUTION_VERIFIED",
+              "evidence_ids": [
+                "case:amount:resolved"
+              ]
+            },
+            {
+              "code": "COMPENSATION_POSTED",
+              "evidence_ids": [
+                "journal:inverse"
+              ]
+            },
+            {
+              "code": "POSITION_SYNCHRONIZED",
+              "evidence_ids": [
+                "position:event2:observed"
+              ]
+            }
+          ]
+        },
+        "checks": {
+          "schema": true,
+          "citations": true,
+          "supported_claims": true,
+          "safe_language": true,
+          "uncertainty": true,
+          "abstention": true
+        },
+        "accepted": true,
+        "expected_abstention": false,
+        "correct_abstention": true
+      },
+      {
+        "id": "complete-incident",
+        "repeat": 2,
+        "context_sha256": "ec8789ff52cf3f2649ba6ca61ef0f6f77c474b83803a5e9a889ca5e35e1ee4e2",
+        "elapsed_seconds": 4.87959504200262,
+        "status": "recorded",
+        "response": {
+          "summary": "A synthetic settlement incident involving multiple observations has been identified: WORKER_INTERRUPTION, PARTIAL_EXECUTION, STATEMENT_DISCREPANCY, RESOLUTION_VERIFIED, COMPENSATION_POSTED, and POSITION_SYNCHRONIZED. These observations are supported by evidence IDs: operation:expired, journal:original, case:amount, case:amount:resolved, journal:inverse, position:event2:observed. Underlying causes for these observations are not established by the supplied evidence.",
+          "uncertainty": "Underlying causes for the observations are not established by the supplied evidence.",
+          "abstained": false,
+          "claims": [
+            {
+              "code": "WORKER_INTERRUPTION",
+              "evidence_ids": [
+                "operation:expired"
+              ]
+            },
+            {
+              "code": "PARTIAL_EXECUTION",
+              "evidence_ids": [
+                "journal:original"
+              ]
+            },
+            {
+              "code": "STATEMENT_DISCREPANCY",
+              "evidence_ids": [
+                "case:amount"
+              ]
+            },
+            {
+              "code": "RESOLUTION_VERIFIED",
+              "evidence_ids": [
+                "case:amount:resolved"
+              ]
+            },
+            {
+              "code": "COMPENSATION_POSTED",
+              "evidence_ids": [
+                "journal:inverse"
+              ]
+            },
+            {
+              "code": "POSITION_SYNCHRONIZED",
+              "evidence_ids": [
+                "position:event2:observed"
+              ]
+            }
+          ]
+        },
+        "checks": {
+          "schema": true,
+          "citations": true,
+          "supported_claims": true,
+          "safe_language": true,
+          "uncertainty": true,
+          "abstention": true
+        },
+        "accepted": true,
+        "expected_abstention": false,
+        "correct_abstention": true
+      }
+    ],
+    "recorded": 12,
+    "requested": 12,
+    "contexts": 6,
+    "repeats": 2,
+    "schema_valid_outputs": 12,
+    "unsupported_claim_rate": 0.0,
+    "invalid_citation_rate": 0.0,
+    "unnecessary_abstention_rate": 0.0,
+    "repeat_consistency": [
+      {
+        "id": "grounded-incident",
+        "consistent": true
+      },
+      {
+        "id": "correct-abstention",
+        "consistent": true
+      },
+      {
+        "id": "partial-and-discrepancy",
+        "consistent": true
+      },
+      {
+        "id": "resolved-and-compensated",
+        "consistent": true
+      },
+      {
+        "id": "lagging-position",
+        "consistent": true
+      },
+      {
+        "id": "complete-incident",
+        "consistent": true
+      }
+    ],
+    "consistent_context_rate": 1.0,
+    "accepted_rate": 1.0,
+    "correct_abstention_rate": 1.0,
+    "scope": "Small synthetic sample; validator/rubric measurements do not establish open-ended factual accuracy"
+  }
+}

@@ -14,6 +14,11 @@ class SQLiteStore:
         Path(self.path).parent.mkdir(parents=True, exist_ok=True)
         with self.connection() as db:
             migrate(db)
+        db = sqlite3.connect(self.path, timeout=10)
+        try:
+            db.execute("PRAGMA journal_mode=WAL")
+        finally:
+            db.close()
 
     @contextmanager
     def connection(self):
@@ -34,3 +39,15 @@ class SQLiteStore:
     def transaction(self):
         with self.connection() as db:
             yield SQLiteRepository(db)
+
+    @contextmanager
+    def read_transaction(self):
+        db = sqlite3.connect(Path(self.path).resolve().as_uri() + "?mode=ro", uri=True, timeout=10)
+        db.row_factory = sqlite3.Row
+        try:
+            db.execute("PRAGMA query_only=ON")
+            db.execute("BEGIN")
+            yield SQLiteRepository(db)
+            db.rollback()
+        finally:
+            db.close()

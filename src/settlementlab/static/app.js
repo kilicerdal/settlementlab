@@ -121,7 +121,7 @@ function renderDetail(){
     }else if(Number.isSafeInteger(t.quantity*t.price_cents))add('Provision demo balances','fund',{cash_cents:t.quantity*t.price_cents,securities:t.quantity});
     add('Attempt settlement','settle',{},shared?'checker':null);
   }
-  if(t.state==='SETTLED'){const b=node('button','Reconcile statement','secondary');b.onclick=async()=>{try{const statement=snapshot.trades.filter(x=>x.state==='SETTLED').map(x=>({trade_id:x.id,quantity:x.quantity,amount_cents:x.quantity*x.price_cents}));const r=await api('/api/reconcile',{statement});announce('Reconciliation: '+r.status+' · '+r.internal_count+' settled trades checked against a synthetic matching statement.');}catch(e){announce(e.message);}};actions.append(b);}
+  if(t.state==='SETTLED'){const b=node('button','Reconcile statement','secondary');b.onclick=async()=>{try{const statement=snapshot.trades.filter(x=>x.settled_quantity>0).map(x=>({trade_id:x.id,quantity:x.settled_quantity,amount_cents:x.settled_amount_cents}));const r=await api('/api/reconcile',{statement});announce('Gross executed receipts (legacy basis). Reconciliation: '+r.status+' · '+r.internal_count+' settled trades checked against a synthetic matching statement.');}catch(e){announce(e.message);}};actions.append(b);}
   if(['EXCEPTION','FAILED'].includes(t.state)){
     const b=node('button','Analyze exception with AI','secondary');b.onclick=()=>analyze(t,box,b);actions.append(b);
   }

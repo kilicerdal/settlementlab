@@ -1,14 +1,14 @@
 # SettlementLab
 
-[![Settlement assurance](https://github.com/kilicerdal/settlementlab/actions/workflows/assurance.yml/badge.svg)](https://github.com/kilicerdal/settlementlab/actions/workflows/assurance.yml) [![Release V4.4.0](https://img.shields.io/badge/release-v4.4.0-287d68)](https://github.com/kilicerdal/settlementlab/releases/tag/v4.4.0) ![Python 3.9+](https://img.shields.io/badge/Python-3.9%2B-3776AB?logo=python) [![MIT license](https://img.shields.io/github/license/kilicerdal/settlementlab)](LICENSE)
+[![Settlement assurance](https://github.com/kilicerdal/settlementlab/actions/workflows/assurance.yml/badge.svg)](https://github.com/kilicerdal/settlementlab/actions/workflows/assurance.yml) [![Release V4.4.1](https://img.shields.io/badge/release-v4.4.1-287d68)](https://github.com/kilicerdal/settlementlab/releases/tag/v4.4.1) ![Python 3.9+](https://img.shields.io/badge/Python-3.9%2B-3776AB?logo=python) [![MIT license](https://img.shields.io/github/license/kilicerdal/settlementlab)](LICENSE)
 
 **Financial workflows. Reusable assurance. Inspectable evidence.**
 
 SettlementLab is a Python financial systems assurance framework with two runnable reference applications: a post-trade operations workbench and an independent collateral reservation API. Follow a synthetic obligation through matching, independent approval, partial settlement, recovery and reconciliation. Then install the assurance engine separately and use it to detect a deliberately broken reservation replay.
 
-**V4.4 is the current release.** Standard-library runtime, no required API key or paid service, and optional local AI. Built by Erdal Kilic.
+**V4.4.1 is the current release.** Standard-library runtime, no required API key or paid service, and optional local AI. Built by Erdal Kilic.
 
-[Download V4.4](https://github.com/kilicerdal/settlementlab/releases/tag/v4.4.0) · [Reviewer guide](docs/REVIEWER_GUIDE.md) · [V4.4 consistency and verification guide](docs/V4_4.md) · [Architecture](docs/ARCHITECTURE.md)
+[Download V4.4.1](https://github.com/kilicerdal/settlementlab/releases/tag/v4.4.1) · [Reviewer guide](docs/REVIEWER_GUIDE.md) · [V4.4 consistency and verification guide](docs/V4_4.md) · [Architecture](docs/ARCHITECTURE.md)
 
 ![V4.4 authoritative and observed positions after financial compensation](docs/images/position-v44.png)
 *Recorded synthetic V4.4 browser journey. The screenshot illustrates the local interface; it is not a live CI result.*
@@ -49,13 +49,17 @@ Open [the local investigation](http://127.0.0.1:8086/investigation). This comman
 
 [Two-minute recording and reproduction](docs/SHOWCASE_V44.md) · [Five-minute interview walkthrough](docs/INTERVIEW_WALKTHROUGH_V44.md) · [Current architecture diagram](docs/ARCHITECTURE.md) · [Fresh-checkout results and runtime note](docs/FRESH_CHECKOUT_V44.md)
 
-For an empty workbench where you perform the actions yourself, follow [Run the workbench](#run-the-workbench), which uses port **8085**. Current source includes the cold-WAL compatibility fix. The original `v4.4.0` tag and wheel do not include this later fix: use Python 3.13 for those artifacts if your system SQLite hits the documented startup failure. See the [before/after rehearsal evidence](docs/FRESH_CHECKOUT_V44.md).
+For an empty workbench where you perform the actions yourself, follow [Run the workbench](#run-the-workbench), which uses port **8085**. V4.4.1 source and downloadable workbench wheel include the cold-WAL compatibility fix. The original `v4.4.0` tag and wheel do not include this later fix: use Python 3.13 for those artifacts if your system SQLite hits the documented startup failure. See the [before/after rehearsal evidence](docs/FRESH_CHECKOUT_V44.md).
+
+## V4.4.1 — system SQLite compatibility
+
+The patch fixes cold-WAL startup on the reproduced macOS system Python/SQLite build while keeping consumers physically read-only. Backup, investigation and assurance readers share safe connection setup. Five new regressions cover cold reads, write rejection, concurrent snapshots, missing sources and standalone backups. [Patch details and installation](docs/V4_4_1.md).
 
 ## V4.4 — financial consistency and independent verification
 
 V4.4 adds a correction-aware financial-position stream, read-only WAL snapshots, indexed/bounded statement retrieval, explicit gross/net reconciliation contracts, and one-command bundle verification against a separate accepted plan. AI evaluation now spans six contexts with repeated local runs and reports unnecessary abstention and variability separately from grounding.
 
-[V4.4 guide and measured limits](docs/V4_4.md) · [Position and verification recovery](docs/runbooks/POSITION_AND_VERIFICATION.md). V4.4 is the current release. No outside reviewer request or review packet is being prepared; no independent human review is claimed. The website is unchanged.
+[V4.4 guide and measured limits](docs/V4_4.md) · [Position and verification recovery](docs/runbooks/POSITION_AND_VERIFICATION.md). V4.4.1 is the current release. No outside reviewer request or review packet is being prepared; no independent human review is claimed. The website is unchanged.
 
 ## V4.3 — incident investigation and controlled compensation
 
@@ -66,7 +70,7 @@ python3 scripts/incident_quickstart.py
 # Local investigation: http://127.0.0.1:8086/investigation
 ```
 
-Standard-library runtime; no package install or model is required for the checkout demonstration. The command creates fresh evidence, runs the recovery and starts the local server. [V4.3 incident guide](docs/V4_3.md) · [AI evaluation and retained samples](docs/V4_3_AI.md) · [Recovery runbook](docs/runbooks/INCIDENT_RECOVERY.md). V4.4 is the current release; no independent human review is claimed. The portfolio website is unchanged.
+Standard-library runtime; no package install or model is required for the checkout demonstration. The command creates fresh evidence, runs the recovery and starts the local server. [V4.3 incident guide](docs/V4_3.md) · [AI evaluation and retained samples](docs/V4_3_AI.md) · [Recovery runbook](docs/runbooks/INCIDENT_RECOVERY.md). V4.4.1 is the current release; no independent human review is claimed. The portfolio website is unchanged.
 
 ## Core framework capabilities
 
@@ -97,7 +101,7 @@ Open the [trade workbench](http://127.0.0.1:8085), [V4.2 lifecycle controls](htt
 
 Start with **Run showcase scenario** in the trade workbench. Correct the manager terms, request approval as the maker, switch to the checker and approve. Fund shared shortfalls, then inspect partial execution, remaining obligations and imported statement evidence in the lifecycle screen. [Current demonstration](docs/SHOWCASE_V44.md) · [V4.2 command reference](docs/V4_2.md).
 
-For installation without a checkout, download either wheel from the [V4.4 release](https://github.com/kilicerdal/settlementlab/releases/tag/v4.4.0). The release includes CI evidence, provenance and SHA-256 checksums. The financial workbench wheel is `settlementlab-4.4.0-py3-none-any.whl`; the independent engine is `settlementlab_assurance-4.4.0-py3-none-any.whl`.
+For installation without a checkout, download either wheel from the [V4.4.1 release](https://github.com/kilicerdal/settlementlab/releases/tag/v4.4.1). The release includes CI evidence, provenance and SHA-256 checksums. The financial workbench wheel is `settlementlab-4.4.1-py3-none-any.whl`; the independent engine is `settlementlab_assurance-4.4.1-py3-none-any.whl`.
 
 ## Review the evidence
 

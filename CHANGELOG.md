@@ -1,5 +1,13 @@
 # Changelog
 
+## 4.4.2 — grounded investigator presentation and evaluation (2026-11-22)
+
+- Render investigator summaries and uncertainty from validated claims and fixed descriptions; explicitly pair observation codes and evidence IDs instead of displaying unchecked model prose.
+- Retain raw model outputs separately from displayed analysis; reject invalid/unknown mappings and out-of-contract presentations.
+- Measure AI quality across every requested slot, with observation coverage, citation-aware consistency, per-context results, latency, raw failures and interruption checkpoints.
+- Preserve actual local-model measurements, including raw attribution failures and corrected presentation; add unit and actual HTTP/browser regressions.
+- Verify these boundaries in the exact downloadable workbench wheel, alongside cold-WAL recovery and standalone HTTP-engine reuse. No new live-model benchmark, schema migration or website change.
+
 ## 4.4.1 — cold-WAL compatibility and permanent showcase (2026-11-22)
 
 - Fix read-only cold-WAL startup on the reproduced macOS system Python 3.9.6 / SQLite 3.54.0 build, retaining physical read-only consumers and concurrent snapshot semantics.

@@ -17,6 +17,9 @@ from urllib.request import urlopen
 from settlementlab import __version__
 from settlementlab.infrastructure.sqlite_snapshot import readonly_connection
 from settlementlab.assurance.fixtures import LocalEnvironment
+from settlementlab.adapters.investigator import Investigator
+from settlementlab.assurance.investigator_evaluation import corpus, sample
+from unittest.mock import patch
 assert version("settlementlab") == __version__ == EXPECTED
 p = Path("cold # check?.db")
 db = sqlite3.connect(p)
@@ -35,21 +38,48 @@ with readonly_connection(p) as reader:
         pass
     else:
         raise AssertionError("Consumer became writable")
+case = next(c for c in corpus()["cases"] if c["id"] == "lagging-position")
+raw = dict(case["response"], summary="POSITION_LAG and COMPENSATION_POSTED cite journal:inverse and position:event2 respectively.")
+def wrong_prose(payload):
+    return dict(done=True, message=dict(content=json.dumps(raw)))
+with patch("settlementlab.adapters.investigator.observations", return_value=case["evidence"]):
+    served = Investigator("installed-wheel-injection", wrong_prose).analyze({})
+assert "POSITION_LAG [position:event2]:" in served["analysis"]["summary"]
+assert "COMPENSATION_POSTED [journal:inverse]:" in served["analysis"]["summary"]
+assert "respectively" not in served["analysis"]["summary"]
+assert served["presentation"]["model_prose_displayed"] is False
+counter = 0
+def failed_then_grounded(payload):
+    global counter
+    from settlementlab.core.validation import DomainError
+    counter += 1
+    if counter == 1:
+        raise DomainError("Injected unavailable model", 502)
+    evidence = json.loads(payload["messages"][1]["content"])
+    response = dict(summary="Supplied observations are retained.", uncertainty="Underlying cause is not established by supplied evidence.", abstained=not evidence["observations"], claims=[dict(code=o["code"], evidence_ids=o["evidence_ids"]) for o in evidence["observations"]])
+    return dict(done=True, message=dict(content=json.dumps(response)))
+evaluation = sample("installed-wheel-injection", failed_then_grounded, repeats=1)
+assert evaluation["metrics"]["strict_success"]["numerator"] == 5
+assert evaluation["metrics"]["strict_success"]["denominator"] == 6
+assert evaluation["conditional_accepted_rate"] == 1
+assert evaluation["accepted_rate"] == 5/6
+assert evaluation["quality_status"] == "failed"
+assert evaluation["cases"][1]["presentation_status"] == "rendered"
 with LocalEnvironment() as env:
     with urlopen(env.base_url+"/investigation", timeout=5) as response:
         assert response.status == 200
     with urlopen(env.base_url+"/api/health", timeout=5) as response:
         assert response.status == 200
-print(json.dumps(dict(status="passed",python=platform.python_version(),sqlite=sqlite3.sqlite_version,version=__version__,cold_read=True,physical_write_rejected=True,http_startup=True)))
+print(json.dumps(dict(status="passed",python=platform.python_version(),sqlite=sqlite3.sqlite_version,version=__version__,cold_read=True,physical_write_rejected=True,http_startup=True,canonical_ai_presentation=True,failed_ai_attempt_in_denominator=True,live_model_calls=0)))
 """
 
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--wheel", required=True, type=Path)
-    parser.add_argument("--expected-version", default="4.4.1")
+    parser.add_argument("--expected-version", default="4.4.2")
     parser.add_argument("--python", default=sys.executable)
-    parser.add_argument("--output", default="artifacts/v441/workbench-package", type=Path)
+    parser.add_argument("--output", default="artifacts/v442/workbench-package", type=Path)
     args = parser.parse_args(argv)
     wheel = args.wheel.resolve()
     output = args.output.resolve()

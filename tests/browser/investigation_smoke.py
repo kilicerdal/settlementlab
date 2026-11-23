@@ -21,6 +21,31 @@ with LocalEnvironment() as environment, sync_playwright() as playwright:
         dict(version=fresh["version"], quantity=20, request_key="ui-slice"),
         principal=CHECKER,
     )
+    # Deliberately wrong model prose with valid structured bindings. The actual
+    # HTTP/browser path must display only the canonical claim-based explanation.
+    environment.app.triage.model = "injected-prose-regression"
+    sampled = []
+
+    def transport(payload):
+        evidence = json.loads(payload["messages"][1]["content"])
+        bindings = {o["code"]: o["evidence_ids"] for o in evidence["observations"]}
+        raw = dict(
+            summary="POSITION_LAG and COMPENSATION_POSTED are supported by "
+            + bindings["COMPENSATION_POSTED"][0]
+            + " and "
+            + bindings["POSITION_LAG"][0]
+            + " respectively.",
+            uncertainty="Underlying cause is not established by supplied evidence.",
+            abstained=False,
+            claims=[
+                dict(code=o["code"], evidence_ids=o["evidence_ids"])
+                for o in evidence["observations"]
+            ],
+        )
+        sampled.append(dict(evidence=evidence, raw=raw))
+        return dict(done=True, message=dict(content=json.dumps(raw)))
+
+    environment.app.triage.transport = transport
     browser = playwright.chromium.launch()
     page = browser.new_page(viewport=dict(width=1440, height=1080), accept_downloads=True)
     errors = []
@@ -64,6 +89,18 @@ with LocalEnvironment() as environment, sync_playwright() as playwright:
     expect(page.locator("#gross")).to_have_text("20")
     expect(page.locator("#reversed")).to_have_text("20")
     expect(page.locator("#corrections")).to_contain_text("APPROVED")
+    before_ai = environment.app.service.snapshot()
+    page.locator("#analyze").click()
+    expect(page.locator("#analysis")).to_contain_text("POSITION_LAG [")
+    assert len(sampled) == 1
+    bindings = {o["code"]: o["evidence_ids"] for o in sampled[0]["evidence"]["observations"]}
+    shown = page.locator("#analysis p").first.inner_text()
+    for code in ("POSITION_LAG", "COMPENSATION_POSTED"):
+        assert code + " [" + bindings[code][0] + "]:" in shown
+    assert "respectively" not in shown
+    assert shown != sampled[0]["raw"]["summary"]
+    assert environment.app.service.snapshot() == before_ai
+    page.locator("#analysis").screenshot(path=str(output / "grounded-ai-presentation.png"))
     page.set_viewport_size(dict(width=390, height=844))
     page.screenshot(path=str(output / "incident-mobile.png"), full_page=True)
     assert page.evaluate("document.documentElement.scrollWidth<=innerWidth"), (
@@ -81,6 +118,7 @@ with LocalEnvironment() as environment, sync_playwright() as playwright:
                     "maker/checker compensation",
                     "gross/reversed/net display",
                     "mobile viewport",
+                    "canonical AI prose over actual HTTP/browser with injected attribution error",
                 ],
             ),
             indent=2,

@@ -50,6 +50,7 @@ def summarize(cases, output, repeats):
         for r in valid
         if r["accepted"]
         and r["correct_abstention"]
+        and r.get("presentation_status") == "rendered"
         and (r["expected_abstention"] or r["observation_coverage"]["rate"] == 1)
     ]
     consistency, per_context = [], []
@@ -100,6 +101,9 @@ def summarize(cases, output, repeats):
         schema_valid=fraction(len(valid), requested),
         contract_acceptance=fraction(sum(r["accepted"] for r in recorded), requested),
         strict_success=fraction(len(success), requested),
+        presentation=fraction(
+            sum(r.get("presentation_status") == "rendered" for r in output), requested
+        ),
         unsupported_claims=fraction(
             sum(not r["checks"]["supported_claims"] for r in valid), len(valid)
         ),

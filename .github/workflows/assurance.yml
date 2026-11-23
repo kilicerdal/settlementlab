@@ -60,6 +60,8 @@ jobs:
       - run: PYTHONPATH=src python tests/browser/lifecycle_smoke.py
       - run: PYTHONPATH=src python tests/browser/investigation_smoke.py
       - run: PYTHONPATH=src python tests/browser/consistency_smoke.py
+      - run: python -m scripts.rehearse_fresh_checkout --output artifacts/fresh-checkout
+      - run: PYTHONPATH=src python -m scripts.record_v44 --output artifacts/v44-walkthrough
       - uses: actions/upload-artifact@v7
         if: always()
         with:

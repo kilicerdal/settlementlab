@@ -13,6 +13,22 @@ SettlementLab is a Python financial systems assurance framework with two runnabl
 ![V4.4 authoritative and observed positions after financial compensation](docs/images/position-v44.png)
 *Recorded synthetic V4.4 browser journey. The screenshot illustrates the local interface; it is not a live CI result.*
 
+## Start the V4.4 demonstration
+
+Use **Python 3.13** for the rehearsed local path. From a fresh checkout, no package install, API key or model is needed:
+
+```sh
+git clone https://github.com/kilicerdal/settlementlab.git
+cd settlementlab
+python3.13 scripts/incident_quickstart.py
+```
+
+Open [the local investigation](http://127.0.0.1:8086/investigation). This command **generates a completed incident**: interrupted worker, recovery, correction and verified evidence. It is not an empty interactive workbench. Stop it with `Ctrl+C`; evidence stays in its printed `artifacts/incident-…` directory. Repeat runs use fresh directories. Use `--no-serve` to generate evidence and exit. Port 8086 must be available.
+
+[Two-minute recording and reproduction](docs/SHOWCASE_V44.md) · [Five-minute interview walkthrough](docs/INTERVIEW_WALKTHROUGH_V44.md) · [Current architecture diagram](docs/ARCHITECTURE.md) · [Fresh-checkout results and runtime note](docs/FRESH_CHECKOUT_V44.md)
+
+For an empty workbench where you perform the actions yourself, follow [Run the workbench](#run-the-workbench), which uses port **8085**. Python 3.9+ remains the package requirement; the local macOS rehearsal found a read-only WAL failure with one system Python/SQLite build. Use the tested 3.13 runtime if that occurs; details and the retained failure are in the fresh-checkout report.
+
 ## V4.4 — financial consistency and independent verification
 
 V4.4 adds a correction-aware financial-position stream, read-only WAL snapshots, indexed/bounded statement retrieval, explicit gross/net reconciliation contracts, and one-command bundle verification against a separate accepted plan. AI evaluation now spans six contexts with repeated local runs and reports unnecessary abstention and variability separately from grounding.
@@ -57,7 +73,7 @@ python3 -m venv .venv
 
 Open the [trade workbench](http://127.0.0.1:8085), [V4.2 lifecycle controls](http://127.0.0.1:8085/lifecycle) or [durable operations](http://127.0.0.1:8085/operations). The profile uses business date **2026-11-09** and persists its synthetic database at `artifacts/showcase.db`. Audit and queue timestamps remain real. This date-only profile does not enforce an intraday cutoff; see [timestamp simulation](docs/V4_2.md#try-locally).
 
-Start with **Run showcase scenario** in the trade workbench. Correct the manager terms, request approval as the maker, switch to the checker and approve. Fund shared shortfalls, then inspect partial execution, remaining obligations and imported statement evidence in the lifecycle screen. [Guided demonstration](docs/SHOWCASE.md) · [V4.2 command reference](docs/V4_2.md).
+Start with **Run showcase scenario** in the trade workbench. Correct the manager terms, request approval as the maker, switch to the checker and approve. Fund shared shortfalls, then inspect partial execution, remaining obligations and imported statement evidence in the lifecycle screen. [Current demonstration](docs/SHOWCASE_V44.md) · [V4.2 command reference](docs/V4_2.md).
 
 For installation without a checkout, download either wheel from the [V4.4 release](https://github.com/kilicerdal/settlementlab/releases/tag/v4.4.0). The release includes CI evidence, provenance and SHA-256 checksums. The financial workbench wheel is `settlementlab-4.4.0-py3-none-any.whl`; the independent engine is `settlementlab_assurance-4.4.0-py3-none-any.whl`.
 

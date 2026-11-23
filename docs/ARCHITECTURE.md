@@ -1,77 +1,74 @@
 # Architecture and decisions
 
-V4.4 adds [financial-position events, read snapshots and bounded economic investigation](V4_4.md).
-
-V4.3 adds [correlated investigations and compensating accounting](decisions/007-incident-and-compensation.md), with [complete incident replay and portable evidence](V4_3.md).
-
-V4.2 adds [versioned obligation controls](decisions/006-versioned-obligations.md), [standalone HTTP packaging](STANDALONE_ASSURANCE.md) and [operational recovery](runbooks/LIFECYCLE_RECOVERY.md). The structure below describes the base framework.
-
-For implementation links, alternatives, tradeoffs and focused regression commands, read the [three engineering decision records](decisions/README.md).
+SettlementLab V4.4 combines a reusable HTTP assurance engine with two reference applications. The financial workbench demonstrates durable execution and controlled correction; the collateral service demonstrates that assurance can be reused without installing the financial application. Both use synthetic data.
 
 ```mermaid
-flowchart LR
-    UI[Operations console] --> HTTP[HTTP adapter]
-    Client[Python assurance client] --> HTTP
-    HTTP --> Domain[Transactional lifecycle service]
-    Domain --> Matching[Versioned pure matching policy]
-    Domain --> DB[(Trades / submissions / audit / settlements)]
-    HTTP --> AI[Read-only local AI adapter]
-    AI --> Ollama[Loopback model runtime]
+flowchart TB
+    subgraph assurance[Reusable assurance engine — separately installable wheel]
+        DSL[Declarative JSON scenarios and target profiles] --> Transport[Bounded HTTP transport and saved references]
+        Transport --> Reports[HTML / JSON / JUnit evidence]
+    end
+    Transport --> HTTP[Financial HTTP adapter]
+    Transport --> Collateral[Independent collateral reservation API]
+    UI[Trade / operations / lifecycle / investigation UI] --> HTTP
+    HTTP --> Service[Lifecycle service and pure policies]
+    HTTP --> Investigation[Read-only investigation snapshot]
+    HTTP --> Advisory[Optional advisory local AI]
+    Advisory --> Ollama[Loopback Ollama — no mutation tools]
+    Service --> Store[SQLite repository / transaction boundary]
+    Worker[Settlement worker — lease and fencing] --> Store
+    Store --> DB[(WAL database: obligations / approvals / journal / receipts)]
+    Store --> History[Historical settlement outbox]
+    Store --> Position[Financial-position outbox]
+    History --> HistoricalObserver[Historical observer + inbox deduplication]
+    Position --> PositionWorker[Position worker + inbox deduplication]
+    PositionWorker --> Projection[Observed financial-position projection]
+    DB --> Investigation
+    Projection --> Investigation
+    Investigation --> Bundle[Portable incident ZIP + checksums]
+    Plan[External accepted scenario plan] --> Verifier[Offline scoped economic verifier]
+    Bundle --> Verifier
+    Verifier --> Result[Integrity and economic checks / explicit limits]
 ```
 
-## Transaction boundaries
+Arrows describe commands and data flow, not independent services. Outboxes, inbox receipts and projections are tables in the same local database. Worker CLIs can run in separate processes. The collateral reference application owns its own database and has no framework imports.
 
-The lifecycle service requests transactions through an application-owned store port and has no SQL, HTTP or UI dependency. SQLiteStore implements the transaction boundary. Shared validators define exact monetary constraints. The matching module normalizes independent terms and compares them without storage or network access. Each new manager revision atomically stores the submission, matching result, lifecycle update, audit event and replay response. Failed commands roll back. BEGIN IMMEDIATE serializes local writers; version guards reject stale independent submissions. Unique trade/key and trade/revision constraints protect history.
+## Execution and recovery
 
-Manager revisions never change broker economics. The matching report is stored with the trade and carries a policy ID plus all discrepancy records. Replaying a manager key returns its stored response snapshot, even if the trade later advanced. A successful new command increments the version; replay does not.
+`bootstrap.py` composes explicit settings, application services, infrastructure adapters and optional AI. Core matching, identity rules and calendar policies are independent of HTTP. Application services use the store/repository ports; SQLite adapters own SQL and migration.
 
-## State machine
+A settlement worker claims queued work with an expiring lease. Fencing and obligation-version checks reject stale authority. One write transaction commits financial entries, execution slice, processing receipt, lifecycle state and outgoing events. `BEGIN IMMEDIATE` serializes local writers. A process interrupted after claim leaves retained evidence; another worker can recover after lease expiry. Retry and duplicate-delivery controls do not imply distributed exactly-once execution.
 
-A broker submission creates RECEIVED. Manager submission produces MATCHED or EXCEPTION. Further pre-affirmation manager revisions rerun matching and preserve history. MATCHED may be affirmed with a synthetic instruction. AFFIRMED may settle or become FAILED. FAILED may be funded and retried. SETTLED is terminal. Manager amendments lock after affirmation. Legacy allocation-only trades retain their V1 state transitions; the allocate command cannot bypass two-sided matching.
+Partial execution posts four cash/security legs per slice. Monetary amounts use bounded integer cents; quantities and per-asset balance checks are explicit. Approving a compensation appends exact inverse entries and retains the original receipt. Gross execution, reversed execution and current net position remain distinguishable. Compensation closes the remaining ordinary execution path; net zero does not mean the obligation never executed.
 
-## Migration and persistence
+## Two observer meanings
 
-Startup adds side, currency, mode and matching-report columns and a manager-submissions table. Existing trades default to allocation-only. The migration is repeatable and tested against a V1-shaped database, including its original broker fingerprint format. Back up an existing database before upgrading. Records are not cryptographically immutable: direct database access can change them.
+The historical outbox records that execution happened. Its delivered `PARTIALLY_SETTLED` receipt stays historical even after compensation.
 
-## AI boundary
+The financial-position outbox carries versioned net effects, including compensation. Its worker maintains a separate observed projection. Authoritative values can therefore be current while observation is `LAGGING`. Inbox receipts deduplicate delivery; an old event cannot regress a newer projection. See [position and verification recovery](runbooks/POSITION_AND_VERIFICATION.md).
 
-The server constructs a stage-specific envelope from the same trade version it checked. Matching evidence includes project policy definitions and explicit expected/observed break values. Free-form accounts and audit detail are excluded. The model returns schema-constrained advisory text and references. It has no mutation tools. Analysis runs outside the database transaction; concurrent changes can make its result stale, so its version is visible. Schema and citation identity checks cannot establish semantic correctness.
+## Consistent reads and portable verification
 
-## Assurance
+Read-only SQLite transactions provide a consistent WAL snapshot without taking the writer reservation. Investigations correlate worker attempts, approvals, execution slices, statements, compensation and position events. Retrieval is indexed and bounded; exceeding the investigation bound fails explicitly rather than silently dropping history. Global journal validation still scans retained financial history.
 
-Domain tests use independent expected amounts and findings. They cover every matching field, separate allocation semantics, normalization, replay, stale writers, rollback, concurrent submissions, state guards, settlement once-only behavior, and migration. HTTP tests use a real ephemeral TCP server. The browser journey tests two-sided correction and recovery, then manual mobile submissions and filters. Optional live local inference is separate from deterministic CI.
+Exports contain the snapshot, HTML view and checksum manifest. Checksums establish internal content integrity, not authenticity. An offline verifier can additionally compare exact participants, assets, signs, quantities and cents with a separately supplied accepted plan. Without that plan, economic verification is explicitly `NOT_RUN`. The showcase uses a separate process and declared scenario inputs; this is not an independent human attestation. See [V4.4](V4_4.md).
 
-## Scope
+## Approval, time and reconciliation
 
-SQLite and the standard library keep the local demonstration reproducible. Verified identity, participant isolation, durable workers, official market calendar datasets and production serving remain outside this release. Shared multi-asset posting and demo maker/checker controls are implemented as described below. Broker trades are USD; currency conversion is not implemented. Shared trades enforce settlement eligibility under a pinned project calendar. Prices use a fixed two-decimal simulation policy.
+Maker/checker commands require different resolved demo principals. Session tokens expire; request JSON cannot assign its own role. Anyone at the local console can switch personas, so this demonstrates command authorization rules rather than production authentication or distinct-person verification. Reads are not isolated by participant.
 
+Versioned amendments retain accepted terms and invalidate stale approvals, matching authority and worker claims. Project calendar and cutoff policies are pinned to obligations. Explicit timestamp simulation enforces the UTC cutoff; the date-only showcase profile does not enforce intraday time. Audit timestamps remain real. Official market-calendar datasets are outside scope.
 
-## Shared-ledger transaction boundary
+Legacy `/api/reconcile` compares gross receipts. The statement-import investigation contract compares net-after-compensation positions and retains original discrepancy snapshots and later resolutions. A corrected statement, rather than a changed label, is needed to resolve a case.
 
-`journal.py` validates per-asset zero sums, bounded integer deltas, known participants and nonnegative trading balances. Synthetic reserve offsets may be negative. One write transaction posts four cash/security lines, updates balance projections, inserts the settlement record, updates lifecycle state, and writes audit evidence. Failed funding or settlement rolls back the whole transaction. A unique settlement journal per trade plus lifecycle/version guards prevent repeat spending. SQLite writer serialization also protects balances shared by different trades.
+## AI and reusable assurance
 
-Before posting, stored projections are compared with Python-integer reconstruction from journal lines and batches are checked for per-asset balance. Breaks stop new postings. This full scan favors inspectability over scale; it is not a production journal architecture. Direct database access can alter records; no tamper-proof audit claim is made.
+The optional loopback AI adapter receives bounded, versioned evidence and returns schema-constrained advisory text with references. It cannot mutate financial state. Analysis runs outside the transaction and may become stale; citation and schema validation do not prove semantic accuracy. Deterministic fixtures and retained live samples are reported separately. The recorded walkthrough does not invoke a model.
 
-## Approval and session boundaries
+The independently installable assurance engine owns transport, allowlisted scenario actions, saved JSON references and report exporters. The collateral example's healthy replay must return `200`; its intentionally faulty variant returns `201`. Only that exact violated contract counts as the expected defect detection. The failed negative report is retained as evidence. See [standalone assurance](STANDALONE_ASSURANCE.md) and [framework extension](FRAMEWORK.md).
 
-Instruction requests store maker, current terms version, instruction and idempotency key. A different checker can approve or reject against the current version. New manager revisions cancel pending requests. Approval and the AFFIRMED transition commit together. Funding does not advance trade version because it changes participant capacity, not approved economics.
+## Tradeoffs and boundaries
 
-`identity.py` stores opaque, expiring demo session tokens in memory. The HTTP adapter supplies the resolved Principal to the domain; JSON role/actor fields are not trusted. Anyone at the local console may select a demo persona. This demonstrates role enforcement and different-identity approval, not distinct-person authentication. Participant reads are not isolated. Older trade-scoped contracts remain explicitly outside shared-ledger governance for compatibility.
+SQLite, a standard-library runtime and local profiles keep the demonstration free and reproducible. Single-writer serialization, full journal scans, bounded investigation and a project-defined calendar favor inspection over market-scale throughput. Direct database access can alter evidence. There is no real money, production identity, market connection, external custody, distributed deployment guarantee or independent human review claim.
 
-Startup adds participants, projections, journal batches/lines, instruction approvals and settlement-model columns. Old trades default to trade-scoped behavior; their economics are not silently moved into the shared journal.
-
-## V2.3 module boundaries
-
-Core policies and evidence shaping are persistence/network independent. SettlementService receives an application-owned Store protocol and calls named repository methods. SQLiteRepository owns SQL and row/cursor conversion; SQLiteStore owns migration and transaction lifetime. bootstrap.create_application composes these with explicit Settings and the AI adapter. DemoSessions is an infrastructure identity adapter; Principal and require are pure workflow policy. HTTP and model transports live under adapters.
-
-The assurance layer provides isolated HTTP fixtures, a synthetic input factory, an allowlisted JSON acceptance DSL and report exporters. Unit/integration/API/browser directories reflect execution boundaries. Older domain/server/etc. modules are compatibility facades. See FRAMEWORK.md for extension and remaining coarse journal-adapter boundaries.
-
-## Pinned calendar and business time
-
-A shared trade persists its calendar policy and fingerprint. Creation validates next-business-day settlement under that policy; posting rejects early or closed dates without lifecycle, audit or journal mutation. Settings changes do not rewrite existing trades. Default business time is actual UTC; showcase profiles use an explicitly labeled fixed date. Audit time remains real. Weekends and configured project closures are supported; official holiday datasets and intraday cutoffs are not.
-
-## Reusable assurance and evidence delivery
-
-JsonClient owns bounded transport, timeout/error classification, cookie isolation and sanitized request metadata. SettlementClient adds domain helpers. The generic HTTP scenario action uses target profiles and saved JSON references against a separately running application. The independent collateral example has no framework imports and owns its own SQLite schema.
-
-The V3.0 showcase orchestrator composes financial fixtures and healthy/faulty collateral fixtures with temporary storage. It requires exact control/fault outcomes and writes portable HTML/JSON/JUnit plus a checksum manifest. Verification is offline and does not invoke a model or imply full-suite/browser coverage. CI runs full controls, browser, separate-process reuse and showcase verification as distinct jobs.
+Read the [engineering decision records](decisions/README.md) for alternatives and implementation references. Older trade-scoped contracts and allocation-only transitions remain compatibility paths; they should not be presented as the current shared-ledger governance model.

@@ -1,5 +1,6 @@
 # Short SettlementLab walkthrough
 
+Historical V3 material. For the current release, use the [V4.4 showcase package](SHOWCASE_V44.md).
 [Watch/download the captioned recording](https://github.com/kilicerdal/settlementlab/releases/download/v3.0.0/settlementlab-walkthrough.webm) · [Recording provenance and scene timestamps](https://github.com/kilicerdal/settlementlab/releases/download/v3.0.0/settlementlab-walkthrough.json) · [Engineering decisions](decisions/README.md)
 
 The video records actual local browser actions, followed by reports generated immediately before recording. On-screen captions pace the explanation; pauses do not simulate processing progress. It is silent, with a narration script below for a personal presentation. It does not claim a live AI run, production connectivity or verified human identity.

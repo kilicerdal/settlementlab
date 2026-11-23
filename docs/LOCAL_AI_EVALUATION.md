@@ -24,7 +24,7 @@ Every rate in `live.metrics` carries a numerator, denominator and nullable rate.
 | Metric | Population and meaning |
 | --- | --- |
 | Recording / schema-valid / contract acceptance | Divide by **all requested slots**, including unavailable, malformed and unattempted slots. |
-| Strict success | All requested slots; requires application contract acceptance, correct abstention and complete coverage of supplied observation codes. |
+| Strict success | All requested slots; requires application contract acceptance, correct abstention, complete coverage of supplied observation codes and successful canonical presentation. |
 | Observation coverage | Supplied observation codes across schema-valid nonempty responses, counted only when the claim has valid citations for that code. Missing codes are listed per response and context. Read alongside all-requested strict success. |
 | Unsupported claims / invalid citations | Schema-valid responses only; this conditional population is explicit. |
 | Unnecessary abstention | Schema-valid responses to nonempty evidence. |
@@ -35,6 +35,16 @@ Every rate in `live.metrics` carries a numerator, denominator and nullable rate.
 `accepted_rate` now uses all requested slots. The older, successful-output-only denominator is available explicitly as `conditional_accepted_rate`; do not compare these interchangeably with archived reports. `quality_status` describes the structured evaluation; top-level `status` still describes the separate deterministic fixture checks.
 
 The report retains per-context results, failure categories, bounded raw response text (including invalid/truncated outputs), prompt/schema/corpus hashes, options and timing. An oversized output retains its first 16,384 characters and an explicit truncation flag.
+
+## Canonical investigator presentation
+
+The API now renders displayed summaries from validated structured claims and fixed observation descriptions. Each summary item names its code and one exact evidence ID; all additional validated IDs remain attached to that claim's structured links. Uncertainty is fixed server text. Model-written summary and uncertainty are never interpolated into the displayed explanation. Unknown description codes and invalid or oversized presentations fail closed.
+
+For example, the retained erroneous model prose associates IDs in the wrong order, while the displayed text explicitly says `POSITION_LAG [position:event2]` and `COMPENSATION_POSTED [journal:inverse]`. The claim buttons retain those same validated bindings. The UI layout is unchanged; this applies to the incident investigator, not every AI feature in the framework.
+
+Evaluation version `incident-evaluation-v3` retains both `response` / `raw_response` and `displayed_analysis`. Its all-requested `presentation` metric counts successful canonical rendering; strict success now also requires that rendering. A completed 12-call local sample passed 12/12 structured/presentation slots, while both raw lagging-position summaries still contained the known prose error. [Retained raw-versus-displayed evidence](examples/incident-ai-presentation-v1.json). This fixes the served explanation, not the model's underlying prose generation.
+
+Five added unit controls replay all four original failing summaries through the actual investigator, reorder claims, test invalid/unknown mappings, abstention and multiple references, and check evaluation retention. A real HTTP/browser journey injects the same error with live synthetic record IDs, verifies the displayed pairings and unchanged financial state. Full local controls passed 228 tests plus four scenarios and the coverage gate. Supplied observations still are not authenticated external truth.
 
 ## Partial runs and exit codes
 

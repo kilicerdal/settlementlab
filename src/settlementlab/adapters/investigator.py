@@ -172,6 +172,48 @@ def assess_response(result, evidence):
     return checks
 
 
+DESCRIPTIONS = {
+    "PARTIAL_EXECUTION": "Gross execution covers part of the original quantity.",
+    "WORKER_INTERRUPTION": "A worker lease expired; its cause is unknown.",
+    "STATEMENT_DISCREPANCY": "An imported statement differed at comparison time.",
+    "RESOLUTION_VERIFIED": "A retained resolution references corrected imported evidence.",
+    "COMPENSATION_POSTED": "Compensating entries are recorded; original execution remains.",
+    "POSITION_LAG": "Observed amounts have not caught up with financial events.",
+    "POSITION_SYNCHRONIZED": "Observed amounts match current authoritative totals.",
+}
+
+
+def render_analysis(result, evidence):
+    """Present validated claim bindings; never interpolate model-written prose.
+
+    A summary names one exact evidence ID per claim. Any additional validated
+    IDs remain in that claim's structured links. Unknown codes fail closed.
+    """
+    if not all(assess_response(result, evidence).values()):
+        raise ValueError("Only validated claims may be rendered")
+    if result["abstained"]:
+        summary = "No supported observations were reported. No incident cause is established."
+    else:
+        parts = []
+        for claim in result["claims"]:
+            description = DESCRIPTIONS.get(claim["code"])
+            if description is None:
+                raise ValueError("No canonical description for observation code")
+            parts.append(claim["code"] + " [" + claim["evidence_ids"][0] + "]: " + description)
+        summary = " ".join(parts)
+    rendered = dict(
+        summary=summary,
+        uncertainty="Underlying cause is not established by supplied evidence.",
+        abstained=result["abstained"],
+        claims=[
+            dict(code=c["code"], evidence_ids=list(c["evidence_ids"])) for c in result["claims"]
+        ],
+    )
+    if not all(assess_response(rendered, evidence).values()):
+        raise ValueError("Canonical explanation exceeds its presentation contract")
+    return rendered
+
+
 class Investigator:
     def __init__(self, model="", transport=send_request):
         self.model = model
@@ -219,6 +261,7 @@ class Investigator:
             checks = assess_response(result, evidence)
             if not all(checks.values()):
                 raise ValueError()
+            rendered = render_analysis(result, evidence)
         except (ValueError, TypeError, KeyError, AttributeError):
             raise DomainError(
                 "Investigator response failed grounding or abstention checks; records unchanged",
@@ -231,7 +274,12 @@ class Investigator:
             prompt_version="incident-v44.1",
             advisory_only=True,
             evidence=evidence,
-            analysis=result,
+            analysis=rendered,
+            presentation=dict(
+                version="validated-observations-v1",
+                summary_origin="canonical-validated-claims",
+                model_prose_displayed=False,
+            ),
             checks=checks,
-            scope="Structured grounding checks cannot prove the truth of unrestricted prose; no financial actions are exposed",
+            scope="Displayed prose is rendered from validated claim bindings and fixed descriptions; supplied observations are not authenticated external truth. No financial actions are exposed",
         )

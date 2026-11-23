@@ -9,7 +9,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from ..adapters.ai import send_request
-from ..adapters.investigator import assess_response
+from ..adapters.investigator import assess_response, render_analysis
 from ..core.validation import DomainError
 
 
@@ -84,7 +84,7 @@ def sample(model, transport=send_request, repeats=2, on_progress=None):
             mode="live-local-model",
             run_status=status,
             generated_at=generated,
-            evaluation_version="incident-evaluation-v2",
+            evaluation_version="incident-evaluation-v3",
             prompt_version="incident-v44.1",
             prompt_sha256=hashlib.sha256(INSTRUCTIONS.encode()).hexdigest(),
             schema_sha256=hashlib.sha256(json.dumps(SCHEMA, sort_keys=True).encode()).hexdigest(),
@@ -156,6 +156,15 @@ def sample(model, transport=send_request, repeats=2, on_progress=None):
                     and parsed["abstained"] == row["expected_abstention"],
                     observation_coverage=observation_coverage(parsed, evidence),
                 )
+                if row["accepted"]:
+                    try:
+                        row["displayed_analysis"] = render_analysis(parsed, evidence)
+                        row["presentation_status"] = "rendered"
+                    except ValueError as error:
+                        row["presentation_status"] = "rejected"
+                        row["presentation_detail"] = str(error)
+                else:
+                    row["presentation_status"] = "not-rendered-contract-rejected"
             except KeyboardInterrupt:
                 row.update(
                     status="interrupted",

@@ -1,5 +1,13 @@
 # Changelog
 
+## 4.4.1 — cold-WAL compatibility and permanent showcase (2026-11-22)
+
+- Fix read-only cold-WAL startup on the reproduced macOS system Python 3.9.6 / SQLite 3.54.0 build, retaining physical read-only consumers and concurrent snapshot semantics.
+- Apply compatible connection lifetime to investigation, backup and assurance readers; safely finalize destination backup sidecars.
+- Add five regression controls, retained before/after evidence and clean source/wheel installation checks.
+- Include permanent V4.4 showcase media links, architecture preview and interview walkthrough; historical capture provenance remains explicit.
+- Publish matching 4.4.1 workbench and independent assurance wheels. No schema migration or website change.
+
 ## 4.4.0 — financial consistency and bounded investigation (2026-11-22)
 
 - Atomic execution/compensation position events, fenced at-least-once observation and monotonic net-position projection, separate from historical settlement delivery.

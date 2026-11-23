@@ -110,7 +110,8 @@ class IncidentAIControls(unittest.TestCase):
 
         report = sample("absent-local-model", unavailable)
         self.assertEqual(report["recorded"], 0)
-        self.assertIsNone(report["accepted_rate"])
+        self.assertEqual(report["accepted_rate"], 0)
+        self.assertIsNone(report["conditional_accepted_rate"])
 
     def test_live_sampler_records_valid_and_invalid_outputs_separately(self):
         def transport(payload):

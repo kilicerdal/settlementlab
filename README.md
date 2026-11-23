@@ -1,14 +1,14 @@
 # SettlementLab
 
-[![Settlement assurance](https://github.com/kilicerdal/settlementlab/actions/workflows/assurance.yml/badge.svg)](https://github.com/kilicerdal/settlementlab/actions/workflows/assurance.yml) [![Release V4.4.1](https://img.shields.io/badge/release-v4.4.1-287d68)](https://github.com/kilicerdal/settlementlab/releases/tag/v4.4.1) ![Python 3.9+](https://img.shields.io/badge/Python-3.9%2B-3776AB?logo=python) [![MIT license](https://img.shields.io/github/license/kilicerdal/settlementlab)](LICENSE)
+[![Settlement assurance](https://github.com/kilicerdal/settlementlab/actions/workflows/assurance.yml/badge.svg)](https://github.com/kilicerdal/settlementlab/actions/workflows/assurance.yml) [![Release V4.4.2](https://img.shields.io/badge/release-v4.4.2-287d68)](https://github.com/kilicerdal/settlementlab/releases/tag/v4.4.2) ![Python 3.9+](https://img.shields.io/badge/Python-3.9%2B-3776AB?logo=python) [![MIT license](https://img.shields.io/github/license/kilicerdal/settlementlab)](LICENSE)
 
 **Financial workflows. Reusable assurance. Inspectable evidence.**
 
 SettlementLab is a Python financial systems assurance framework with two runnable reference applications: a post-trade operations workbench and an independent collateral reservation API. Follow a synthetic obligation through matching, independent approval, partial settlement, recovery and reconciliation. Then install the assurance engine separately and use it to detect a deliberately broken reservation replay.
 
-**V4.4.1 is the current release.** Standard-library runtime, no required API key or paid service, and optional local AI. Built by Erdal Kilic.
+**V4.4.2 is the current release.** Standard-library runtime, no required API key or paid service, and optional local AI. Built by Erdal Kilic.
 
-[Download V4.4.1](https://github.com/kilicerdal/settlementlab/releases/tag/v4.4.1) · [Reviewer guide](docs/REVIEWER_GUIDE.md) · [V4.4 consistency and verification guide](docs/V4_4.md) · [Architecture](docs/ARCHITECTURE.md)
+[Download V4.4.2](https://github.com/kilicerdal/settlementlab/releases/tag/v4.4.2) · [V4.4.2 patch guide](docs/V4_4_2.md) · [Reviewer guide](docs/REVIEWER_GUIDE.md) · [V4.4 consistency and verification guide](docs/V4_4.md) · [Architecture](docs/ARCHITECTURE.md)
 
 ## Watch the incident walkthrough
 
@@ -77,11 +77,11 @@ Open the [trade workbench](http://127.0.0.1:8085), [V4.2 lifecycle controls](htt
 
 Start with **Run showcase scenario** in the trade workbench. Correct the manager terms, request approval as the maker, switch to the checker and approve. Fund shared shortfalls, then inspect partial execution, remaining obligations and imported statement evidence in the lifecycle screen. [Current demonstration](docs/SHOWCASE_V44.md) · [V4.2 command reference](docs/V4_2.md).
 
-For installation without a checkout, download either wheel from the [V4.4.1 release](https://github.com/kilicerdal/settlementlab/releases/tag/v4.4.1). The release includes CI evidence, provenance and SHA-256 checksums. The financial workbench wheel is `settlementlab-4.4.1-py3-none-any.whl`; the independent engine is `settlementlab_assurance-4.4.1-py3-none-any.whl`.
+For installation without a checkout, download either wheel from the [V4.4.2 release](https://github.com/kilicerdal/settlementlab/releases/tag/v4.4.2). The release includes CI evidence, provenance and SHA-256 checksums. The financial workbench wheel is `settlementlab-4.4.2-py3-none-any.whl`; the independent engine is `settlementlab_assurance-4.4.2-py3-none-any.whl`.
 
 ## Review the evidence
 
-V4.4.1 passed **215 unit/API/integration tests and four assurance scenarios**, with Python 3.9/3.13 controls and all ten release checks passing. Both downloadable wheels were verified outside the checkout; the workbench wheel also passed on the previously failing system Python/SQLite build. [Release evidence and checksums](https://github.com/kilicerdal/settlementlab/releases/tag/v4.4.1).
+V4.4.2 passed **228 unit/API/integration tests and four assurance scenarios**, with Python 3.9/3.13 controls and all ten release checks passing. Both downloadable wheels were verified outside the checkout; the workbench wheel also passed on the previously failing system Python/SQLite build. [Release evidence and checksums](https://github.com/kilicerdal/settlementlab/releases/tag/v4.4.2).
 
 Supporting evidence across the documented releases includes:
 

@@ -1,3 +1,3 @@
 """SettlementLab: independent, synthetic post-trade simulation."""
 
-__version__ = "4.4.1"
+__version__ = "4.4.2"

@@ -4,7 +4,7 @@ These are recorded local development checks. Fresh CI artifacts are tied to thei
 
 | Check | Local result |
 | --- | --- |
-| Full regression suite | 209 unit/API/integration tests and four scenarios passed |
+| Full regression suite | 210 unit/API/integration tests and four scenarios passed |
 | Coverage | Captured combined statement/branch coverage approximately 85.5%, above the 85% gate |
 | Source mutation campaign | All nine existing targeted mutants detected; no invalid mutants |
 | Financial position | Atomic publication, inverse updates, deduplication, out-of-order protection, pre/post-projection crash recovery and fenced/exhausted leases verified |
@@ -15,6 +15,7 @@ These are recorded local development checks. Fresh CI artifacts are tied to thei
 | API and browser | Existing workbench/durable/lifecycle/investigation journeys passed; new actual position-worker, correction, download and mobile journey passed |
 | Distribution | Both candidate wheels co-installed outside checkout; incident, combined verifier, position worker, evaluator and generic HTTP runner passed |
 | Independent service | Standalone engine without financial application passed healthy service and detected injected replay defect |
+| Portable WAL backup | Handles closed before return; standalone DELETE-mode image verified while source WAL contains new committed work |
 | Upgrade | Genuine released V4.3 schema 7 → 8 retained financial rows, recovered pending work once, refused old-release access and restored its backup |
 | AI | 34 deterministic fixtures plus an actual six-context/two-repeat local sample retained separately |
 

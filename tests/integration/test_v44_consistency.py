@@ -7,6 +7,7 @@ import tempfile
 import time
 import unittest
 import zipfile
+from contextlib import closing
 from pathlib import Path
 from unittest.mock import patch
 
@@ -420,3 +421,49 @@ class ConsistencyControls(unittest.TestCase):
                 archive.writestr(name, data)
         with self.assertRaises(ValueError):
             verify(path)
+
+    def test_wal_backup_is_closed_and_portable_before_return(self):
+        import hashlib
+        import shutil
+
+        from settlementlab.infrastructure.backup import backup
+
+        real_connect = sqlite3.connect
+        connections = []
+
+        def connect(*args, **kwargs):
+            connection = real_connect(*args, **kwargs)
+            connections.append(connection)
+            return connection
+
+        target = self.root / "portable.db"
+        with self.service.store.read_transaction() as reader:
+            old = reader.db.execute(
+                "SELECT version FROM trades WHERE id=?", (self.trade["id"],)
+            ).fetchone()[0]
+            self.service.command(
+                self.trade["id"],
+                "settle-partial",
+                dict(version=old, quantity=10, request_key="wal-frames"),
+                principal=CHECKER,
+            )
+            self.assertTrue(Path(self.app.settings.database + "-wal").exists())
+            with patch("settlementlab.infrastructure.backup.sqlite3.connect", side_effect=connect):
+                result = backup(self.app.settings.database, target)
+            for connection in connections:
+                with self.assertRaises(sqlite3.ProgrammingError):
+                    connection.execute("SELECT 1")
+            self.assertFalse(Path(str(target) + "-wal").exists())
+            self.assertFalse(Path(str(target) + "-shm").exists())
+            self.assertEqual(hashlib.sha256(target.read_bytes()).hexdigest(), result["sha256"])
+            restored = self.root / "separate-restore.db"
+            shutil.copyfile(target, restored)
+            with closing(real_connect(restored)) as db:
+                self.assertEqual(db.execute("PRAGMA integrity_check").fetchone()[0], "ok")
+                self.assertEqual(db.execute("PRAGMA journal_mode").fetchone()[0], "delete")
+                self.assertEqual(
+                    db.execute(
+                        "SELECT quantity FROM settlements WHERE trade_id=?", (self.trade["id"],)
+                    ).fetchone()[0],
+                    50,
+                )

@@ -13,6 +13,7 @@ from pathlib import Path
 
 from settlementlab.bootstrap import create_application
 from settlementlab.configuration import Settings
+from settlementlab.infrastructure.backup import backup as online_backup
 from settlementlab.infrastructure.schema import SCHEMA_VERSION
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -55,7 +56,9 @@ if SCHEMA_VERSION>=6:
     Reconciliation(app.service).import_statement([],'before-upgrade',CHECKER)
 """
         subprocess.run([sys.executable, "-c", setup, str(database)], cwd=root, env=env, check=True)
-        with sqlite3.connect(database) as db:
+        from contextlib import closing
+
+        with closing(sqlite3.connect(database)) as db:
             before = dict(
                 version=db.execute("PRAGMA user_version").fetchone()[0],
                 balances=db.execute(
@@ -63,9 +66,8 @@ if SCHEMA_VERSION>=6:
                 ).fetchall(),
                 journal=db.execute("SELECT * FROM journal_lines ORDER BY batch_id,line").fetchall(),
             )
-            backup = root / "pre-upgrade.db"
-            with sqlite3.connect(backup) as dest:
-                db.backup(dest)
+        backup = root / "pre-upgrade.db"
+        online_backup(database, backup)
         app = create_application(
             Settings(database=str(database), model="", business_date="2026-11-09")
         )

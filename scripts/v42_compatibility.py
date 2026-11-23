@@ -13,6 +13,7 @@ from pathlib import Path
 
 from settlementlab.bootstrap import create_application
 from settlementlab.configuration import Settings
+from settlementlab.infrastructure.backup import backup as online_backup
 from settlementlab.infrastructure.schema import SCHEMA_VERSION
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -21,7 +22,9 @@ ROOT = Path(__file__).resolve().parents[1]
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", default="artifacts/v42/compatibility")
-    parser.add_argument("--source-release", choices=("v4.1.0", "v4.2.0"), default="v4.1.0")
+    parser.add_argument(
+        "--source-release", choices=("v4.1.0", "v4.2.0", "v4.3.0"), default="v4.1.0"
+    )
     args = parser.parse_args(argv)
     output = Path(args.output)
     output.mkdir(parents=True, exist_ok=True)
@@ -46,9 +49,16 @@ app=create_application(Settings(database=sys.argv[1],model='',business_date='202
 trade=approved_trade(app.service)
 app.operations.enqueue_batch([entry(trade)],'legacy-batch',CHECKER)
 app.operations.claim('old-worker',0.1)
+settled=approved_trade(app.service,'already-posted')
+app.service.command(settled['id'],'settle',dict(version=settled['version']),principal=CHECKER)
+if SCHEMA_VERSION>=6:
+    from settlementlab.application.reconciliation import Reconciliation
+    Reconciliation(app.service).import_statement([],'before-upgrade',CHECKER)
 """
         subprocess.run([sys.executable, "-c", setup, str(database)], cwd=root, env=env, check=True)
-        with sqlite3.connect(database) as db:
+        from contextlib import closing
+
+        with closing(sqlite3.connect(database)) as db:
             before = dict(
                 version=db.execute("PRAGMA user_version").fetchone()[0],
                 balances=db.execute(
@@ -56,9 +66,8 @@ app.operations.claim('old-worker',0.1)
                 ).fetchall(),
                 journal=db.execute("SELECT * FROM journal_lines ORDER BY batch_id,line").fetchall(),
             )
-            backup = root / "pre-upgrade.db"
-            with sqlite3.connect(backup) as dest:
-                db.backup(dest)
+        backup = root / "pre-upgrade.db"
+        online_backup(database, backup)
         app = create_application(
             Settings(database=str(database), model="", business_date="2026-11-09")
         )
@@ -73,7 +82,7 @@ app.operations.claim('old-worker',0.1)
             ]
             version = repo.db.execute("PRAGMA user_version").fetchone()[0]
         assert (
-            before["version"] == (5 if args.source_release == "v4.1.0" else 6)
+            before["version"] == ({"v4.1.0": 5, "v4.2.0": 6, "v4.3.0": 7}[args.source_release])
             and version == SCHEMA_VERSION
         )
         assert before["balances"] == after_balances and before["journal"] == after_journal

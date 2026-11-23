@@ -7,6 +7,7 @@ from http.server import ThreadingHTTPServer
 from .adapters.ai import Triage
 from .adapters.http import handler
 from .application.operations import DurableOperations
+from .application.positions import PositionObserver
 from .application.service import SettlementService
 from .configuration import Settings
 from .infrastructure.store import SQLiteStore
@@ -18,6 +19,7 @@ class Application:
     service: SettlementService
     triage: Triage
     operations: DurableOperations
+    positions: PositionObserver
 
 
 def create_application(settings):
@@ -38,7 +40,13 @@ def create_application(settings):
         BusinessCalendar(settings.calendar_id, settings.closed_dates),
         cutoff=settings.settlement_cutoff,
     )
-    return Application(settings, service, Triage(model=settings.model), DurableOperations(service))
+    return Application(
+        settings,
+        service,
+        Triage(model=settings.model),
+        DurableOperations(service),
+        PositionObserver(service),
+    )
 
 
 def main(argv=None):

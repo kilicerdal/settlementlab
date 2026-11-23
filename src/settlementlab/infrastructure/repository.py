@@ -4,9 +4,12 @@ from . import journal
 from .investigation_repository import InvestigationRepository
 from .lifecycle_repository import LifecycleRepository
 from .operations_repository import OperationsRepository
+from .position_repository import PositionRepository
 
 
-class SQLiteRepository(OperationsRepository, LifecycleRepository, InvestigationRepository):
+class SQLiteRepository(
+    OperationsRepository, LifecycleRepository, InvestigationRepository, PositionRepository
+):
     def __init__(self, db):
         self.db = db
 

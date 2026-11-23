@@ -59,6 +59,7 @@ jobs:
           PYTHONPATH=src python tests/browser/durable_smoke.py
       - run: PYTHONPATH=src python tests/browser/lifecycle_smoke.py
       - run: PYTHONPATH=src python tests/browser/investigation_smoke.py
+      - run: PYTHONPATH=src python tests/browser/consistency_smoke.py
       - uses: actions/upload-artifact@v7
         if: always()
         with:
@@ -205,3 +206,30 @@ jobs:
             artifacts/v43-ai/
             artifacts/v43-compatibility/
             artifacts/v43-fresh-checkout/
+
+  consistency-v44:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.13'
+      - run: pip install .
+      - run: settlementlab-incident --output artifacts/v44-incident
+      - run: settlementlab-incident --verify artifacts/v44-incident/resolved.zip --expectations artifacts/v44-incident/accepted-plan.json
+      - run: settlementlab-position-worker --help
+      - run: python -m scripts.investigation_benchmark --statements 1000 --output artifacts/v44-investigation
+      - run: settlementlab-evaluate-investigator --output artifacts/v44-ai
+      - run: python -m scripts.v42_compatibility --source-release v4.3.0 --output artifacts/v44-compatibility
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: v44-consistency-and-economic-verification
+          path: |
+            artifacts/v44-incident/
+            artifacts/v44-investigation/
+            artifacts/v44-ai/
+            artifacts/v44-compatibility/

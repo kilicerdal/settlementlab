@@ -5,6 +5,7 @@ import hashlib
 import json
 import os
 import sqlite3
+from contextlib import closing
 from pathlib import Path
 
 
@@ -12,13 +13,21 @@ def backup(source, destination):
     source, destination = Path(source).resolve(), Path(destination).absolute()
     if not source.is_file() or source == destination.resolve():
         raise ValueError("Source must be an existing database; destination must differ")
+    if any(Path(str(destination) + suffix).exists() for suffix in ("-wal", "-shm", "-journal")):
+        raise ValueError("Destination has existing SQLite sidecars; choose a fresh path")
     # Exclusive create prevents accidental replacement, including symlink targets.
     fd = os.open(destination, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)
     os.close(fd)
     try:
-        with sqlite3.connect(source.as_uri() + "?mode=ro", uri=True) as original:
-            with sqlite3.connect(destination) as copy:
+        with closing(sqlite3.connect(source.as_uri() + "?mode=ro", uri=True)) as original:
+            with closing(sqlite3.connect(destination)) as copy:
                 original.backup(copy)
+                copy.commit()
+                # A returned backup is a portable single-file image. Do not leave
+                # a live destination handle or WAL checkpoint to a later finalizer.
+                mode = copy.execute("PRAGMA journal_mode=DELETE").fetchone()[0]
+                if mode != "delete":
+                    raise ValueError("Backup could not be finalized as a standalone database")
                 if copy.execute("PRAGMA integrity_check").fetchone()[0] != "ok":
                     raise ValueError("Backup integrity verification failed")
                 if copy.execute("PRAGMA foreign_key_check").fetchall():

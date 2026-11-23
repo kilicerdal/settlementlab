@@ -75,6 +75,7 @@ class IncidentAIControls(unittest.TestCase):
     def test_empty_context_requires_abstention_and_disabled_is_explicit(self):
         empty = copy.deepcopy(self.snapshot)
         empty["trade"]["settled_quantity"] = 0
+        empty["position"] = None
         self.response = dict(
             summary="Insufficient evidence to identify an incident.",
             claims=[],
@@ -134,3 +135,33 @@ class IncidentAIControls(unittest.TestCase):
         )
         self.assertEqual(incomplete["recorded"], 0)
         self.assertIsNone(incomplete["correct_abstention_rate"])
+
+    def test_repeated_broader_sample_reports_usefulness_and_variability(self):
+        counter = {}
+
+        def transport(payload):
+            evidence = json.loads(payload["messages"][1]["content"])
+            key = evidence["trade_id"]
+            counter[key] = counter.get(key, 0) + 1
+            # Deliberately conservative on the second run of each nonempty context.
+            abstain = not evidence["observations"] or counter[key] % 2 == 0
+            response = dict(
+                summary="Only recorded observations can be reported.",
+                claims=[]
+                if abstain
+                else [
+                    dict(code=f["code"], evidence_ids=f["evidence_ids"])
+                    for f in evidence["observations"]
+                ],
+                abstained=abstain,
+                uncertainty="Underlying cause is not established by supplied evidence.",
+            )
+            return dict(done=True, message=dict(content=json.dumps(response)))
+
+        report = sample("fixture-repeated", transport, repeats=2)
+        self.assertEqual(report["contexts"], 6)
+        self.assertEqual(report["requested"], 12)
+        self.assertGreater(report["unnecessary_abstention_rate"], 0)
+        self.assertLess(report["consistent_context_rate"], 1)
+        with self.assertRaises(ValueError):
+            sample("fixture", transport, repeats=6)

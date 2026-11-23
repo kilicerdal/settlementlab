@@ -15,4 +15,6 @@ These records explain decisions visible in the current implementation. They are 
 
 | [007](007-incident-and-compensation.md) | Link incident evidence and authorize immutable compensating batches | Real worker interruption, inverse-leg oracle, reviewer fixture and local AI abstention samples |
 
+| [008](008-position-observation-and-read-snapshots.md) | Separate current financial observation, read snapshots and external economic expectations | Out-of-order/crash tests, concurrent-reader/writer proof, indexed benchmarks and negative economic bundles |
+
 Read the tradeoff and limits alongside the evidence. A passing local test is not a throughput benchmark, identity audit or model-quality evaluation.

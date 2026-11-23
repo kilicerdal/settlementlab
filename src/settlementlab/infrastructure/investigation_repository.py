@@ -1,6 +1,5 @@
 """Correction accounting and complete trade-scoped investigation queries."""
 
-import json
 from datetime import datetime, timezone
 
 from ..core.validation import DomainError
@@ -130,11 +129,22 @@ class InvestigationRepository:
             "UPDATE trades SET state=?,reason=?,version=version+1 WHERE id=?",
             (state, reason, trade["id"]),
         )
+        if batch:
+            self.position_emit(trade["id"], "CompensationPosted", batch)
         return self.reversal_find(request["id"])
 
     def investigation_records(self, trade_id):
+        remaining = 5000
+
         def rows(sql, values=(trade_id,)):
-            return [dict(r) for r in self.db.execute(sql, values)]
+            nonlocal remaining
+            result = [dict(r) for r in self.db.execute(sql + " LIMIT ?", (*values, remaining + 1))]
+            if len(result) > remaining:
+                raise DomainError(
+                    "Investigation exceeds bounded row budget; narrow the local dataset", 413
+                )
+            remaining -= len(result)
+            return result
 
         batches = rows(
             """SELECT * FROM journal_batches WHERE trade_id=? OR id IN (SELECT batch_id FROM settlement_slices WHERE trade_id=?) OR id IN (SELECT compensation_batch FROM reversal_requests WHERE trade_id=?) ORDER BY timestamp,id""",
@@ -145,17 +155,21 @@ class InvestigationRepository:
                 "SELECT * FROM journal_lines WHERE batch_id=? ORDER BY line", (batch["id"],)
             )
         cases = rows("SELECT * FROM recon_cases WHERE trade_id=? ORDER BY id")
-        statement_ids = {c["statement_id"] for c in cases} | {
-            c["evidence_statement_id"] for c in cases if c["evidence_statement_id"]
-        }
-        # Include matching full statements even when they produced no discrepancy.
-        statements = []
-        for row in self.db.execute("SELECT * FROM recon_statements ORDER BY created_at,id"):
-            data = dict(row)
-            if data["id"] in statement_ids or any(
-                r["trade_id"] == trade_id for r in json.loads(data["rows"])
-            ):
-                statements.append(data)
+        membership = " FROM statement_membership m JOIN recon_statements s ON s.id=m.statement_id WHERE m.trade_id=? ORDER BY s.created_at,s.id"
+        membership_ids = list(
+            self.db.execute(
+                "SELECT statement_id FROM statement_membership WHERE trade_id=? LIMIT ?",
+                (trade_id, remaining + 1),
+            )
+        )
+        if len(membership_ids) > remaining:
+            raise DomainError("Statement history exceeds investigation retrieval budget", 413)
+        sizes = rows("SELECT LENGTH(s.rows)+LENGTH(s.internal_snapshot) AS bytes" + membership)
+        if sum(row["bytes"] for row in sizes) > 16 * 1024 * 1024:
+            raise DomainError(
+                "Investigation statement payload exceeds 16 MiB retrieval budget", 413
+            )
+        statements = rows("SELECT s.*" + membership)
         return dict(
             audit=rows("SELECT * FROM audit WHERE trade_id=? ORDER BY seq"),
             jobs=rows("SELECT * FROM ops_jobs WHERE trade_id=? ORDER BY created_at,id"),
@@ -177,5 +191,7 @@ class InvestigationRepository:
             batches=batches,
             reversals=self.reversal_requests(trade_id),
             statements=statements,
+            position_events=rows("SELECT * FROM position_outbox WHERE trade_id=? ORDER BY seq"),
+            position_projection=rows("SELECT * FROM position_projection WHERE trade_id=?"),
             cases=cases,
         )

@@ -1,8 +1,8 @@
 # Independent engineering review
 
-Status: **pending external reviewer**. Automated tests, mutation results and AI assistance are not an independent human review. No reviewer identity or approval has been fabricated.
+Status: **not performed; outside review is not requested for V4.4**. No external reviewer request has been sent. Automated tests, mutation results and AI assistance are not an independent human review. No reviewer identity or approval has been fabricated.
 
-For V4.3, begin with the [isolated incident exercise](V4_3.md#independent-reviewer-exercise), compare original and compensating financial legs, and retain a real review before marking this requirement complete.
+For V4.3, begin with the [isolated incident exercise](V4_3.md#independent-reviewer-exercise), compare original and compensating financial legs, if an independent review is requested in the future.
 
 A reviewer should use a fresh checkout and the evidence commands in `V4_2.md`, then record their name, reviewed commit, environment, findings and disposition in a pull-request review. Review at least:
 

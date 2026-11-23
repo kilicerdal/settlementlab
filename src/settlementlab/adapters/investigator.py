@@ -84,6 +84,28 @@ def observations(snapshot):
         "A separately authorized compensating journal batch is recorded; the original execution remains.",
         ["journal:" + b["id"] for b in batches if b["kind"] == "DVP_REVERSAL"],
     )
+    position = snapshot.get("position")
+    if position:
+        if position["status"] == "LAGGING":
+            add(
+                "POSITION_LAG",
+                "The observed position has not caught up with retained financial events.",
+                [
+                    "position:" + event["event_id"]
+                    for event in position["event_history"]
+                    if event["status"] != "DELIVERED"
+                ],
+            )
+        elif position["observed"]:
+            add(
+                "POSITION_SYNCHRONIZED",
+                "The observed financial amounts match current authoritative totals.",
+                [
+                    r["id"]
+                    for r in snapshot["timeline"]
+                    if r["kind"] == "position" and r["id"].endswith(":observed")
+                ],
+            )
     return dict(
         trade_id=trade["id"],
         trade_version=trade["version"],
@@ -206,7 +228,7 @@ class Investigator:
             provider="ollama-local",
             mode="live-model",
             model=self.model,
-            prompt_version="incident-v43.1",
+            prompt_version="incident-v44.1",
             advisory_only=True,
             evidence=evidence,
             analysis=result,

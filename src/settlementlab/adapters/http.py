@@ -87,6 +87,10 @@ def handler(ledger, triage=None, operations=None):
         def read_request(self):
             self.validate_host()
             parts = self.path.strip("/").split("/")
+            if len(parts) == 4 and parts[:2] == ["api", "trades"] and parts[3] == "position":
+                from ..application.positions import PositionObserver
+
+                return self.reply(200, PositionObserver(ledger).snapshot(parts[2]))
             if len(parts) == 4 and parts[:2] == ["api", "trades"] and parts[3] == "readiness":
                 try:
                     return self.reply(200, ledger.settlement_readiness(parts[2]))

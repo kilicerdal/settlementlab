@@ -187,6 +187,7 @@ class LifecycleRepository:
             "UPDATE trades SET state=?,reason=NULL,version=version+1 WHERE id=?",
             ("SETTLED" if filled == trade["quantity"] else "PARTIALLY_SETTLED", trade["id"]),
         )
+        self.position_emit(trade["id"], "ExecutionPosted", batch)
         return batch
 
     def recon_statement(self, key, by_id=False):
@@ -211,6 +212,11 @@ class LifecycleRepository:
                     "created_at",
                 )
             ),
+        )
+        rows = json.loads(statement["rows"]) + json.loads(statement["internal_snapshot"])
+        self.db.executemany(
+            "INSERT OR IGNORE INTO statement_membership VALUES(?,?)",
+            [(trade, statement["id"]) for trade in {row["trade_id"] for row in rows}],
         )
         for case in cases:
             self.db.execute(
@@ -251,4 +257,9 @@ class LifecycleRepository:
                 json.dumps(snapshot),
                 identifier,
             ),
+        )
+
+        self.db.execute(
+            "INSERT OR IGNORE INTO statement_membership SELECT trade_id,? FROM recon_cases WHERE id=?",
+            (evidence, identifier),
         )

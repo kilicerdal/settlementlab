@@ -143,6 +143,24 @@ def timeline(trade, records):
                         relation="compensates",
                     )
                 )
+    for r in records["position_events"]:
+        add(
+            "position:" + r["event_id"],
+            "position",
+            r["created_at"],
+            r["event_type"],
+            r,
+            "journal:" + r["journal_id"] if r["journal_id"] else root,
+        )
+    for r in records["position_projection"]:
+        add(
+            "position:" + r["event_id"] + ":observed",
+            "position",
+            r["updated_at"],
+            "Financial position observed",
+            r,
+            "position:" + r["event_id"],
+        )
     for r in records["statements"]:
         add("statement:" + r["id"], "statement", r["created_at"], "Imported statement", r)
     statement_times = {r["id"]: r["created_at"] for r in records["statements"]}
@@ -189,12 +207,12 @@ class Investigation:
 
     def snapshot(self, trade_id):
         identifier(trade_id)
-        with self.service.store.transaction() as repository:
-            trade = self.service.get(repository, trade_id)
+        with self.service.store.read_transaction() as repository:
             records = repository.investigation_records(trade_id)
+            trade = self.service.get(repository, trade_id)
             # Lease capabilities are not investigation evidence. Strip them before
             # either graph construction or portable export, without mutating storage.
-            for record in records["jobs"] + records["outbox"]:
+            for record in records["jobs"] + records["outbox"] + records["position_events"]:
                 record.pop("lease_token", None)
             for record in records["attempts"]:
                 record.pop("token", None)
@@ -208,5 +226,6 @@ class Investigation:
                 business_time=self.service.clock.describe(),
                 generated_at=datetime.now(timezone.utc).isoformat(),
                 financial_controls=repository.treasury_snapshot()["controls"],
+                position=repository.position_view(trade_id) if trade["settled_quantity"] else None,
                 scope="Single transaction; actual evidence timestamps are separate from simulated business time. Gross receipts stay immutable; corrections produce compensating entries.",
             )

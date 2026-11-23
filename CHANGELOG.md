@@ -1,5 +1,14 @@
 # Changelog
 
+## 4.4.0 — financial consistency and bounded investigation (2026-11-22)
+
+- Atomic execution/compensation position events, fenced at-least-once observation and monotonic net-position projection, separate from historical settlement delivery.
+- Read-only WAL snapshots with concurrent-writer consistency tests; indexed statement membership, early row/payload bounds and measured history workloads.
+- Explicit gross/net reconciliation bases and legacy-client migration guidance.
+- Combined incident integrity and scoped economic verification against separately supplied accepted plans.
+- Expanded 34-fixture AI corpus, six-context repeated local evaluation, abstention/grounding/variability metrics and retained actual samples.
+- Schema 8, V4.3 upgrade/restore drill, CLI/browser/negative-fixture tests and recovery runbooks. Outside human review skipped by request; website unchanged.
+
 ## 4.3.0 — incident investigation and compensation (2026-11-19)
 
 - One-command fresh-checkout incident with actual worker interruption, single execution recovery, discrepant statements and retained unresolved/resolved exports.

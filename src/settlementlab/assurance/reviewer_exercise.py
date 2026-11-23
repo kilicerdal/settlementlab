@@ -2,6 +2,7 @@
 
 import json
 import sqlite3
+from contextlib import closing
 from pathlib import Path
 
 from ..application.investigation import Investigation
@@ -18,11 +19,13 @@ def build(database, output, accepted):
     if target.exists():
         raise ValueError("Reviewer exercise already exists; use a fresh output directory")
     with (
-        sqlite3.connect(Path(database).resolve().as_uri() + "?mode=ro", uri=True) as source,
-        sqlite3.connect(target) as destination,
+        closing(
+            sqlite3.connect(Path(database).resolve().as_uri() + "?mode=ro", uri=True)
+        ) as source,
+        closing(sqlite3.connect(target)) as destination,
     ):
         source.backup(destination)
-    with sqlite3.connect(target) as db:
+    with closing(sqlite3.connect(target)) as db, db:
         row = db.execute(
             "SELECT compensation_batch,trade_id FROM reversal_requests WHERE status='APPROVED' ORDER BY created_at LIMIT 1"
         ).fetchone()

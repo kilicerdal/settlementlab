@@ -10,16 +10,13 @@ SettlementLab is a Python financial systems assurance framework with two runnabl
 
 [Download V4.4.1](https://github.com/kilicerdal/settlementlab/releases/tag/v4.4.1) · [Reviewer guide](docs/REVIEWER_GUIDE.md) · [V4.4 consistency and verification guide](docs/V4_4.md) · [Architecture](docs/ARCHITECTURE.md)
 
-![V4.4 authoritative and observed positions after financial compensation](docs/images/position-v44.png)
-*Recorded synthetic V4.4 browser journey. The screenshot illustrates the local interface; it is not a live CI result.*
-
 ## Watch the incident walkthrough
 
 [![Watch the 2 minute 20 second SettlementLab walkthrough](docs/images/position-v44-showcase.png)](https://github.com/kilicerdal/settlementlab/releases/download/v4.4.0/settlementlab-v4.4-showcase.webm)
 
 [Watch / download video](https://github.com/kilicerdal/settlementlab/releases/download/v4.4.0/settlementlab-v4.4-showcase.webm) · [Evidence ZIP](https://github.com/kilicerdal/settlementlab/releases/download/v4.4.0/settlementlab-v4.4-showcase-evidence.zip) · [Capture provenance](https://github.com/kilicerdal/settlementlab/releases/download/v4.4.0/settlementlab-v4.4-showcase.json) · [SHA-256 checksums](https://github.com/kilicerdal/settlementlab/releases/download/v4.4.0/settlementlab-v4.4-showcase-SHA256SUMS)
 
-Actual worker interruption → lease recovery → checker-approved compensation → observed net zero → separate-process economic verification. Silent, captioned, synthetic data; no live AI call. These are permanent public release assets, available without a CI-artifact sign-in. The capture predates the source compatibility fix; original V4.4.0 binaries retain their original contents.
+Actual worker interruption → lease recovery → checker-approved compensation → observed net zero → separate-process economic verification. Silent, captioned, synthetic data; no live AI call. The V4.4 capture predates the V4.4.1 compatibility patch; its [provenance](https://github.com/kilicerdal/settlementlab/releases/download/v4.4.0/settlementlab-v4.4-showcase.json) identifies the recorded source.
 
 ```mermaid
 flowchart LR
@@ -49,28 +46,7 @@ Open [the local investigation](http://127.0.0.1:8086/investigation). This comman
 
 [Two-minute recording and reproduction](docs/SHOWCASE_V44.md) · [Five-minute interview walkthrough](docs/INTERVIEW_WALKTHROUGH_V44.md) · [Current architecture diagram](docs/ARCHITECTURE.md) · [Fresh-checkout results and runtime note](docs/FRESH_CHECKOUT_V44.md)
 
-For an empty workbench where you perform the actions yourself, follow [Run the workbench](#run-the-workbench), which uses port **8085**. V4.4.1 source and downloadable workbench wheel include the cold-WAL compatibility fix. The original `v4.4.0` tag and wheel do not include this later fix: use Python 3.13 for those artifacts if your system SQLite hits the documented startup failure. See the [before/after rehearsal evidence](docs/FRESH_CHECKOUT_V44.md).
-
-## V4.4.1 — system SQLite compatibility
-
-The patch fixes cold-WAL startup on the reproduced macOS system Python/SQLite build while keeping consumers physically read-only. Backup, investigation and assurance readers share safe connection setup. Five new regressions cover cold reads, write rejection, concurrent snapshots, missing sources and standalone backups. [Patch details and installation](docs/V4_4_1.md).
-
-## V4.4 — financial consistency and independent verification
-
-V4.4 adds a correction-aware financial-position stream, read-only WAL snapshots, indexed/bounded statement retrieval, explicit gross/net reconciliation contracts, and one-command bundle verification against a separate accepted plan. AI evaluation now spans six contexts with repeated local runs and reports unnecessary abstention and variability separately from grounding.
-
-[V4.4 guide and measured limits](docs/V4_4.md) · [Position and verification recovery](docs/runbooks/POSITION_AND_VERIFICATION.md). V4.4.1 is the current release. No outside reviewer request or review packet is being prepared; no independent human review is claimed. The website is unchanged.
-
-## V4.3 — incident investigation and controlled compensation
-
-V4.3 connects a real worker interruption, partial execution, delayed statement, investigation and maker/checker compensation in one replayable incident. A new local investigation screen links the complete evidence; portable exports retain original comparisons, financial entries and checksums. An isolated reviewer exercise includes a balanced but economically incorrect compensation. Optional local AI is evaluated against declared adversarial fixtures and separately recorded live samples.
-
-```sh
-python3 scripts/incident_quickstart.py
-# Local investigation: http://127.0.0.1:8086/investigation
-```
-
-Standard-library runtime; no package install or model is required for the checkout demonstration. The command creates fresh evidence, runs the recovery and starts the local server. [V4.3 incident guide](docs/V4_3.md) · [AI evaluation and retained samples](docs/V4_3_AI.md) · [Recovery runbook](docs/runbooks/INCIDENT_RECOVERY.md). V4.4.1 is the current release; no independent human review is claimed. The portfolio website is unchanged.
+For an empty workbench where you perform the actions yourself, follow [Run the workbench](#run-the-workbench) on port **8085**. V4.4.1 includes the cold-WAL compatibility fix in both source and the workbench wheel. [Patch details and installation](docs/V4_4_1.md) · [Before/after compatibility evidence](docs/FRESH_CHECKOUT_V44.md).
 
 ## Core framework capabilities
 
@@ -105,7 +81,9 @@ For installation without a checkout, download either wheel from the [V4.4.1 rele
 
 ## Review the evidence
 
-The V4.4 release passed **210 unit/API/integration tests and four assurance scenarios**, with Python 3.9/3.13 controls and all ten CI jobs passing. Evidence also includes:
+V4.4.1 passed **215 unit/API/integration tests and four assurance scenarios**, with Python 3.9/3.13 controls and all ten release checks passing. Both downloadable wheels were verified outside the checkout; the workbench wheel also passed on the previously failing system Python/SQLite build. [Release evidence and checksums](https://github.com/kilicerdal/settlementlab/releases/tag/v4.4.1).
+
+Supporting evidence across the documented releases includes:
 
 - Existing trade, durable operations and V4.2 browser journeys, including a mobile viewport.
 - Nine targeted source mutants detected by real tests; invalid mutants are not counted as detections.
@@ -182,7 +160,7 @@ This is a local simulation and engineering portfolio framework. Demo role checks
 
 Financial calculations use exact cents and bounded integer balances. Calendars use weekdays and explicit project closures; timed clocks apply the pinned project-defined UTC cutoff. These are not official market calendars or jurisdictional settlement rules. Date-only simulations do not infer an intraday time, and migrated V4.1 trades do not acquire a retroactive cutoff.
 
-One SQLite database serializes writers. Workload results are bounded local measurements, not scaling guarantees. Journal, revision and statement evidence is retained transactionally, not made tamper-proof. Imported statements are user supplied, not authenticated counterparty feeds. Posted terms cannot be amended. V4.3 provides separately authorized full-batch compensation as documented above.
+One SQLite database serializes writers. Workload results are bounded local measurements, not scaling guarantees. Journal, revision and statement evidence is retained transactionally, not made tamper-proof. Imported statements are user supplied, not authenticated counterparty feeds. Posted terms cannot be amended. [Controlled compensation](docs/V4_3.md) provides separately authorized full-batch reversals.
 
 Schema 8 upgrades are additive and transactional. Back up and verify restoration before upgrading. V4.3 refuses the newer schema; rollback requires the pre-upgrade backup. Legacy allocation-only and trade-scoped contracts remain supported. [Upgrade and recovery guidance](docs/runbooks/RELEASE_COMPATIBILITY.md).
 
@@ -190,13 +168,14 @@ Schema 8 upgrades are additive and transactional. Back up and verify restoration
 
 | Release | Supporting material |
 | --- | --- |
-| V4.3 | [Incident investigation, controlled compensation and local AI](docs/V4_3.md) |
+| V4.4 | [Financial-position consistency, scoped verification and measured limits](docs/V4_4.md) · [Recovery runbook](docs/runbooks/POSITION_AND_VERIFICATION.md) |
+| V4.3 | [Investigation and compensation](docs/V4_3.md) · [AI evaluation](docs/V4_3_AI.md) · [Recovery runbook](docs/runbooks/INCIDENT_RECOVERY.md) |
 | V4.2 | [Versioned obligations, partial settlement and statement investigation](docs/V4_2.md) |
 | V4.1 | [Independent financial assurance, generated invariants and reviewer scorecard](docs/V4_1_ASSURANCE.md) |
 | V4.0 | [Durable operations, process crashes and outbox recovery](docs/DURABLE_OPERATIONS.md) |
 | V3.0 | [Captioned video](https://github.com/kilicerdal/settlementlab/releases/download/v3.0.0/settlementlab-walkthrough.webm), [presentation guide](docs/SHOWCASE.md) and [recorded screenshot](docs/images/showcase-v30.png) |
 
-Historical recordings illustrate their named versions; they are not V4.2 walkthroughs or current CI evidence. [Release history](CHANGELOG.md) · [Website case study](https://www.eai.engineering/engineering/settlementlab).
+Historical recordings illustrate their named versions, not the current patch or current CI results. [Release history](CHANGELOG.md) · [Website case study](https://www.eai.engineering/engineering/settlementlab).
 
 ## Contributing and maintenance
 

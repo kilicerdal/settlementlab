@@ -1,5 +1,6 @@
 # V3.0 showcase guide
 
+Historical V3 material. For the current release, use the [V4.4 showcase package](SHOWCASE_V44.md).
 ## Choose the experience
 
 - Website visitors: [recorded case study](https://www.eai.engineering/engineering/settlementlab). No local service or model is exposed through that page.

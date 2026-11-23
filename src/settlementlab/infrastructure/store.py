@@ -6,6 +6,7 @@ from pathlib import Path
 
 from .repository import SQLiteRepository
 from .schema import migrate
+from .sqlite_snapshot import readonly_connection
 
 
 class SQLiteStore:
@@ -42,12 +43,10 @@ class SQLiteStore:
 
     @contextmanager
     def read_transaction(self):
-        db = sqlite3.connect(Path(self.path).resolve().as_uri() + "?mode=ro", uri=True, timeout=10)
-        db.row_factory = sqlite3.Row
-        try:
-            db.execute("PRAGMA query_only=ON")
-            db.execute("BEGIN")
-            yield SQLiteRepository(db)
-            db.rollback()
-        finally:
-            db.close()
+        with readonly_connection(self.path) as db:
+            db.row_factory = sqlite3.Row
+            try:
+                db.execute("BEGIN")
+                yield SQLiteRepository(db)
+            finally:
+                db.rollback()

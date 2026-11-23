@@ -8,6 +8,7 @@ from pathlib import Path
 from ..application.investigation import Investigation
 from ..bootstrap import create_application
 from ..configuration import Settings
+from ..infrastructure.sqlite_snapshot import readonly_connection
 from .correction_oracle import audit
 from .incident_export import export, verify
 
@@ -19,9 +20,7 @@ def build(database, output, accepted):
     if target.exists():
         raise ValueError("Reviewer exercise already exists; use a fresh output directory")
     with (
-        closing(
-            sqlite3.connect(Path(database).resolve().as_uri() + "?mode=ro", uri=True)
-        ) as source,
+        readonly_connection(database) as source,
         closing(sqlite3.connect(target)) as destination,
     ):
         source.backup(destination)

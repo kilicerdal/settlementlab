@@ -1,0 +1,78 @@
+{
+  "scope": "Local automated before/after observations, not independent human review",
+  "baseline": {
+    "source_commit": "6050a91284ad42dbb17c6be0d5e122a4ab682b18",
+    "python": "3.9.6",
+    "sqlite": "3.54.0",
+    "status": "failed",
+    "error": "sqlite3.OperationalError: unable to open database file",
+    "retained_log_sha256": "507c9fffda022ca54dbb508096bd98a2ed5a71376f6fa6d4730bc54a483d5e44"
+  },
+  "fixed_rehearsals": [
+    {
+      "status": "passed",
+      "source_commit": "1cfb1a883e34864ebcc45ae5cf1a9220e988f325",
+      "runtime": {
+        "python": "3.9.6",
+        "sqlite": "3.54.0"
+      },
+      "started_at": "2026-11-23T01:47:58.493151+00:00",
+      "scope": "Automated fresh-user rehearsal of tracked source, not independent human review; pip-free venv; no model or API key",
+      "checks": {
+        "empty_environment": {
+          "pip": true,
+          "settlementlab": true,
+          "playwright": true
+        },
+        "quickstart_exit_code": 0,
+        "incident_status": "passed",
+        "injected_worker_exit": 73,
+        "evidence_created": true,
+        "investigation_http_status": 200,
+        "health_http_status": 200,
+        "server_stopped": true
+      },
+      "files": {
+        "quickstart.log": "d541a3f80576bc0627c6ddf62cc4d0334b6932ffa417b42b2677d52b781537ff",
+        "incident-results.json": "dc8f21cb24f8694a53815193471e1730ed8d9ebe0f317d27a858c556a1a9b6f8",
+        "server.log": "6f2fdd160b4e980fe32894ff7af869bca7c2fb20973339c068d13457b12f29a0"
+      }
+    },
+    {
+      "status": "passed",
+      "source_commit": "1cfb1a883e34864ebcc45ae5cf1a9220e988f325",
+      "runtime": {
+        "python": "3.13.18",
+        "sqlite": "3.54.1"
+      },
+      "started_at": "2026-11-23T01:48:49.831496+00:00",
+      "scope": "Automated fresh-user rehearsal of tracked source, not independent human review; pip-free venv; no model or API key",
+      "checks": {
+        "empty_environment": {
+          "pip": true,
+          "settlementlab": true,
+          "playwright": true
+        },
+        "quickstart_exit_code": 0,
+        "incident_status": "passed",
+        "injected_worker_exit": 73,
+        "evidence_created": true,
+        "investigation_http_status": 200,
+        "health_http_status": 200,
+        "server_stopped": true
+      },
+      "files": {
+        "quickstart.log": "e4d9d112a54d7ae030bccca05ca10c191a77584105da93f48e164f836fd98966",
+        "incident-results.json": "7470c52589defad532546faa41ef94b0f86d5117b56928eb3a99258e97211d4d",
+        "server.log": "e1626ca12eb7ff3747af15065a22d269be54c2ef9c8b8bd72496ba600673e517"
+      }
+    }
+  ],
+  "system_python_full_suite": {
+    "total_cases": 219,
+    "tests": 215,
+    "assurance_scenarios": 4,
+    "status": "passed",
+    "report_directory": "artifacts/cold-wal-system39-full"
+  }
+}

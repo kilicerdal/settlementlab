@@ -5,8 +5,8 @@ No production settlement, balance, or reconciliation implementation is imported.
 
 import sqlite3
 from collections import Counter, defaultdict
-from contextlib import closing
-from pathlib import Path
+
+from ..infrastructure.sqlite_snapshot import readonly_connection
 
 
 def audit_slices(database, plans):
@@ -16,7 +16,7 @@ def audit_slices(database, plans):
     This checks slice economics and cumulative receipts, not market authenticity.
     """
     findings = []
-    with closing(sqlite3.connect(Path(database).resolve().as_uri() + "?mode=ro", uri=True)) as db:
+    with readonly_connection(database) as db:
         db.row_factory = sqlite3.Row
         db.execute("BEGIN")
         slices = [dict(r) for r in db.execute("SELECT * FROM settlement_slices")]

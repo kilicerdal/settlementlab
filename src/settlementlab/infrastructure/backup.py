@@ -8,6 +8,8 @@ import sqlite3
 from contextlib import closing
 from pathlib import Path
 
+from .sqlite_snapshot import readonly_connection
+
 
 def backup(source, destination):
     source, destination = Path(source).resolve(), Path(destination).absolute()
@@ -19,7 +21,7 @@ def backup(source, destination):
     fd = os.open(destination, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)
     os.close(fd)
     try:
-        with closing(sqlite3.connect(source.as_uri() + "?mode=ro", uri=True)) as original:
+        with readonly_connection(source) as original:
             with closing(sqlite3.connect(destination)) as copy:
                 original.backup(copy)
                 copy.commit()
@@ -33,6 +35,12 @@ def backup(source, destination):
                 if copy.execute("PRAGMA foreign_key_check").fetchall():
                     raise ValueError("Backup contains foreign key violations")
                 schema = copy.execute("PRAGMA user_version").fetchone()[0]
+        # SQLite may leave an unused SHM after WAL -> DELETE conversion on
+        # some system builds. All owned handles are closed and the finalized
+        # backup has no WAL; only that destination's disposable SHM is removed.
+        if Path(str(destination) + "-wal").exists():
+            raise ValueError("Finalized backup still has a WAL sidecar")
+        Path(str(destination) + "-shm").unlink(missing_ok=True)
         return dict(
             path=str(destination),
             schema_version=schema,

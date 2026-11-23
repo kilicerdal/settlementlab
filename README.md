@@ -13,21 +13,43 @@ SettlementLab is a Python financial systems assurance framework with two runnabl
 ![V4.4 authoritative and observed positions after financial compensation](docs/images/position-v44.png)
 *Recorded synthetic V4.4 browser journey. The screenshot illustrates the local interface; it is not a live CI result.*
 
+## Watch the incident walkthrough
+
+[![Watch the 2 minute 20 second SettlementLab walkthrough](docs/images/position-v44-showcase.png)](https://github.com/kilicerdal/settlementlab/releases/download/v4.4.0/settlementlab-v4.4-showcase.webm)
+
+[Watch / download video](https://github.com/kilicerdal/settlementlab/releases/download/v4.4.0/settlementlab-v4.4-showcase.webm) · [Evidence ZIP](https://github.com/kilicerdal/settlementlab/releases/download/v4.4.0/settlementlab-v4.4-showcase-evidence.zip) · [Capture provenance](https://github.com/kilicerdal/settlementlab/releases/download/v4.4.0/settlementlab-v4.4-showcase.json) · [SHA-256 checksums](https://github.com/kilicerdal/settlementlab/releases/download/v4.4.0/settlementlab-v4.4-showcase-SHA256SUMS)
+
+Actual worker interruption → lease recovery → checker-approved compensation → observed net zero → separate-process economic verification. Silent, captioned, synthetic data; no live AI call. These are permanent public release assets, available without a CI-artifact sign-in. The capture predates the source compatibility fix; original V4.4.0 binaries retain their original contents.
+
+```mermaid
+flowchart LR
+    Scenarios[Reusable HTTP assurance] --> Workbench[Financial workbench]
+    Scenarios --> Collateral[Independent collateral API]
+    Workbench --> Journal[Atomic journal + receipts + outboxes]
+    Journal --> Observers[Historical and financial-position observers]
+    Journal --> Bundle[Incident evidence ZIP]
+    Observers --> Bundle
+    Bundle --> Verifier[Offline economic verifier]
+    Plan[External accepted plan] --> Verifier
+```
+
+[Full architecture and tradeoffs](docs/ARCHITECTURE.md) · [Five-minute interview walkthrough](docs/INTERVIEW_WALKTHROUGH_V44.md)
+
 ## Start the V4.4 demonstration
 
-Use **Python 3.13** for the rehearsed local path. From a fresh checkout, no package install, API key or model is needed:
+Use **Python 3.9+**. The source quickstart has been rehearsed in empty environments on both Python 3.9.6 and 3.13.18. No package install, API key or model is needed:
 
 ```sh
 git clone https://github.com/kilicerdal/settlementlab.git
 cd settlementlab
-python3.13 scripts/incident_quickstart.py
+python3 scripts/incident_quickstart.py
 ```
 
 Open [the local investigation](http://127.0.0.1:8086/investigation). This command **generates a completed incident**: interrupted worker, recovery, correction and verified evidence. It is not an empty interactive workbench. Stop it with `Ctrl+C`; evidence stays in its printed `artifacts/incident-…` directory. Repeat runs use fresh directories. Use `--no-serve` to generate evidence and exit. Port 8086 must be available.
 
 [Two-minute recording and reproduction](docs/SHOWCASE_V44.md) · [Five-minute interview walkthrough](docs/INTERVIEW_WALKTHROUGH_V44.md) · [Current architecture diagram](docs/ARCHITECTURE.md) · [Fresh-checkout results and runtime note](docs/FRESH_CHECKOUT_V44.md)
 
-For an empty workbench where you perform the actions yourself, follow [Run the workbench](#run-the-workbench), which uses port **8085**. Python 3.9+ remains the package requirement; the local macOS rehearsal found a read-only WAL failure with one system Python/SQLite build. Use the tested 3.13 runtime if that occurs; details and the retained failure are in the fresh-checkout report.
+For an empty workbench where you perform the actions yourself, follow [Run the workbench](#run-the-workbench), which uses port **8085**. Current source includes the cold-WAL compatibility fix. The original `v4.4.0` tag and wheel do not include this later fix: use Python 3.13 for those artifacts if your system SQLite hits the documented startup failure. See the [before/after rehearsal evidence](docs/FRESH_CHECKOUT_V44.md).
 
 ## V4.4 — financial consistency and independent verification
 

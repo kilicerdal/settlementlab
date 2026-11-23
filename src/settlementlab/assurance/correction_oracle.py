@@ -2,8 +2,8 @@
 
 import sqlite3
 from collections import Counter, defaultdict
-from contextlib import closing
-from pathlib import Path
+
+from ..infrastructure.sqlite_snapshot import readonly_connection
 
 
 def audit(database, accepted):
@@ -13,7 +13,7 @@ def audit(database, accepted):
     Include every approved compensation. Original and compensating postings must
     equal the plan and its exact inverse, not merely balance to zero.
     """
-    with closing(sqlite3.connect(Path(database).resolve().as_uri() + "?mode=ro", uri=True)) as db:
+    with readonly_connection(database) as db:
         db.row_factory = sqlite3.Row
         db.execute("BEGIN")
         requests = [dict(r) for r in db.execute("SELECT * FROM reversal_requests")]

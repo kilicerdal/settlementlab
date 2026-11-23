@@ -14,6 +14,7 @@ from threading import Event
 from ..bootstrap import create_application
 from ..configuration import Settings
 from ..infrastructure.backup import backup
+from ..infrastructure.sqlite_snapshot import readonly_connection
 from .durable_data import CHECKER, approved_trade, entry, fund_trade
 from .oracle import audit
 
@@ -88,9 +89,7 @@ def drain(database, workers=4, mode="process", timeout=90):
                     raise RuntimeError(
                         "Owned worker exited unexpectedly: " + log.read().decode()[-1000:]
                     )
-                with sqlite3.connect(
-                    Path(database).resolve().as_uri() + "?mode=ro", uri=True
-                ) as db:
+                with readonly_connection(database) as db:
                     if mode == "process":
                         remaining = db.execute(
                             "SELECT COUNT(*) FROM ops_jobs WHERE status IN ('READY','RUNNING','RETRY_WAIT')"

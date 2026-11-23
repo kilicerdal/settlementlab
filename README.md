@@ -152,7 +152,7 @@ Composition is explicit in `bootstrap.py`. Financial workflows use application p
 
 With Ollama and `qwen2.5:3b` installed locally, start the workbench without `--model ''` and select **Analyze exception with AI**. No API key or paid inference service is required. The model receives bounded synthetic facts and must cite supplied evidence; it cannot approve, fund, settle or resolve numeric discrepancies.
 
-Unavailable models return an error rather than a fabricated response. Contract tests use injected responses; recorded/live model examples are separate and are not an accuracy benchmark. Local inference consumes your machine's resources. [AI setup and boundaries](docs/AI.md) · [Evaluation and review](docs/AI_REVIEW_V4_1.md).
+Unavailable models return an error rather than a fabricated response. Contract tests use injected responses; recorded/live model examples are separate and are not an accuracy benchmark. Local inference consumes your machine's resources. [AI setup and boundaries](docs/AI.md) · [Local investigator measurements and limitations](docs/LOCAL_AI_EVALUATION.md) · [Evaluation and review](docs/AI_REVIEW_V4_1.md).
 
 ## Scope and limitations
 

@@ -3,6 +3,7 @@
 import argparse
 import hashlib
 import json
+import sys
 import time
 from datetime import datetime, timezone
 from pathlib import Path
@@ -66,122 +67,122 @@ def evaluate(cases):
     )
 
 
-def sample(model, transport=send_request, repeats=2):
-    cases = [c for c in corpus()["cases"] if c.get("sample")]
+def sample(model, transport=send_request, repeats=2, on_progress=None):
+    from ..adapters.investigator import INSTRUCTIONS, SCHEMA
+    from .investigator_metrics import observation_coverage, summarize
+
+    data = corpus()
+    cases = [c for c in data["cases"] if c.get("sample")]
     if type(repeats) is not int or not 1 <= repeats <= 5 or len(cases) * repeats > 30:
         raise ValueError("Local evaluation allows 1–5 repeats and at most 30 model calls")
+    options = dict(temperature=0, num_predict=1000, num_ctx=4096)
     output = []
-    trials = [(case, repeat) for case in cases for repeat in range(1, repeats + 1)]
-    for case, repeat in trials:
-        started = time.perf_counter()
-        evidence = case["evidence"]
-        # Use the same production validator and transport. Fixture evidence is already minimized.
-        from ..adapters.investigator import INSTRUCTIONS, SCHEMA
+    generated = datetime.now(timezone.utc).isoformat()
 
-        try:
-            response = transport(
-                dict(
-                    model=model,
-                    stream=False,
-                    format=SCHEMA,
-                    options=dict(temperature=0, num_predict=1000, num_ctx=4096),
-                    messages=[
-                        dict(role="system", content=INSTRUCTIONS),
-                        dict(role="user", content=json.dumps(evidence)),
-                    ],
-                )
+    def report(status):
+        return dict(
+            mode="live-local-model",
+            run_status=status,
+            generated_at=generated,
+            evaluation_version="incident-evaluation-v2",
+            prompt_version="incident-v44.1",
+            prompt_sha256=hashlib.sha256(INSTRUCTIONS.encode()).hexdigest(),
+            schema_sha256=hashlib.sha256(json.dumps(SCHEMA, sort_keys=True).encode()).hexdigest(),
+            corpus_sha256=hashlib.sha256(json.dumps(data, sort_keys=True).encode()).hexdigest(),
+            model=model,
+            options=options,
+            cases=list(output),
+            **summarize(cases, output, repeats),
+            scope="Six synthetic development contexts; strict success requires contract acceptance, correct abstention and complete supported-observation coverage. Not blind evaluation, independent human review or unrestricted prose accuracy. Failure rates and denominators are explicit; stable wrong answers can still be consistent.",
+        )
+
+    if on_progress:
+        on_progress(report("running"))
+    interrupted = False
+    for repeat in range(1, repeats + 1):
+        for case in cases:
+            started = time.perf_counter()
+            evidence = case["evidence"]
+            row = dict(
+                id=case["id"],
+                repeat=repeat,
+                context_sha256=hashlib.sha256(
+                    json.dumps(evidence, sort_keys=True).encode()
+                ).hexdigest(),
+                expected_abstention=not evidence["observations"],
             )
-            raw = response["message"]["content"]
-            if (
-                response.get("done") is not True
-                or response.get("done_reason") not in ("stop", None)
-                or not isinstance(raw, str)
-                or len(raw) > 16384
-            ):
-                raise ValueError("Incomplete or oversized sample")
+            raw = None
+            try:
+                response = transport(
+                    dict(
+                        model=model,
+                        stream=False,
+                        format=SCHEMA,
+                        options=options,
+                        messages=[
+                            dict(role="system", content=INSTRUCTIONS),
+                            dict(role="user", content=json.dumps(evidence)),
+                        ],
+                    )
+                )
+                raw = response["message"]["content"]
+                if isinstance(raw, str):
+                    row["raw_response"] = raw[:16384]
+                    row["raw_response_truncated"] = len(raw) > 16384
+                if response.get("done") is not True or response.get("done_reason") not in (
+                    "stop",
+                    None,
+                ):
+                    raise ValueError("Incomplete sample: " + str(response.get("done_reason")))
+                if not isinstance(raw, str) or len(raw) > 16384:
+                    raise ValueError("Non-text or oversized sample")
 
-            def unique(pairs):
-                result = {}
-                for key, value in pairs:
-                    if key in result:
-                        raise ValueError("Duplicate output field")
-                    result[key] = value
-                return result
+                def unique(pairs):
+                    result = {}
+                    for key, value in pairs:
+                        if key in result:
+                            raise ValueError("Duplicate output field")
+                        result[key] = value
+                    return result
 
-            parsed = json.loads(raw, object_pairs_hook=unique)
-            checks = assess_response(parsed, evidence)
-            expected_abstention = not evidence["observations"]
-            output.append(
-                dict(
-                    id=case["id"],
-                    repeat=repeat,
-                    context_sha256=hashlib.sha256(
-                        json.dumps(evidence, sort_keys=True).encode()
-                    ).hexdigest(),
-                    elapsed_seconds=time.perf_counter() - started,
+                parsed = json.loads(raw, object_pairs_hook=unique)
+                checks = assess_response(parsed, evidence)
+                row.update(
                     status="recorded",
                     response=parsed,
                     checks=checks,
                     accepted=all(checks.values()),
-                    expected_abstention=expected_abstention,
-                    correct_abstention=parsed.get("abstained") == expected_abstention,
+                    correct_abstention=checks["schema"]
+                    and parsed["abstained"] == row["expected_abstention"],
+                    observation_coverage=observation_coverage(parsed, evidence),
                 )
-            )
-        except (DomainError, ValueError, TypeError, KeyError, AttributeError) as error:
-            output.append(
-                dict(
-                    id=case["id"], repeat=repeat, status="unavailable-or-invalid", detail=str(error)
+            except KeyboardInterrupt:
+                row.update(
+                    status="interrupted",
+                    failure_category="interrupted",
+                    detail="Interrupted during local inference",
                 )
-            )
-    recorded = [r for r in output if r["status"] == "recorded"]
-    schema_valid = [r for r in recorded if r["checks"]["schema"]]
-    nonempty = [r for r in schema_valid if not r["expected_abstention"]]
-    consistency = []
-    for case in cases:
-        runs = [r for r in schema_valid if r["id"] == case["id"]]
-        if len(runs) == repeats:
-            signatures = {
-                (
-                    r["response"]["abstained"],
-                    tuple(sorted(c["code"] for c in r["response"]["claims"])),
+                interrupted = True
+            except (DomainError, ValueError, TypeError, KeyError, AttributeError) as error:
+                row.update(
+                    status="unavailable-or-invalid",
+                    failure_category="transport"
+                    if isinstance(error, DomainError)
+                    else "invalid-response",
+                    detail=str(error),
                 )
-                for r in runs
-            }
-            consistency.append(dict(id=case["id"], consistent=len(signatures) == 1))
-    return dict(
-        mode="live-local-model",
-        generated_at=datetime.now(timezone.utc).isoformat(),
-        prompt_version="incident-v44.1",
-        corpus_sha256=hashlib.sha256(json.dumps(corpus(), sort_keys=True).encode()).hexdigest(),
-        model=model,
-        cases=output,
-        recorded=len(recorded),
-        requested=len(trials),
-        contexts=len(cases),
-        repeats=repeats,
-        schema_valid_outputs=len(schema_valid),
-        unsupported_claim_rate=sum(not r["checks"]["supported_claims"] for r in schema_valid)
-        / len(schema_valid)
-        if schema_valid
-        else None,
-        invalid_citation_rate=sum(not r["checks"]["citations"] for r in schema_valid)
-        / len(schema_valid)
-        if schema_valid
-        else None,
-        unnecessary_abstention_rate=sum(r["response"]["abstained"] for r in nonempty)
-        / len(nonempty)
-        if nonempty
-        else None,
-        repeat_consistency=consistency,
-        consistent_context_rate=sum(r["consistent"] for r in consistency) / len(consistency)
-        if consistency
-        else None,
-        accepted_rate=sum(r["accepted"] for r in recorded) / len(recorded) if recorded else None,
-        correct_abstention_rate=sum(r["correct_abstention"] for r in recorded) / len(recorded)
-        if recorded
-        else None,
-        scope="Small synthetic sample; validator/rubric measurements do not establish open-ended factual accuracy",
-    )
+            row["elapsed_seconds"] = time.perf_counter() - started
+            output.append(row)
+            if on_progress:
+                on_progress(report("interrupted" if interrupted else "running"))
+            if interrupted:
+                break
+        if interrupted:
+            break
+    final = report("interrupted" if interrupted else "completed")
+    if on_progress:
+        on_progress(final)
+    return final
 
 
 def main(argv=None):
@@ -196,10 +197,29 @@ def main(argv=None):
     )
     args = parser.parse_args(argv)
     output = Path(args.output)
+    if (output / "results.json").exists():
+        parser.error("Evidence already exists; choose a fresh --output directory")
     output.mkdir(parents=True, exist_ok=True)
     report = evaluate(corpus()["cases"])
+
+    def checkpoint(live):
+        report["live"] = live
+        temporary = output / "results.json.tmp"
+        temporary.write_text(json.dumps(report, indent=2) + "\n")
+        temporary.replace(output / "results.json")
+        print(
+            "Local AI: "
+            + str(live["attempted"])
+            + "/"
+            + str(live["requested"])
+            + " attempted; "
+            + live["run_status"],
+            file=sys.stderr,
+            flush=True,
+        )
+
     report["live"] = (
-        sample(args.live_model, repeats=args.repeats)
+        sample(args.live_model, repeats=args.repeats, on_progress=checkpoint)
         if args.live_model
         else dict(
             mode="not-run",
@@ -208,9 +228,11 @@ def main(argv=None):
     )
     (output / "results.json").write_text(json.dumps(report, indent=2) + "\n")
     print(json.dumps(report, indent=2))
+    if args.live_model and report["live"]["run_status"] == "interrupted":
+        return 130
     return int(
         report["status"] != "passed"
-        or bool(args.live_model and report["live"]["recorded"] != report["live"]["requested"])
+        or bool(args.live_model and report["live"]["quality_status"] != "passed")
     )
 
 

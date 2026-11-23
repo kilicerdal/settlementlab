@@ -2,6 +2,8 @@
 
 The optional investigator uses an already installed local Ollama model. There is no paid provider, model download, action tool or automatic financial decision. The incident UI, deterministic controls and exports work with AI disabled.
 
+For the current evaluator, explicit denominators, observation coverage, partial-run handling and retained measurements, see [Local investigator evaluation](LOCAL_AI_EVALUATION.md). The two-context measurements below remain historical prompt-development evidence.
+
 ## Offline contract evaluation
 
 ```sh
@@ -21,7 +23,7 @@ python -m settlementlab.assurance.investigator_evaluation \
   --live-model qwen2.5:3b --output artifacts/v43-ai-live
 ```
 
-Sampling uses the fixed loopback transport, a bounded response, two selected synthetic contexts and no records from a running financial database. Unavailable/invalid samples remain explicit and do not become fabricated model metrics. Sampling never installs a model.
+Sampling uses the fixed loopback transport, a bounded response, six selected synthetic contexts (two rounds by default) and no records from a running financial database. Unavailable/invalid samples remain explicit and do not become fabricated model metrics. Sampling never installs a model.
 
 On November 19, 2026, an existing local `qwen2.5:3b` model produced two recorded responses in each of two development samples. The initial prompt accepted both responses structurally, but the model abstained on both the supported-observation context and empty context: expected abstention behavior matched 1/2 cases. After clarifying that reporting an observation does not require knowing its underlying cause, the model cited the recorded observation and abstained on the empty context: both responses passed the declared checks and matched expected abstention behavior in that two-case sample.
 
